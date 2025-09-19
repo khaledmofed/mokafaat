@@ -1,0 +1,675 @@
+{
+  "home": {
+    "navbar": {
+      "home": "Accueil",
+      "about": "À propos",
+      "services": "Nos services",
+      "clients": "Partenaires de réussite",
+      "portfolio": "Galerie",
+      "careers": "Carrières",
+      "apply-for-job": "Postuler à un emploi",
+      "request-our-services": "Demander nos services",
+      "upcoming_projects": "Projets à venir",
+      "language": "English",
+      "contact": "Contactez-nous"
+    },
+    "hero": {
+      "slides": {
+        "slide1": {
+          "title": "Investissez dans votre avenir avec l'immobilier des EAU",
+          "description": "De la vie urbaine vibrante aux propriétés paisibles en bord de mer, les EAU sont votre destination d'investissement ultime."
+        },
+        "slide2": {
+          "title": "Propriétés de luxe dans des emplacements de premier choix",
+          "description": "Découvrez des opportunités immobilières exclusives dans les zones les plus prestigieuses d'Istanbul et au-delà."
+        },
+        "slide3": {
+          "title": "Opportunités d'investissement premium",
+          "description": "Sécurisez votre avenir financier avec notre portefeuille soigneusement sélectionné d'investissements immobiliers à haut rendement."
+        }
+      },
+      "viewMore": "Voir plus"
+    },
+    "offers": {
+      "title": "Offres et Remises Incroyables",
+      "description": "Découvrez les meilleures offres et remises sur une large gamme de produits et services",
+      "filters": {
+        "all": "Tout",
+        "today": "Offres du Jour",
+        "new": "Nouveau",
+        "bestseller": "Meilleures Ventes"
+      },
+      "viewMore": "Voir Plus d'Offres"
+    },
+    "product": {
+      "buyNow": "Acheter Maintenant",
+      "addToCart": "Ajouter au Panier",
+      "discount": "Remise",
+      "from": "À partir de",
+      "reviews": "avis",
+      "new": "Nouveau",
+      "bestseller": "Meilleure Vente"
+    },
+    "categories": {
+      "restaurants": "Restaurants",
+      "cafes": "Cafés",
+      "entertainment": "Divertissement",
+      "shops": "Boutiques",
+      "hotels": "Hôtels",
+      "cars": "Voitures",
+      "delivery": "Services de Livraison"
+    },
+    "products": {
+      "smartphone": "Smartphone Avancé",
+      "smartKitchen": "Appareil de Cuisine Intelligent",
+      "deliciousMeal": "Repas Délicieux",
+      "shoppingProduct": "Produit Shopping Premium",
+      "elegantAccessories": "Accessoires Élégants",
+      "practicalTools": "Outils Domestiques Pratiques",
+      "advancedDevice": "Appareil Technique Avancé",
+      "kidsProduct": "Produit pour Enfants",
+      "brands": {
+        "saudiStore": "Magasin Saoudien",
+        "gatherIn": "Gather In",
+        "hungerStation": "HUNGER STATION",
+        "dalmaMall": "Centre Commercial Dalma"
+      }
+    },
+    "popularCountries": {
+      "title": "Nouveautés de Mukafaat",
+      "subtitle": "Découvrez les dernières offres et produits exclusifs",
+      "description": "Nous vous offrons une variété d'offres exclusives et de nouveaux produits qui répondent à tous vos besoins",
+      "cards": {
+        "rechargeCards": "Cartes de Recharge",
+        "obakeAuto": "Obake Auto",
+        "moms360": "360 Moms",
+        "wajeez": "Wajeez"
+      }
+    },
+    "serviceCards": {
+      "cards": {
+        "title": "Cartes",
+        "description": "Obtenez des cartes de recharge diverses pour tous les réseaux avec des remises exclusives"
+      },
+      "coupons": {
+        "title": "Coupons",
+        "description": "Coupons de réduction exclusifs pour les meilleurs restaurants, magasins et services"
+      },
+      "bookings": {
+        "title": "Réservations",
+        "description": "Réservez facilement dans les meilleurs hôtels, restaurants et services de divertissement"
+      },
+      "discounts": {
+        "title": "Remises",
+        "description": "Profitez de remises incroyables jusqu'à 70% sur une large gamme de produits"
+      }
+    },
+    "bookings": {
+      "title": "Réservations et Remises Incroyables",
+      "description": "Obtenez des offres de remise exclusives sur toutes les réservations et voyages",
+      "viewAll": "Voir Toutes les Réservations",
+      "filters": {
+        "all": "Tout",
+        "cars": "Voitures",
+        "hotels": "Hôtels",
+        "flights": "Vols"
+      }
+    },
+    "cards": {
+      "title": "Cartes de Recharge Diversifiées",
+      "description": "Obtenez des cartes de recharge pour tous les réseaux avec des remises exclusives et des offres spéciales",
+      "viewAll": "Voir Toutes les Cartes"
+    },
+    "coupons": {
+      "title": "Coupons de Remise Exclusifs",
+      "description": "Profitez de coupons de remise incroyables pour les meilleurs restaurants, magasins et services",
+      "viewAll": "Voir Tous les Coupons",
+      "filters": {
+        "all": "Tout",
+        "discounts": "Remises",
+        "coffee": "Café",
+        "reusable": "Réutilisables"
+      }
+    },
+    "about": {
+      "clients": "Clients servis",
+      "events": "Événements organisés",
+      "who": "Qui sommes-nous",
+      "are-we": "Faites connaissance avec nous",
+      "video": {
+        "subtitle": "À propos",
+        "title": "Mukafaat",
+        "description": "Il y a de nombreuses variations Nous sommes une plateforme de freelances construite pour l'industrie événementielle reliant des talents qualifiés à des opportunités inoubliables. Des tournois sportifs aux festivals de musique, nous permettons à une nouvelle génération de freelances événementiels grâce à la technologie intelligente, l'apprentissage continu et un focus implacable sur l'expérience client. En plus de la correspondance des talents, nous offrons des services événementiels complets fournissant aux organisateurs un soutien fiable de bout en bout pour une exécution parfaite. Animés par l'innovation et ancrés dans nos valeurs, nous construisons une communauté mondiale où les freelances prospèrent et chaque événement devient un succès exceptionnel. de passages de Lorem Ipsum disponibles, Il y a de nombreuses variations de passages de Lorem Ipsum disponibles, mais la majorité a subi une altération sous une forme ou une autre, par humour injecté mais la majorité a subi une altération sous une forme ou une autre, par humour injecté"
+      }
+    },
+    "see-more": "En savoir plus",
+    "projects": {
+      "subtitle": "Plus de succès et de créativité",
+      "title": "Projets",
+      "description": "Mukafaat est votre partenaire de premier plan pour tous vos besoins de gestion d'événements en Arabie Saoudite."
+    },
+    "testimonials": {
+      "subtitle": "Ce que disent les gens",
+      "title": "Témoignages",
+      "description": "Ce que disent les gens d'Mukafaats"
+    },
+    "partners": {
+      "subtitle": "Fiers de travailler avec eux",
+      "title": "Nos partenaires",
+      "description": "Mukafaats est votre partenaire de premier plan pour tous vos besoins de gestion d'événements en Arabie saoudite."
+    },
+    "getStarted": {
+      "title": "Téléchargez l'application Mukafaat maintenant",
+      "button": "Télécharger l'application",
+      "description": "Obtenez des milliers d'offres et de remises exclusives avec l'application Mukafaat. Coupons de remise, cartes de recharge et réservations à des prix incroyables.",
+      "subtitle": "Application Mukafaat",
+      "mainTitle": "Toutes les offres dans une seule application",
+      "consultation": "Souhaitez-vous bénéficier d'offres exclusives qui rendent vos achats plus intelligents et plus économiques ?",
+      "firstParagraph": "Téléchargez notre application maintenant et profitez des remises, cartes et coupons à tout moment, n'importe où.",
+      "secondParagraph": "L'application Mukafaat vous offre une expérience d'achat unique avec des milliers d'offres et de remises exclusives. Obtenez des coupons de remise, des cartes de recharge et des réservations à des prix incroyables.",
+      "video": {
+        "subtitle": "À propos",
+        "title": "Application Mukafaat",
+        "description": "Découvrez le monde merveilleux de Mukafaat et profitez des meilleures offres et remises exclusives"
+      },
+      "downloadOn": "Télécharger sur",
+      "appStore": "App Store",
+      "getItOn": "OBTENEZ-LE SUR",
+      "googlePlay": "Google Play"
+    },
+    "services": {
+      "our": "Nos services",
+      "title": "Les meilleurs et principaux services",
+      "description": "Nos services incluent la billetterie, le scan, la distribution de bracelets, la vérification douce, et la fourniture d'hôtes et de guides pour une large gamme d'événements.",
+      "watch": "Regarder la vidéo",
+      "service-desc": "Ce texte est un exemple de texte qui peut être remplacé dans le même espace, il a été généré par un générateur de texte arabe."
+    },
+    "success-events": "Événements réussis que nous avons organisés",
+    "portfolio": {
+      "past-events": "Événements passés",
+      "title": "Galerie de réalisations",
+      "see-more": "Voir tout"
+    },
+    "started": {
+      "title": "Commencez maintenant",
+      "subtitle": "Nous vous offrons une gamme complète de services",
+      "description": "Nous croyons en une présence exceptionnelle et laissons une impression positive sur votre public ; en offrant l'opportunité de profiter d'événements et d'expositions organisés avec les technologies les plus récentes, qui servent vos objectifs et garantissent la transmission de votre message de la manière la plus créative."
+    },
+    "clients": {
+      "title": "Partenaires de réussite",
+      "description": "De la consultation initiale à la réalisation de l'événement, cet espace est dédié à garantir que chaque détail reflète votre style et vos préférences uniques. Découvrez des outils de planification personnalisés, communiquez facilement avec notre équipe et suivez l'avancement de votre événement en toute simplicité. Votre rêve d'événement commence ici.",
+      "partners": "Nos clients"
+    },
+    "contact": {
+      "days": "Jours : Dimanche - Jeudi",
+      "hours": "Heures de travail : 09:00 - 17:00",
+      "mobileTitle": "Numéro de contact :",
+      "mobile": "+966 53 877 1712",
+      "emailTitle": "E-mail :",
+      "email": "info@mukafaat.co"
+    },
+    "footer": {
+      "about": "Mukafaats est votre partenaire de premier choix pour tous vos besoins de gestion d'événements en Arabie Saoudite.",
+      "support": "Support",
+      "jobs": "Recherche d'emploi",
+      "talentApplication": "S'inscrire comme freelance",
+      "privacy": "Politique de confidentialité",
+      "terms": "Conditions d'utilisation",
+      "copyrights": "Tous droits réservés"
+    }
+  },
+  "about": {
+    "hero": {
+      "title": "À propos de nous",
+      "description": "Mukafaats est l'une des principales entreprises de gestion d'événements en Arabie Saoudite, spécialisée dans la fourniture de solutions complètes pour les événements."
+    },
+    "vission": {
+      "title": "Notre vision",
+      "description": "Nous visons à réaliser notre vision en assurant la satisfaction totale de nos clients grâce à la qualité du service, la qualité du travail et la connaissance du produit."
+    },
+    "mission": {
+      "title": "Notre mission",
+      "description": "Concentrer l'énergie et l'expertise de notre équipe pour créer et développer des communautés cohésives qui favorisent des expériences positives de vie et d'apprentissage."
+    },
+    "staff": {
+      "title": "Équipe",
+      "our": "Rencontrez"
+    },
+    "our-values": "Nos valeurs",
+    "featuers": {
+      "people": "Les personnes",
+      "people-description": "Nous accordons une grande importance aux personnes : notre équipe, nos partenaires, nos clients et les communautés auxquelles nous appartenons.",
+      "passion": "Passion",
+      "passion-description": "Le carburant qui anime notre culture, définit notre état d'esprit et motive nos actions.",
+      "place": "Lieu",
+      "place-description": "Nous prenons notre responsabilité envers l'environnement très au sérieux et, par nos actions, nous contribuons à créer un meilleur endroit pour les générations futures."
+    }
+  },
+  "careers": {
+    "header-description": "Rejoignez notre équipe et embarquez pour un voyage d'innovation, de collaboration et de croissance. Nous sommes passionnés par ce que nous faisons et cherchons toujours à attirer des personnes talentueuses partageant notre vision et nos valeurs.",
+    "search": "Recherche",
+    "city": "Ville",
+    "department": "Département",
+    "workType": "Type de travail",
+    "ad": {
+      "title": "Vous cherchez un emploi ?",
+      "description": "Veuillez remplir le formulaire avec vos informations personnelles et votre CV, nous examinerons votre demande et vous contacterons dès que possible.",
+      "apply": "Postuler"
+    },
+    "no-jobs": "Aucun emploi disponible pour le moment"
+  },
+  "contact": {
+    "title": "Restez en contact",
+    "description": "Contactez-nous pour ajouter une touche de luxe à vos événements. Laissez-nous tout gérer pour vous.",
+    "fName": "Nom complet",
+    "mNumber": "Numéro de téléphone",
+    "cName": "Nom de l'entreprise",
+    "email": "E-mail",
+    "msg": "Message",
+    "send": "Envoyer"
+  },
+  "job-application": {
+    "title": "Demande d'emploi",
+    "photo": "Photo d'identité (fond blanc)",
+    "fName": "Nom complet",
+    "email": "E-mail",
+    "mNumber": "Numéro de téléphone",
+    "nationality": "Nationalité",
+    "dBirth": "Date de naissance",
+    "gender": "Genre",
+    "city": "Ville",
+    "edu": "Niveau d'études",
+    "cv": "CV",
+    "cover-letter": "Lettre de motivation",
+    "experience": "Expériences",
+    "job-position": "Poste",
+    "event": "Événement",
+    "location": "Lieu",
+    "sDate": "Date de début",
+    "eDate": "Date de fin",
+    "add": "Ajouter",
+    "submit": "Soumettre la demande"
+  },
+  "job-seeker": {
+    "title": "Inscription en tant que freelance",
+    "department": "Département",
+    "work-type": "Type de travail",
+    "bio": "Présentation personnelle",
+    "id-number": "Numéro d'identification",
+    "id-type": "Type de document",
+    "id-picture": "Photo du document d'identité",
+    "id-expiration-date": "Date d'expiration de l'identité (Absher/Tawakkalna)"
+  },
+  "id-type": {
+    "national": "Carte nationale",
+    "passport": "Passeport",
+    "residence": "Titre de séjour"
+  },
+  "404": {
+    "title": "Désolé, page non trouvée",
+    "description": "Il semble que la page que vous recherchez n'existe pas"
+  },
+  "genders": {
+    "male": "Homme",
+    "female": "Femme"
+  },
+  "job": {
+    "aboutMukafaat": "À propos d'Mukafaat :",
+    "description": "Description du poste :",
+    "requirements": "Exigences du poste :",
+    "apply": "Postuler à l'emploi",
+    "open": "Ouvert",
+    "close": "Fermé"
+  },
+  "company-application": {
+    "title": "Formulaire entreprise",
+    "company-info": "Informations sur l'entreprise",
+    "event-location": "Lieu de l'événement",
+    "event-venu-details": "Détails du lieu",
+    "company-name": "Nom de l'entreprise",
+    "cr-no": "Numéro d'enregistrement commercial",
+    "vat-no": "Numéro de TVA",
+    "contact-name": "Nom du contact",
+    "contact-email": "E-mail",
+    "contact-mobile": "Numéro du contact",
+    "country": "Pays",
+    "city": "Ville",
+    "search-city": "Recherche par ville",
+    "search-country": "Recherche par pays",
+    "event-name": "Nom de l'événement",
+    "event-date": "Date de l'événement",
+    "from": "De",
+    "to": "À",
+    "operation-hours": "Heures d'ouverture",
+    "standby": "De",
+    "closing": "Jusqu'à",
+    "image": "Photo de l'événement (optionnel)",
+    "gates-number": "Nombre et spécifications des portes",
+    "venue-map": "Plan du lieu (optionnel)",
+    "send-application": "Envoyer",
+    "gate": "Porte",
+    "gate-name": "Nom de la porte",
+    "supervisor": "Superviseur",
+    "scanner": "Scanneur",
+    "soft-check": "Vérification douce",
+    "tech-support": "Support technique",
+    "cashier": "Caissier",
+    "logistics": "Logistique",
+    "host": "Hôte",
+    "project-manager": "Chef de projet",
+    "operation-supervisor": "Superviseur des opérations",
+    "game-operator": "Opérateur de jeux",
+    "number-of": "Nombre de",
+    "uniform-design": "Conception de l'uniforme",
+    "uniform-qty": "Quantité d'uniformes",
+    "uniform-specification": "Spécifications de l'uniforme",
+    "success": "Envoi réussi",
+    "thank-you": "Merci pour votre demande !"
+  },
+  "contract": {
+    "title": "Offre d'emploi",
+    "sign-contact": "Signer le contrat",
+    "sign": "Signer",
+    "open-in-web": "Si vous préférez, vous pouvez ouvrir le contrat dans votre navigateur web et le signer pour plus de commodité.",
+    "notFound": {
+      "title": "Contrat introuvable",
+      "description": "Le contrat que vous recherchez n'existe pas ou a peut-être été supprimé. Veuillez vérifier l'URL ou contacter le support si vous pensez qu'il s'agit d'une erreur.",
+      "goHome": "Aller à l'accueil",
+      "contactSupport": "Contacter le support",
+      "helpText": "Besoin d'aide ? Notre équipe de support est disponible 24h/24 et 7j/7"
+    }
+  },
+  "rating": {
+    "title": "Évaluation",
+    "submit": "Envoyer l'évaluation",
+    "note": "Remarques (optionnel)",
+    "validation": "Veuillez évaluer puis envoyer.",
+    "thanks": "Merci pour votre évaluation, nous l'apprécions.",
+    "fullName": "Nom complet",
+    "mobileNumber": "Numéro de téléphone"
+  },
+  "download_app": {
+    "title": "Télécharger l'application",
+    "header": "Télécharger l'application Mukafaats",
+    "description": "Rejoignez une plateforme conçue pour connecter les freelances aux projets événementiels. Découvrez de nouvelles opportunités."
+  },
+  "projects": {
+    "upcoming_projects": "Projets à venir",
+    "upcoming_projects_description": "Rejoignez-nous pour créer des événements inoubliables ! Nous recherchons des personnes talentueuses et passionnées prêtes à avoir un impact. Réalisons ensemble notre vision !",
+    "empty": "Aucun projet à venir pour le moment.",
+    "noProjectsFound": "Aucun projet à venir trouvé pour \"{{search}}\""
+  },
+  "upload_intro_video": {
+    "title": "Télécharger une vidéo de présentation",
+    "enter_email_to_proceed": "Veuillez saisir votre e-mail pour continuer",
+    "continue": "Continuer",
+    "email_validation": "Veuillez saisir votre e-mail pour continuer",
+    "email_invalid": "E-mail invalide",
+    "enter_otp": "Veuillez saisir le code envoyé",
+    "verify": "Vérifier",
+    "otp": "Code",
+    "otp_error": "Code incorrect",
+    "upload": "Télécharger",
+    "file_error": "Veuillez télécharger le fichier vidéo",
+    "success": "Vidéo téléchargée avec succès"
+  },
+  "businessRegistration": {
+    "title": "Enregistrement des entreprises",
+    "description": "Enregistrez votre entreprise et facilitez vos opérations - qu'il s'agisse d'événements, de logistique ou de promotions.",
+    "headlinePart1": "Votre entreprise",
+    "headlinePart2": "mérite le meilleur !",
+    "subheadline": "Enregistrez votre entreprise et facilitez vos opérations - qu'il s'agisse d'événements, de logistique ou de promotions.",
+    "step1": "À propos de vous",
+    "step2": "Informations sur l'entreprise",
+    "step3": "Nos services",
+    "step4": "Régions et pays",
+    "step5": "Vérification et envoi",
+    "currentStep": "Étape actuelle",
+    "selectedServices": "Services sélectionnés",
+    "selectedCountries": "Pays sélectionnés",
+    "noServicesSelected": "Aucun service sélectionné",
+    "noCountriesSelected": "Aucun pays sélectionné",
+    "validationError": "Veuillez remplir tous les champs requis avant de continuer.",
+    "successMessage": "Votre enregistrement d'entreprise a été soumis avec succès. Nous examinerons votre demande et vous contacterons sous peu.",
+    "aboutYou": {
+      "firstName": "Prénom",
+      "lastName": "Nom de famille",
+      "email": "E-mail",
+      "mobileNumber": "Numéro de téléphone",
+      "fullName": "Nom complet"
+    },
+    "companyDetails": {
+      "companyName": "Nom de l'entreprise",
+      "crNumber": "Numéro d'enregistrement commercial",
+      "vatRegistrationNumber": "Numéro d'enregistrement TVA",
+      "website": "Site web (optionnel)"
+    },
+    "services": {
+      "title": "Quels services souhaitez-vous utiliser sur notre plateforme ?",
+      "EVENTS": "Gestion d'événements",
+      "EQUIPMENT_RENTING": "Location d'équipement",
+      "LOGISTICS": "Logistique",
+      "PROMOTIONS": "Promotion",
+      "FREELANCER": "Freelance",
+      "EVENT_SYSTEM": "Solution système d'événements"
+    },
+    "countries": {
+      "title": "Dans quels pays ou régions souhaitez-vous opérer ?",
+      "SAUDI_ARABIA": "Arabie Saoudite",
+      "MOROCCO": "Maroc",
+      "BAHRAIN": "Bahreïn",
+      "UNITED_ARAB_EMIRATES": "Émirats Arabes Unis",
+      "OMAN": "Sultanat d'Oman"
+    },
+    "actions": {
+      "next": "Suivant",
+      "previous": "Précédent",
+      "submit": "Envoyer"
+    },
+    "validation": {
+      "firstNameRequired": "Le prénom est requis",
+      "lastNameRequired": "Le nom de famille est requis",
+      "emailRequired": "L'e-mail est requis",
+      "emailInvalid": "Veuillez saisir une adresse e-mail valide",
+      "professionalEmailOnly": "Veuillez utiliser un e-mail professionnel avec le domaine de votre entreprise",
+      "mobileRequired": "Le numéro de téléphone est requis",
+      "mobileFormat": "Le numéro de téléphone doit inclure l'indicatif du pays (ex. : +966 1234 567 8901)",
+      "companyNameRequired": "Le nom de l'entreprise est requis",
+      "crNumberRequired": "Le numéro d'enregistrement commercial est requis",
+      "vatRegistrationNumberRequired": "Le numéro d'enregistrement TVA est requis",
+      "websiteInvalid": "Veuillez saisir une URL de site web valide",
+      "servicesRequired": "Veuillez sélectionner au moins un service",
+      "countriesRequired": "Veuillez sélectionner au moins un pays ou une région",
+      "error": "Une erreur s'est produite lors de l'envoi de votre enregistrement. Veuillez réessayer plus tard."
+    }
+  },
+  "labels": {
+    "allowed_file_formats": "Formats autorisés : mp4, avi, mov, mkv, flv",
+    "file_uploaded": "Fichier téléchargé"
+  },
+  "validations": {
+    "fullNameRequired": "Veuillez saisir le nom complet",
+    "invalidEmail": "Format d'e-mail invalide",
+    "emailRequired": "Veuillez saisir l'e-mail",
+    "mobileNumberRequired": "Veuillez saisir le numéro de téléphone",
+    "nationalityRequired": "Veuillez sélectionner la nationalité",
+    "genderRequired": "Veuillez sélectionner le genre",
+    "birthDateRequired": "Veuillez saisir la date de naissance",
+    "educationRequired": "Veuillez saisir le niveau d'études",
+    "bioRequired": "Veuillez saisir une brève présentation",
+    "idNumberRequired": "Veuillez saisir le numéro d'identification",
+    "jobPositionRequired": "Veuillez saisir le poste",
+    "eventRequired": "Veuillez saisir le nom de l'événement",
+    "locationRequired": "Veuillez saisir l'adresse",
+    "startDateRequired": "Veuillez saisir la date de début",
+    "endDateRequired": "Veuillez saisir la date de fin",
+    "photoRequired": "Veuillez joindre la photo d'identité",
+    "workTypeRequired": "Veuillez sélectionner le type de travail",
+    "departmentRequired": "Veuillez sélectionner le département",
+    "cityRequired": "Veuillez sélectionner la ville",
+    "cvRequired": "Veuillez joindre le CV",
+    "idTypeRequired": "Veuillez sélectionner le type de document",
+    "idPictureRequired": "Veuillez télécharger la photo du document d'identité",
+    "idExpirationDateRequired": "Veuillez télécharger la date d'expiration depuis Absher/Tawakkalna",
+    "messageRequired": "Veuillez saisir le message",
+    "coverLetterRequired": "Veuillez saisir la lettre de motivation",
+    "companyNameRequired": "Veuillez saisir le nom de l'entreprise",
+    "crNumberRequired": "Veuillez saisir le numéro d'enregistrement commercial",
+    "vatNumberRequired": "Veuillez saisir le numéro de TVA",
+    "contactNameRequired": "Veuillez saisir le nom du contact",
+    "countryRequired": "Veuillez sélectionner le pays",
+    "standbyHourRequired": "Veuillez sélectionner l'heure de début",
+    "closingHourRequired": "Veuillez sélectionner l'heure de fin"
+  },
+  "messages": {
+    "jobSeekerSuccess": "Votre demande a été envoyée avec succès, nous vous contacterons dès que possible.",
+    "messageSent": "Envoyé avec succès, nous vous contacterons dès que possible.",
+    "emailConfirmed": "E-mail confirmé !",
+    "emailConfirmedDesc": "Votre e-mail a été confirmé avec succès. Merci d'avoir confirmé votre adresse e-mail !",
+    "applicationSent": "Demande envoyée !",
+    "jobApplicationSuccess": "Votre demande d'emploi a été envoyée avec succès, nous vous contacterons dès que possible."
+  },
+  "service-gallery": {
+    "subtitle": "Notre portefeuille de services",
+    "title": "Galerie de services",
+    "description": "Découvrez notre gamme complète de services professionnels de gestion d'événements et voyez comment nous donnons vie à votre vision avec excellence et créativité.",
+    "image1": {
+      "title": "Événements d'entreprise",
+      "description": "Gestion professionnelle d'événements d'entreprise avec attention aux détails"
+    },
+    "image2": {
+      "title": "Cérémonies de mariage",
+      "description": "Célébrations de mariage magiques avec des touches personnalisées"
+    },
+    "image3": {
+      "title": "Gestion de conférences",
+      "description": "Organisation fluide de conférences et de séminaires"
+    },
+    "image4": {
+      "title": "Célébrations d'anniversaire",
+      "description": "Fêtes d'anniversaire et célébrations mémorables"
+    },
+    "image5": {
+      "title": "Réunions d'affaires",
+      "description": "Configuration professionnelle de réunions et de présentations d'affaires"
+    },
+    "image6": {
+      "title": "Dîners de gala",
+      "description": "Dîners de gala élégants et événements formels"
+    },
+    "image7": {
+      "title": "Lancements de produits",
+      "description": "Événements de lancement de produits et expositions dynamiques"
+    },
+    "image8": {
+      "title": "Événements d'exposition",
+      "description": "Gestion complète d'expositions et de salons commerciaux"
+    }
+  },
+  "service-features": {
+    "subtitle": "Créatif et distinctif",
+    "title": "Caractéristiques du service",
+    "feature1": {
+      "title": "Équipe professionnelle",
+      "description": "Notre équipe expérimentée assure une exécution d'événements sans faille avec attention à chaque détail"
+    },
+    "feature2": {
+      "title": "Solutions complètes",
+      "description": "Nous fournissons des solutions de gestion d'événements de bout en bout couvrant tous les aspects de votre événement"
+    },
+    "feature3": {
+      "title": "Assurance qualité",
+      "description": "Nous maintenons les plus hauts standards de qualité dans tous nos services et livrables"
+    },
+    "feature4": {
+      "title": "Innovation et créativité",
+      "description": "Nous apportons des idées innovantes et des solutions créatives pour rendre votre événement unique"
+    },
+    "feature5": {
+      "title": "Support fiable",
+      "description": "Support et assistance 24/7 tout au long de la planification et de l'exécution de votre événement"
+    },
+    "feature6": {
+      "title": "Excellence prouvée",
+      "description": "Antécédents d'événements réussis et de clients satisfaits dans diverses industries"
+    }
+  },
+  "common": {
+    "viewAll": "Voir tout",
+    "moreDetails": "Plus de détails",
+    "loading": "Chargement..."
+  },
+  "gallery": {
+    "title": "Galerie d'Événements",
+    "subtitle": "Nos Réalisations",
+    "description": "Découvrez notre portfolio d'événements et de célébrations réussis qui démontrent notre expertise en gestion d'événements.",
+    "stats": {
+      "events": "Événements Terminés",
+      "cities": "Villes Couvertes",
+      "satisfaction": "Satisfaction Client"
+    }
+  },
+  "services": {
+    "eventManagement": "Gestion d'événements",
+    "freelancer": "Freelance",
+    "eventSolution": "Solution d'événements",
+    "equipmentRenting": "Location d'équipement",
+    "promotion": "Promotion",
+    "logisticSolution": "Solution logistique"
+  },
+  "search": {
+    "location": {
+      "label": "Emplacement",
+      "placeholder": "Où allez-vous ?"
+    },
+    "propertyType": {
+      "label": "Type de propriété",
+      "placeholder": "Sélectionnez votre type de propriété"
+    },
+    "bedsBaths": {
+      "label": "Chambres et salles de bain",
+      "placeholder": "Sélectionnez vos chambres et salles de bain"
+    },
+    "propertyTypes": {
+      "apartment": "Appartement",
+      "villa": "Villa",
+      "office": "Bureau",
+      "land": "Terrain",
+      "penthouse": "Penthouse",
+      "townhouse": "Maison de ville"
+    },
+    "bedsBaths": {
+      "oneOne": "1 chambre, 1 salle de bain",
+      "twoTwo": "2 chambres, 2 salles de bain",
+      "threeTwo": "3 chambres, 2 salles de bain",
+      "fourPlus": "4+ chambres, 3+ salles de bain",
+      "fivePlus": "5+ chambres, 4+ salles de bain",
+      "studio": "Studio"
+    }
+  },
+  "propertySlider": {
+    "newlyListed": "NOUVEAUTÉS",
+    "title": "Meilleurs Restaurants",
+    "subtitle": "Savourez les plats les plus délicieux des meilleurs restaurants",
+    "viewDetails": "Voir Détails",
+    "propertiesCount": "{{count}} Propriétés",
+    "types": {
+      "apartments": "Appartements",
+      "villas": "Villas",
+      "farms": "Fermes",
+      "offices": "Bureaux",
+      "shops": "Magasins",
+      "hotelResidences": "Résidences Hôtelières"
+    },
+    "restaurants": {
+      "popeyes": "Restaurant Popeye's",
+      "kfc": "KFC",
+      "mcdonalds": "McDonald's",
+      "pizzaHut": "Pizza Hut",
+      "subway": "Subway",
+      "burgerKing": "Burger King",
+      "dominos": "Domino's",
+      "starbucks": "Starbucks"
+    }
+  }
+}

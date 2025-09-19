@@ -1,0 +1,6 @@
+export enum BusinessRegistrationServicesEnum {
+  EVENTS = "EVENTS",
+  PROMOTIONS = "PROMOTIONS",
+  LOGISTICS = "LOGISTICS",
+  EQUIPMENT_RENTING = "EQUIPMENT_RENTING",
+}

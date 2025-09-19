@@ -1,0 +1,1181 @@
+{
+  "home": {
+    "navbar": {
+      "home": "Home",
+      "about": "About Us",
+      "services": "Services",
+      "clients": "Clients",
+      "portfolio": "Portfolio",
+      "careers": "Careers",
+      "apply-for-job": "Apply For Job",
+      "request-our-services": "Request Our Services",
+      "upcoming_projects": "Upcoming Projects",
+      "language": "عربي",
+      "contact": "Contact Us",
+      "request-service": "Request Service",
+      "cards": "Cards",
+      "coupons": "Coupons",
+      "bookings": "Bookings",
+      "offers": "Offers",
+      "blogs": "Blogs",
+      "side-menu": {
+        "company-name": "Mukafaat",
+        "tagline": "Professional Event Solutions",
+        "need-help": "Need help? Contact us",
+        "phone": "+966 50 123 4567",
+        "working-hours": "Working Hours",
+        "contact-info": "Contact Info",
+        "follow-us": "Follow Us",
+        "hours": "Hours",
+        "days": "Days",
+        "hours-value": "09:00 am - 05:00 pm",
+        "days-value": "Sunday - Thursday",
+        "location": "Saudi Arabia - Riyadh",
+        "email": "info@mukafaat.co",
+        "phone-value": "+966538771712"
+      },
+      "login": "Login",
+      "register": "Create Account",
+      "profile": "Profile",
+      "orders": "My Orders",
+      "wallet": "My Wallet",
+      "logout": "Logout"
+    },
+    "login": {
+      "welcome_title": "Welcome to Mukafaat",
+      "welcome_desc": "The leading offers and cards platform in Saudi Arabia",
+      "login_title": "Login",
+      "register_title": "Create New Account",
+      "login_desc": "Enter your mobile number to login",
+      "register_desc": "Enter your mobile number to create a new account",
+      "mobile_label": "Mobile Number",
+      "mobile_placeholder": "Enter mobile number",
+      "mobile_error_placeholder": "Mobile number is required",
+      "login_button": "Login",
+      "register_button": "Create Account",
+      "sending": "Sending...",
+      "verify_desc": "Enter the verification code sent to your mobile",
+      "verify_not_received": "Didn't receive the code?",
+      "verify_resend": "Resend",
+      "register_resend": "Resend",
+      "verifying": "Verifying...",
+      "verify_button": "Verify Code",
+      "have_account": "Already have an account?",
+      "no_account": "Don't have an account?",
+      "sign_in_now": "Sign in now",
+      "register_now": "Create account now",
+      "error_sending_otp": "Error sending verification code",
+      "invalid_otp": "Invalid verification code"
+    },
+    "common": {
+      "success": "Success",
+      "error": "Error"
+    },
+    "hero": {
+      "slides": {
+        "slide1": {
+          "title": "Massive Discounts Like Never Before!",
+          "description": "Enjoy exceptional offers and amazing prices on a wide range of products – limited time offer, don't miss out!"
+        },
+        "slide2": {
+          "title": "The Big Sale Season Starts Now",
+          "description": "Shop more and pay less with amazing discounts up to 70% on various products you love."
+        },
+        "slide3": {
+          "title": "High-Quality Products at New Prices",
+          "description": "Discover our complete collection now at reduced prices that make luxury and excellence accessible to everyone."
+        }
+      },
+      "viewMore": "View More"
+    },
+    "offers": {
+      "title": "Amazing Offers & Discounts",
+      "description": "Discover the best offers and discounts on a wide range of products and services",
+      "filters": {
+        "all": "All",
+        "today": "Today's Offers",
+        "new": "New",
+        "bestseller": "Best Sellers"
+      },
+      "viewMore": "View More Offers"
+    },
+    "product": {
+      "buyNow": "Buy Now",
+      "addToCart": "Add to Cart",
+      "discount": "Discount",
+      "from": "From",
+      "reviews": "reviews",
+      "new": "New",
+      "bestseller": "Best Seller",
+      "description": "Special offer with great discounts",
+      "feature1": "Fast Delivery",
+      "feature2": "High Quality",
+      "more": "more",
+      "category": "Category",
+      "company": "Company"
+    },
+    "categories": {
+      "restaurants": "Restaurants",
+      "cafes": "Cafes",
+      "entertainment": "Entertainment",
+      "shops": "Shops",
+      "hotels": "Hotels",
+      "cars": "Cars",
+      "delivery": "Delivery Services"
+    },
+    "products": {
+      "smartphone": "Advanced Smartphone",
+      "smartKitchen": "Smart Kitchen Device",
+      "deliciousMeal": "Delicious Meal",
+      "shoppingProduct": "Premium Shopping Product",
+      "elegantAccessories": "Elegant Accessories",
+      "practicalTools": "Practical Home Tools",
+      "advancedDevice": "Advanced Technical Device",
+      "kidsProduct": "Kids Product",
+      "brands": {
+        "saudiStore": "Saudi Store",
+        "gatherIn": "Gather In",
+        "hungerStation": "HUNGER STATION",
+        "dalmaMall": "Dalma Mall"
+      }
+    },
+    "popularCountries": {
+      "title": "What's New from Mukafaat",
+      "subtitle": "Discover the latest offers and exclusive products",
+      "description": "We offer you a variety of exclusive offers and new products that suit all your needs",
+      "cards": {
+        "rechargeCards": "Recharge Cards",
+        "obakeAuto": "Obake Auto",
+        "moms360": "360 Moms",
+        "wajeez": "Wajeez"
+      }
+    },
+    "serviceCards": {
+      "cards": {
+        "title": "Cards",
+        "description": "Get diverse recharge cards for all networks with exclusive discounts"
+      },
+      "coupons": {
+        "title": "Coupons",
+        "description": "Exclusive discount coupons for the best restaurants, stores and services"
+      },
+      "bookings": {
+        "title": "Bookings",
+        "description": "Easily book at the best hotels, restaurants and entertainment services"
+      },
+      "discounts": {
+        "title": "Discounts",
+        "description": "Enjoy amazing discounts up to 70% on a wide range of products"
+      }
+    },
+    "bookings": {
+      "title": "Amazing Bookings & Discounts",
+      "description": "Get exclusive discount offers on all bookings and trips",
+      "viewAll": "View All Bookings",
+      "filters": {
+        "all": "All",
+        "cars": "Cars",
+        "hotels": "Hotels",
+        "flights": "Flights"
+      }
+    },
+    "cards": {
+      "title": "Diverse Recharge Cards",
+      "description": "Get recharge cards for all networks with exclusive discounts and special offers",
+      "viewAll": "View All Cards"
+    },
+    "coupons": {
+      "title": "Exclusive Discount Coupons",
+      "description": "Enjoy amazing discount coupons for the best restaurants, stores and services",
+      "viewAll": "View All Coupons",
+      "filters": {
+        "all": "All",
+        "discounts": "Discounts",
+        "coffee": "Coffee",
+        "reusable": "Reusable"
+      }
+    },
+    "about": {
+      "clients": "Client Served",
+      "events": "events organized",
+      "who": "Who",
+      "are-we": "are we?",
+      "subtitle": "Your Best Choice",
+      "main-title": "Why You Should Join Mukafaats",
+      "description": "Mukafaat is your premier partner for all your event management needs in Saudi Arabia. With a dedicated focus on providing comprehensive event solutions, we are committed to turning your vision into reality seamlessly. Whether you're planning a corporate gathering, a wedding, or a community event, trust Mukafaat to deliver excellence every step of the way.",
+      "more-details": "More Details",
+      "video": {
+        "subtitle": "About",
+        "title": "Mukafaat",
+        "description": "There are many variations We are a freelancer platform built for the event industry connecting skilled talent with unforgettable opportunities. From sports tournaments to music festivals, we empower a new generation of event freelancers through smart technology, continuous learning, and a relentless focus on the customer experience. In addition to talent matching, we offer comprehensive event services providing organizers with trusted, end-to-end support for flawless execution. Driven by innovation and grounded in our values, we're building a worldwide community where freelancers thrive, and every event becomes an exceptional success. of passages of Lorem Ipsum available, There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour but the majority have suffered alteration in some form, by injected humour"
+      },
+      "stats": {
+        "events": "Events",
+        "clients": "Clients",
+        "countries": "countries",
+        "freelancers": "Freelancers"
+      }
+    },
+    "see-more": "see more",
+    "projects": {
+      "subtitle": "More Success And Creativity",
+      "title": "Projects",
+      "description": "Mukafaat is your premier partner for all your event management needs in Saudi Arabia."
+    },
+    "testimonials": {
+      "subtitle": "What People Says",
+      "title": "Testimonials",
+      "description": "What People's Say About Mukafaats",
+      "items": {
+        "1": {
+          "text": "There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form by injected humour.",
+          "name": "Ahmed Algamdi",
+          "title": "CEO Founder",
+          "company": "Company Name"
+        },
+        "2": {
+          "text": "There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form.",
+          "name": "Mariam Sherif",
+          "title": "Manager",
+          "company": "Company Name"
+        },
+        "3": {
+          "text": "There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form by injected humour.",
+          "name": "Omar Hassan",
+          "title": "Director",
+          "company": "Company Name"
+        },
+        "4": {
+          "text": "There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form by injected humour.",
+          "name": "Ahmed Algamdi",
+          "title": "Director",
+          "company": "Company Name"
+        }
+      }
+    },
+    "partners": {
+      "subtitle": "Proud To Work With Them",
+      "title": "Our partners",
+      "description": "Mukafaat is your premier partner for all your event management needs in Saudi Arabia."
+    },
+    "getStarted": {
+      "title": "Download Mukafaat App Now",
+      "button": "Download App",
+      "description": "Get thousands of exclusive offers and discounts with the Mukafaat app. Discount coupons, recharge cards, and bookings at amazing prices.",
+      "subtitle": "Mukafaat App",
+      "mainTitle": "All offers in one app",
+      "consultation": "Would you like to benefit from exclusive deals that make your shopping smarter and more economical?",
+      "firstParagraph": "Download our app now and enjoy discounts, cards, and coupons anytime, anywhere.",
+      "secondParagraph": "The Mukafaat app provides you with a unique shopping experience with thousands of exclusive offers and discounts. Get discount coupons, recharge cards, and bookings at amazing prices.",
+      "video": {
+        "subtitle": "About",
+        "title": "Mukafaat App",
+        "description": "Discover the wonderful world of Mukafaat and enjoy the best exclusive offers and discounts"
+      },
+      "downloadOn": "Download on the",
+      "appStore": "App Store",
+      "getItOn": "GET IT ON",
+      "googlePlay": "Google Play"
+    },
+    "services": {
+      "title": "services",
+      "our": "our",
+      "description": "Our services encompass ticketing, scanning, wrist banding, soft checks, and providing hosts and ushers for a wide range of events.",
+      "watch": "watch video",
+      "service-desc": "Lorem ipsum dolor sit amet consectetur. Dui scelerisque amet justo eu facilisis pharetra odio sed."
+    },
+    "success-events": "successful events run by us!",
+    "portfolio": {
+      "past-events": "past events",
+      "title": "portfolio",
+      "see-more": "see more"
+    },
+    "started": {
+      "title": "get started",
+      "subtitle": "Provide A Full Range Of Services For You",
+      "description": "We believe in extraordinary existence and leaving a positive impact on your audience; By providing the opportunity to enjoy events and exhibitions organized with the latest and modern techniques, which serve your goals and ensure the delivery of your message in the most creative way."
+    },
+    "clients": {
+      "title": "Clients",
+      "description": "From initial consultation to event execution, this space is dedicated to ensuring every detail reflects your unique style and preferences. Explore personalized planning tools, communicate seamlessly with our team, and track the progress of your event effortlessly. Your dream event starts here.",
+      "partners": "success partners"
+    },
+    "contact": {
+      "days": "Days : Sunday - Thursday",
+      "hours": "Hours : 09:00 am - 05:00 pm",
+      "mobileTitle": "Mobile Number :",
+      "mobile": "+966 53 877 1712",
+      "emailTitle": "Email :",
+      "email": "info@mukafaat.co"
+    },
+    "footer": {
+      "about": "Mukafaat is your premier partner for all your event management needs in Saudi Arabia.",
+      "support": "Support",
+      "jobs": "Find a job",
+      "talentApplication": "Apply as a Freelancer",
+      "privacy": "Privacy Policy",
+      "terms": "Terms & conditions ",
+      "copyrights": "All rights reserved"
+    },
+    "search": {
+      "searchButton": "Search"
+    }
+  },
+  "about": {
+    "hero": {
+      "title": "About Us",
+      "description": "Mukafaats is a leading event management company based in Saudi Arabia, specializing in comprehensive event solutions ."
+    },
+    "vission": {
+      "title": "our vission",
+      "description": "We aim to achieve our vision through total service satisfaction to our clients & our customers in terms of service delivery, quality of work and product knowledge"
+    },
+    "mission": {
+      "title": "our mission",
+      "description": "To focus our team's energy and expertise on the creation and development of cohesive communities which promote positive living and learning experiences."
+    },
+    "staff": {
+      "title": "team",
+      "our": "our"
+    },
+    "our-values": "our values",
+    "featuers": {
+      "people": "People",
+      "people-description": "We care deeply about people, our own people , our own partners , customers and communities to which we belong .",
+      "passion": "Passion",
+      "passion-description": "Fuel drives our culture, defining our mindset and energizing our business.",
+      "place": "Place",
+      "place-description": "We take our responsibility seriously to the environment through our actions we contribute towards creating a better place for future generation"
+    }
+  },
+  "careers": {
+    "header-description": "Join our team and embark on a journey of innovation, collaboration, and growth. We are passionate about what we do and are always on the lookout for talented individuals who share our vision and values.",
+    "search": "Search",
+    "city": "City",
+    "department": "Department",
+    "workType": "Work Type",
+    "ad": {
+      "title": "Looking for a job ?",
+      "description": "Fill out the application with your personal data and your CV, and we will review your application and contact you as soon as possible.",
+      "apply": "Apply Now"
+    },
+    "no-jobs": "No jobs found"
+  },
+  "contact": {
+    "title": "Contact Us",
+    "description": "Contact us to add a luxurious touch to your occasions. Let us take care of everything for you.",
+    "fName": "Full Name",
+    "mNumber": "mobile number",
+    "cName": "company name",
+    "email": "email",
+    "msg": "message",
+    "send": "send message",
+    "cards": {
+      "management": "Management",
+      "support": "Support Info",
+      "freelancer": "Freelancer",
+      "name": "Name",
+      "phone": "Phone",
+      "email": "Email"
+    },
+    "form": {
+      "subtitle": "Get In Touch With Us",
+      "title": "Contact Form",
+      "description": "We're here to assist you. Please fill out the form and our team will contact you soon."
+    }
+  },
+  "job-application": {
+    "title": "Job Application",
+    "photo": "photo (white background)",
+    "fName": "Full Name",
+    "email": "email",
+    "mNumber": "mobile number",
+    "nationality": "nationality",
+    "dBirth": "date of birth",
+    "gender": "gender",
+    "city": "city",
+    "edu": "education",
+    "cv": "cv",
+    "cover-letter": "cover letter",
+    "experience": "Experience",
+    "job-position": "job position",
+    "event": "event",
+    "location": "location",
+    "sDate": "start date",
+    "eDate": "end date",
+    "add": "Add",
+    "submit": "submit application"
+  },
+  "job-seeker": {
+    "title": "Register as a Freelancer",
+    "department": "department",
+    "work-type": "Work Type",
+    "bio": "Bio",
+    "id-number": "ID Number",
+    "id-type": "ID Type",
+    "id-picture": "ID Picture",
+    "id-expiration-date": "ID expiration date from Absher / Tawakalna"
+  },
+  "id-type": {
+    "national": "National ID",
+    "passport": "Passport",
+    "residence": "Residence"
+  },
+  "404": {
+    "title": "Page Not Found !",
+    "description": "It looks like the page you're searching for no exist."
+  },
+  "genders": {
+    "male": "Male",
+    "female": "Female"
+  },
+  "job": {
+    "aboutMukafaat": "About Mukafaat :",
+    "description": "Job Description :",
+    "requirements": "Job Requirements :",
+    "apply": "Apply for this job",
+    "open": "Open",
+    "close": "Closed"
+  },
+  "company-application": {
+    "title": "Company Application",
+    "company-info": "Company Information",
+    "event-location": "Event Location",
+    "event-venu-details": "Event Venue Details",
+    "company-name": "Company name",
+    "cr-no": "CR No.",
+    "vat-no": "VAT Registeration No.",
+    "contact-name": "Contact  Name",
+    "contact-email": "Contact e-mail",
+    "contact-mobile": "Contact Mobile No.",
+    "country": "Country",
+    "city": "city",
+    "search-city": "search by city name",
+    "search-country": "search by country name",
+    "event-name": "Event Name",
+    "event-date": "Event Date",
+    "from": "From",
+    "to": "To",
+    "operation-hours": "Operation hours",
+    "standby": "Stand By",
+    "closing": "Closing",
+    "image": "Image (optional)",
+    "gates-number": "Number of gates and specification",
+    "venue-map": "Venue Map (optional)",
+    "send-application": "Send Application",
+    "gate": "Gate",
+    "gate-name": "Gate Name",
+    "supervisor": "Supervisor",
+    "scanner": "Scanner",
+    "soft-check": "Soft Check",
+    "tech-support": "Technical Support",
+    "cashier": "Cashier",
+    "logistics": "Logistics",
+    "host": "Host",
+    "project-manager": "Project Manager",
+    "operation-supervisor": "Operation Supervisor",
+    "game-operator": "Game Operator",
+    "number-of": "Number of",
+    "uniform-design": "Uniform Design",
+    "uniform-qty": "Uniform Quantity",
+    "uniform-specification": "Uniform Specification",
+    "success": "Application Success",
+    "thank-you": "Thank You for Your Request!"
+  },
+  "contract": {
+    "title": "Agreement",
+    "sign-contact": "Sign Agreement",
+    "sign": "Sign",
+    "open-in-web": "If you prefer, you can open the Agreement in your web browser and sign it for your convenience.",
+    "notFound": {
+      "title": "Contract Not Found",
+      "description": "The contract you're looking for doesn't exist or may have been removed. Please check the URL or contact support if you believe this is an error.",
+      "goHome": "Go to Homepage",
+      "contactSupport": "Contact Support",
+      "helpText": "Need help? Our support team is available 24/7"
+    }
+  },
+  "rating": {
+    "title": "Rating",
+    "submit": "Submit Rating",
+    "note": "Note (optional)",
+    "validation": "Rating is missing.",
+    "thanks": "Thank you for your rating, we appreciate it.",
+    "fullName": "Full Name",
+    "mobileNumber": "Mobile Number"
+  },
+  "download_app": {
+    "title": "Download App",
+    "header": "Download Mukafaats App",
+    "description": "Join a platform designed to connect freelancers with event projects. Find new opportunities."
+  },
+  "projects": {
+    "upcoming_projects": "Upcoming Projects",
+    "upcoming_projects_description": "Join us to create unforgettable events! We're looking for passionate, talented individuals ready to make an impact. Let's bring our vision to life together!",
+    "empty": "No upcoming project yet.",
+    "noProjectsFound": "No upcoming projects found for \"{{search}}\""
+  },
+  "upload_intro_video": {
+    "title": "Upload Intro Video",
+    "enter_email_to_proceed": "Enter your email to proceed",
+    "continue": "Continue",
+    "email_validation": "Enter your email to proceed with upload video",
+    "email_invalid": "Invalid email format",
+    "enter_otp": "Enter OTP",
+    "verify": "Verify",
+    "otp": "OTP",
+    "otp_error": "Invalid OTP",
+    "upload": "Upload",
+    "file_error": "Please select a file to upload.",
+    "success": "Video uploaded successfully"
+  },
+  "businessRegistration": {
+    "title": "Business Registration",
+    "description": "Register your business and streamline your operations—whether it’s events, logistics, or promotional work.",
+    "headlinePart1": "Your Business",
+    "headlinePart2": "Deserves the Spotlight!",
+    "subheadline": "Register your business and streamline your operations—whether it’s events, logistics, or promotional work.",
+    "step1": "About You",
+    "step2": "Company Details",
+    "step3": "Services We Provide",
+    "step4": "Operational Regions",
+    "step5": "Review & Submit",
+    "currentStep": "Current Step",
+    "selectedServices": "Selected Services",
+    "selectedCountries": "Selected Countries",
+    "noServicesSelected": "No services selected",
+    "noCountriesSelected": "No countries selected",
+    "validationError": "Please complete all required fields before proceeding.",
+    "successMessage": "Your business registration has been successfully submitted. We will review your application and get back to you shortly.",
+    "aboutYou": {
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "mobileNumber": "Mobile Number",
+      "fullName": "Full Name"
+    },
+    "companyDetails": {
+      "companyName": "Company Name",
+      "crNumber": "CR Number",
+      "vatRegistrationNumber": "VAT Registration Number",
+      "website": "Website (optional)"
+    },
+    "services": {
+      "title": "What services are you interested in using on our platform?",
+      "EVENTS": "Event Management",
+      "EQUIPMENT_RENTING": "Equipment Rental",
+      "LOGISTICS": "Logistics",
+      "PROMOTIONS": "Promoting",
+      "FREELANCER": "Freelancer",
+      "EVENT_SYSTEM": "Event System Solution"
+    },
+    "countries": {
+      "title": "Select the countries or regions where your company plans to work.",
+      "SAUDI_ARABIA": "Saudi Arabia",
+      "MOROCCO": "Morocco",
+      "BAHRAIN": "Bahrain",
+      "UNITED_ARAB_EMIRATES": "United Arab Emirates",
+      "OMAN": "Sultanate of Oman"
+    },
+    "actions": {
+      "next": "Next",
+      "previous": "Previous",
+      "submit": "Submit Registration"
+    },
+    "validation": {
+      "firstNameRequired": "First name is required",
+      "lastNameRequired": "Last name is required",
+      "emailRequired": "Email is required",
+      "emailInvalid": "Please enter a valid email address",
+      "professionalEmailOnly": "Please use a professional email with your company domain",
+      "mobileRequired": "Mobile number is required",
+      "mobileFormat": "Mobile number must include country code (e.g., +966 1234 567 8901)",
+      "companyNameRequired": "Company Name Is Required",
+      "crNumberRequired": "CR Number Is Required",
+      "vatRegistrationNumberRequired": "VAT Registration Number Is Required",
+      "websiteInvalid": "Please enter a valid website URL",
+      "servicesRequired": "Please select at least one service",
+      "countriesRequired": "Please select at least one operational region",
+      "error": "An error occurred while submitting your registration. Please try again later."
+    }
+  },
+  "labels": {
+    "allowed_file_formats": "Allowed file formats: mp4, avi, mov, mkv, flv",
+    "file_uploaded": "File uploaded"
+  },
+  "validations": {
+    "fullNameRequired": "Full Name Is Required",
+    "invalidEmail": "Invalid Email Formart",
+    "emailRequired": "Email Is Required",
+    "mobileNumberRequired": "Mobile Number Is Required",
+    "nationalityRequired": "Nationality Is Required",
+    "genderRequired": "Gender Is Required",
+    "birthDateRequired": "Birth Date Is Required",
+    "educationRequired": "Education Is Required",
+    "bioRequired": "Bio Is Required",
+    "idNumberRequired": "Id Number Is Required",
+    "jobPositionRequired": "Job Position Is Required",
+    "eventRequired": "Event Is Required",
+    "locationRequired": "Location Is Required",
+    "startDateRequired": "Start Date Is Required",
+    "endDateRequired": "End Date Is Required",
+    "photoRequired": "Personal Photo Is Required",
+    "workTypeRequired": "Work Type Is Required",
+    "departmentRequired": "Department Is Required",
+    "cityRequired": "City Is Required",
+    "cvRequired": "CV Is Required",
+    "idTypeRequired": "ID Type Is Required",
+    "idPictureRequired": "ID Picture Is Required",
+    "idExpirationDateRequired": "ID Expiration Date Is Required",
+    "messageRequired": "Message Is Required",
+    "coverLetterRequired": "Cover Letter Is Required",
+    "companyNameRequired": "Company Name Is Required",
+    "crNumberRequired": "CR No Is Required",
+    "vatNumberRequired": "VAT Registeration No Is Required",
+    "contactNameRequired": "Contact Name Is Required",
+    "eventNameRequired": "Event Name Is Required",
+    "countryRequired": "Country Is Required",
+    "standbyHourRequired": "Stand By Hour Is Required",
+    "closingHourRequired": "Closing Hour Is Required"
+  },
+  "messages": {
+    "jobSeekerSuccess": "Your application has been sent successfully. We will contact you as soon as possible.",
+    "messageSent": "Message sent successfully, We will contact you as soon as possible.",
+    "emailConfirmed": "Email Confirmed!",
+    "emailConfirmedDesc": " Your email has been successfully verified. Thank you for confirming your email address!",
+    "applicationSent": "Application Sent!",
+    "jobApplicationSuccess": "Your job application has been sent successfully. we will contact you as soon as possible."
+  },
+  "portfolio": {
+    "subtitle": "Our Latest Achievements",
+    "title": "Our Portfolio",
+    "description": "Mukafaats is your premier partner for all your event management needs in Saudi Arabia. With a dedicated focus ",
+    "tabs": {
+      "all": "All Portfolio",
+      "events": "Events",
+      "promotion": "Promotion",
+      "logistic": "Logistic"
+    },
+    "searchPlaceholder": "Search by name ...",
+    "details": {
+      "notFound": "Not found",
+      "everythingSpecial": "Everything is special",
+      "whatWeDid": "What We did",
+      "freelancer": "Freelancer",
+      "eventManagement": "Event Management",
+      "eventSystemSolutions": "Event System Solutions",
+      "shareProject": "Share Project",
+      "tags": "Tags",
+      "titleOfNextProject": "Title Of Next Project",
+      "titleOfProject": "Title Of Project",
+      "generalDescription": "This project showcases Mukafaats' commitment to delivering high-quality experiences through meticulous planning, professional coordination, and seamless execution. With a dedicated team and a client-first approach, we ensure every detail contributes to a memorable outcome."
+    }
+  },
+  "our-app": {
+    "subtitle": "The Backbone of Successful Events",
+    "title": "Our Application",
+    "collaborate-title": "Collaborate with team members.",
+    "description": "We share common trends and strategies for improving your rental income and event management success.",
+    "feature1": "One OF Features",
+    "feature2": "New Feature For Application"
+  },
+  "months": { "July": "July" },
+  "locations": { "jaddahRiwais": "Jaddah. Alriwais St" },
+  "projectHelpers": { "sampleTitle": "Live Promotion" },
+  "promo-app": {
+    "description": "We share common trends and strategies for improving your rental income. We share common trends and strategies",
+    "feature1": "One OF Features",
+    "feature2": "New Feature For Application",
+    "slide1": {
+      "title": "Get your Promotion Application",
+      "description": "Mukafaat is your premier partner for all your event management needs in Saudi Arabia.",
+      "feature1": "Easy to use interface",
+      "feature2": "Real-time updates"
+    },
+    "slide2": {
+      "title": "Download Our Event App",
+      "description": "Manage your events with our comprehensive mobile application designed for professionals.",
+      "feature1": "Event scheduling",
+      "feature2": "Client management"
+    },
+    "slide3": {
+      "title": "Professional Event Tools",
+      "description": "Access powerful tools and features to streamline your event planning process.",
+      "feature1": "Advanced analytics",
+      "feature2": "Multi-language support"
+    }
+  },
+  "why-choose-us": {
+    "subtitle": "Your Vision, Our Expertise",
+    "title": "Why Choose US",
+    "description": "Mukafaats is your premier partner for all your event management needs in Saudi Arabia.",
+    "cta": "request service",
+    "feature1": {
+      "title": "Trained & Certified Staff",
+      "description": "Every team member is professionally trained to ensure top-tier service"
+    },
+    "feature2": {
+      "title": "Client-Centric Approach",
+      "description": "Every team member is professionally trained to ensure top-tier service"
+    },
+    "feature3": {
+      "title": "Reliable&Punctual",
+      "description": "Every team member is professionally trained to ensure top-tier service"
+    },
+    "feature4": {
+      "title": "Innovative Tools",
+      "description": "Every team member is professionally trained to ensure top-tier service"
+    },
+    "feature5": {
+      "title": "End To End Solutions",
+      "description": "Every team member is professionally trained to ensure top-tier service"
+    },
+    "feature6": {
+      "title": "Scalable Operations",
+      "description": "Every team member is professionally trained to ensure top-tier service"
+    }
+  },
+  "our-gallery": {
+    "subtitle": "Our Latest Achievements",
+    "title": "Our Gallery",
+    "description": "Mukafaats is your premier partner for all your event management needs in Saudi Arabia. With a dedicated focus",
+    "view-all": "View All Gallery"
+  },
+  "service-gallery": {
+    "subtitle": "Our Service Portfolio",
+    "title": "Service Gallery",
+    "description": "Explore our comprehensive range of professional event management services and see how we bring your vision to life with excellence and creativity.",
+    "image1": {
+      "title": "Corporate Events",
+      "description": "Professional corporate event management with attention to detail"
+    },
+    "image2": {
+      "title": "Wedding Ceremonies",
+      "description": "Magical wedding celebrations with personalized touches"
+    },
+    "image3": {
+      "title": "Conference Management",
+      "description": "Seamless conference and seminar organization"
+    },
+    "image4": {
+      "title": "Birthday Celebrations",
+      "description": "Memorable birthday parties and celebrations"
+    },
+    "image5": {
+      "title": "Business Meetings",
+      "description": "Professional business meeting and presentation setup"
+    },
+    "image6": {
+      "title": "Gala Dinners",
+      "description": "Elegant gala dinners and formal events"
+    },
+    "image7": {
+      "title": "Product Launches",
+      "description": "Dynamic product launch events and exhibitions"
+    },
+    "image8": {
+      "title": "Exhibition Events",
+      "description": "Comprehensive exhibition and trade show management"
+    }
+  },
+  "service-features": {
+    "subtitle": "Creative and distinctive",
+    "title": "Service Features",
+    "feature1": {
+      "title": "Professional Team",
+      "description": "Our experienced team ensures flawless event execution with attention to every detail"
+    },
+    "feature2": {
+      "title": "Comprehensive Solutions",
+      "description": "We provide end-to-end event management solutions covering all aspects of your event"
+    },
+    "feature3": {
+      "title": "Quality Assurance",
+      "description": "We maintain the highest standards of quality in all our services and deliverables"
+    },
+    "feature4": {
+      "title": "Innovation & Creativity",
+      "description": "We bring innovative ideas and creative solutions to make your event unique"
+    },
+    "feature5": {
+      "title": "Reliable Support",
+      "description": "24/7 support and assistance throughout your event planning and execution"
+    },
+    "feature6": {
+      "title": "Proven Excellence",
+      "description": "Track record of successful events and satisfied clients across various industries"
+    }
+  },
+  "common": {
+    "viewAll": "View All",
+    "moreDetails": "More Details",
+    "loading": "Loading..."
+  },
+  "request-service": {
+    "title": "Request Our Service",
+    "steps": {
+      "personal": "Personal Info",
+      "company": "Company Details",
+      "services": "Services",
+      "regions": "OperationalRegions",
+      "review": "Review & submit"
+    },
+    "required-note": "It means that the fields are required.",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "E-mail",
+    "mobile": "Mobile Num",
+    "step1": {
+      "title": "Complete Your Personal Information"
+    },
+    "companyName": "Company Name",
+    "crNumber": "CR Number",
+    "vat": "VAT Registration Number",
+    "website": "Company Website ( optional )",
+    "step2": {
+      "title": "Your Company Information"
+    },
+    "step3": {
+      "title": "What services you are interested in?"
+    },
+    "multi": "You can choose multi select option",
+    "step4": {
+      "title": "Select the countries or regions where your company plans to work"
+    },
+    "step5": {
+      "title": "One step to finish",
+      "note": "Please review and verify the data.",
+      "placeholder": "Summary preview goes here ..."
+    },
+    "review": {
+      "personal": "Personal Information",
+      "company": "Company Information",
+      "selection": "Selections"
+    },
+    "selectedService": "Service",
+    "selectedRegion": "Region"
+  },
+  "countries": {
+    "Saudi Arabia": "Saudi Arabia",
+    "United Arab Emirates": "United Arab Emirates",
+    "Sultanate of Oman": "Sultanate of Oman",
+    "Morocco": "Morocco"
+  },
+  "services": {
+    "eventManagement": "Event Management",
+    "freelancer": "Freelancer",
+    "eventSolution": "Event Solution",
+    "equipmentRenting": "Equipment Renting",
+    "promotion": "Promotion",
+    "logisticSolution": "Logistic Solution"
+  },
+  "gallery": {
+    "title": "Event Gallery",
+    "subtitle": "Our Work",
+    "description": "Discover our portfolio of successful events and celebrations that showcase our expertise in event management.",
+    "stats": {
+      "events": "Events Completed",
+      "cities": "Cities Covered",
+      "satisfaction": "Client Satisfaction"
+    }
+  },
+  "search": {
+    "location": {
+      "label": "Location",
+      "placeholder": "Where are you going?"
+    },
+    "propertyType": {
+      "label": "Property Type",
+      "placeholder": "Select your property type"
+    },
+
+    "propertyTypes": {
+      "apartment": "Apartment",
+      "villa": "Villa",
+      "office": "Office",
+      "land": "Land",
+      "penthouse": "Penthouse",
+      "townhouse": "Townhouse"
+    },
+    "bedsBaths": {
+      "label": "Beds and baths",
+      "placeholder": "Select your beds and baths",
+      "oneOne": "1 bed, 1 bath",
+      "twoTwo": "2 beds, 2 baths",
+      "threeTwo": "3 beds, 2 baths",
+      "fourPlus": "4+ beds, 3+ baths",
+      "fivePlus": "5+ beds, 4+ baths",
+      "studio": "Studio"
+    },
+    "searchButton": "Search"
+  },
+  "propertySlider": {
+    "newlyListed": "NEWLY LISTED",
+    "title": "Best Restaurants",
+    "subtitle": "Enjoy the most delicious dishes from the best restaurants",
+    "viewDetails": "View Details",
+    "propertiesCount": "{{count}} Properties",
+    "types": {
+      "apartments": "Apartments",
+      "villas": "Villas",
+      "farms": "Farms",
+      "offices": "Offices",
+      "shops": "Shops",
+      "hotelResidences": "Hotel Residences"
+    },
+    "restaurants": {
+      "popeyes": "Popeye's Restaurant",
+      "kfc": "KFC",
+      "mcdonalds": "McDonald's",
+      "pizzaHut": "Pizza Hut",
+      "subway": "Subway",
+      "burgerKing": "Burger King",
+      "dominos": "Domino's",
+      "starbucks": "Starbucks"
+    }
+  },
+  "worldwideProperties": {
+    "subtitle": "WORLDWIDE PROPERTIES",
+    "mainTitle": "Welcome To Our Luxurious Properties, With All The Conveniences.",
+    "description": "Arcu ac tortor dignissim convallis aenean et tortor at. Ac turpis egestas sed tempus urna et. Quisque eu pellentesque erat, eget bibendum ipsum. Cras euismod",
+    "selectManyLocation": "Select many Location",
+    "locationDescription": "Lorem ipsum is a dummy or placeholder commonly used in graphic design,",
+    "viewAboutUs": "View About Us",
+    "modernBuilding": "Modern Building",
+    "underlineDecoration": "Underline decoration",
+    "appPattern": "App Pattern",
+    "planeVector": "Plane Vector"
+  },
+  "dreamProperties": {
+    "subtitle": "NEW PROPERTIES",
+    "mainTitle": "Find your dream property",
+    "viewMore": "View More",
+    "tabs": {
+      "freehold": "Freehold",
+      "instalment": "Instalment",
+      "underConstruction": "Under Construction",
+      "investment": "Investment",
+      "luxury": "Luxury",
+      "readyToMove": "Ready To Move",
+      "seaView": "Sea View"
+    },
+    "propertyTypes": {
+      "apartments": "Apartments",
+      "properties": "Properties",
+      "villas": "Villas",
+      "offices": "Offices"
+    },
+    "actions": {
+      "visitNow": "Visit Now",
+      "favorite": "Favorite",
+      "share": "Share"
+    },
+    "specifications": {
+      "bedroom": "Bedroom",
+      "bedrooms": "Bedrooms",
+      "area": "Up to"
+    }
+  },
+  "popularCountries": {
+    "subtitle": "POPULAR COUNTRY",
+    "mainTitle": "Real estate in different countries",
+    "description": "Lorem ipsum is a dummy or placeholder text commonly used in graphic design, publishing, and web development. Its purpose is to permit a page layout to be designed, independently of the copy that will subsequently populate it.",
+    "properties": "Properties",
+    "modernCity": "Modern City Skyline",
+    "cityNight": "City at Night"
+  },
+  "investments": {
+    "subtitle": "INVESTMENTS",
+    "mainTitle": "Build Wealth Through Real Estate",
+    "description": "Discover exclusive investment opportunities in prime locations with guaranteed returns and flexible payment plans.",
+    "viewInvestmentPlans": "View Investment Plans",
+    "visitNow": "Visit Now",
+    "modernBuilding": "Modern Building",
+    "underlineDecoration": "Underline Decoration"
+  },
+  "getStarted": {
+    "subtitle": "FREE CONSULTATION",
+    "mainTitle": "Get a free real estate",
+    "consultation": "consultation",
+    "firstParagraph": "Would you like a free real estate consultation with the real estate experts at Imtilak Real Estate?",
+    "secondParagraph": "Lorem ipsum is a dummy or placeholder text commonly used in graphic design, publishing, and web development. Its purpose is to permit a page layout to be designed.",
+    "buttonText": "Get Started",
+    "companyName": "AKARAT",
+    "companyLocation": "ISTANBUL"
+  },
+  "newsBlogs": {
+    "subtitle": "NEWS & BLOGS",
+    "mainTitle": "Our latest articles",
+    "viewBlogs": "View Blogs",
+    "date": "24 Feb 2025",
+    "views": "226",
+    "title": "Investment & Real Estate Ownership",
+    "description": "In a fast-evolving world of technology and finance, digital currencies have claimed a central role in shaping modern financial transactions",
+    "visitNow": "Visit Now"
+  },
+  "propertyDetail": {
+    "notFound": {
+      "title": "Property Not Found",
+      "description": "The property you are looking for could not be found.",
+      "backToProperties": "Back to Properties"
+    },
+    "breadcrumb": {
+      "home": "Home",
+      "properties": "Properties"
+    },
+    "views": "Views",
+    "viewAll": "View All",
+    "specifications": {
+      "title": "Property Specifications",
+      "rooms": "Number of room & Living room",
+      "area": "Area",
+      "bathrooms": "Number of bathrooms",
+      "price": "Prices start at",
+      "lastUpdate": "Latest Price Update"
+    },
+    "payment": {
+      "title": "Payments",
+      "downPayment": "Down Payment",
+      "installments": "Installments"
+    },
+    "whyProperty": {
+      "title": "Why This Property",
+      "readMore": "Read More"
+    },
+    "amenities": {
+      "title": "Amenities"
+    },
+    "nearby": {
+      "title": "Nearby places",
+      "beach": "Distance to the Beach",
+      "cityCenter": "Distance to City Center",
+      "airport": "Distance to the Airport"
+    },
+    "video": {
+      "title": "Video / 360 View",
+      "play": "Play Video"
+    },
+    "startFrom": {
+      "title": "Start From",
+      "description": "Real estate agency offering quick and reliable services for buying, selling, and renting properties.",
+      "getInTouch": "Get In Touch"
+    },
+    "owner": {
+      "title": "Owner Details",
+      "propertiesCount": "25 Properties"
+    },
+    "contact": {
+      "title": "Choose the suitable day for us to",
+      "contactYou": "contact you",
+      "name": "Name",
+      "namePlaceholder": "Enter Name",
+      "phone": "Phone Number",
+      "phonePlaceholder": "Phone Number",
+      "callMe": "Call me"
+    },
+    "whyChoose": {
+      "title": "Why Choose Our Properties?"
+    },
+    "related": {
+      "title": "Related Properties"
+    }
+  },
+  "footer": {
+    "stayInLoop": {
+      "title": "Stay in the loop",
+      "description": "Join our mailing list to in the loop with our newest projects and offers",
+      "emailPlaceholder": "Enter your email",
+      "subscribeButton": "Subscribe"
+    },
+    "companyDescription": "Lorem ipsum is a dummy or placeholder text commonly used in graphic design, publishing, and web development. Its purpose is to permit a page",
+    "quickLinks": "Quick Links",
+    "properties": "Properties",
+    "contact": "Contact",
+    "aboutUs": "About us",
+    "blogNews": "Blog & News",
+    "contactUs": "Contact Us",
+    "investments": "Investments",
+    "apartments": "Apartments",
+    "villas": "Villas",
+    "farms": "Farms",
+    "offices": "Offices",
+    "shops": "Shops",
+    "hotelResidences": "Hotel Residences",
+    "pentHouses": "Pent Houses",
+    "phoneNumber": "+123 456 7890",
+    "email": "support@mm.com",
+    "copyright": "© 2025 ISTANBUL. All rights reserved.",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfUse": "Terms of Use",
+    "termsOfService": "Terms Of Service"
+  },
+  "saved": {
+    "title": "Saved Items",
+    "subtitle": "{{count}} saved item",
+    "filters": {
+      "all": "All",
+      "offers": "Offers",
+      "cards": "Cards",
+      "bookings": "Bookings"
+    },
+    "types": {
+      "offer": "Offer",
+      "card": "Card",
+      "booking": "Booking",
+      "item": "Item"
+    },
+    "saved_since": "Saved since",
+    "empty": {
+      "title": "No saved items",
+      "title_filtered": "No saved {{type}}",
+      "description": "Start saving offers and cards you like",
+      "browse_offers": "Browse Offers"
+    }
+  },
+  "orders": {
+    "title": "My Orders",
+    "subtitle": "{{count}} total orders",
+    "filters": {
+      "all": "All",
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "quantity": "Quantity",
+    "empty": {
+      "title": "No orders",
+      "title_filtered": "No {{status}} orders",
+      "description": "Start adding offers and cards to your cart",
+      "browse_offers": "Browse Offers"
+    }
+  },
+  "wallet": {
+    "title": "My Wallet",
+    "points_balance": "Points Balance",
+    "account_balance": "Account Balance",
+    "points_log": "Points Log",
+    "financial_transactions": "Financial Transactions",
+    "transaction_log": "Transaction Log",
+    "points": "points"
+  },
+  "coupons": {
+    "title": "Coupons",
+    "hero": {
+      "title": "Best Coupons & Offers",
+      "subtitle": "Save money with thousands of exclusive coupons"
+    },
+    "filters": {
+      "nearby": "Near You",
+      "most_visited": "Most Visited",
+      "highest_rated": "Highest Rated"
+    },
+    "search_placeholder": "Search coupons...",
+    "show_coupon": "Show Coupon",
+    "usage": "Usage",
+    "uses_for_code": "uses for code",
+    "expires": "Expires",
+    "no_results": "No coupons found for \"{{search}}\"",
+    "no_coupons": "No coupons available"
+  }
+}
