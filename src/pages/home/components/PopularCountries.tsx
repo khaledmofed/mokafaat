@@ -1,6 +1,7 @@
 import React from "react";
 import { useIsRTL } from "@hooks";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import {
   FaCalendarAlt,
   FaPercent,
@@ -21,11 +22,13 @@ interface NewCard {
   name: string;
   icon: React.ReactNode;
   title: string;
+  path: string;
 }
 
 const PopularCountries: React.FC = () => {
   const { t } = useTranslation();
   const isRTL = useIsRTL();
+  const navigate = useNavigate();
 
   const newCards: NewCard[] = [
     {
@@ -33,26 +36,34 @@ const PopularCountries: React.FC = () => {
       name: "bookings",
       icon: <FaCalendarAlt className="text-4xl text-purple-600" />,
       title: "الحجوزات",
+      path: "/bookings",
     },
     {
       id: 2,
       name: "discounts",
       icon: <FaPercent className="text-4xl text-orange-600" />,
       title: "الخصومات",
+      path: "/offers",
     },
     {
       id: 3,
       name: "cards",
       icon: <FaCreditCard className="text-4xl text-blue-600" />,
       title: "البطاقات",
+      path: "/cards",
     },
     {
       id: 4,
       name: "coupons",
       icon: <FaTicketAlt className="text-4xl text-green-600" />,
       title: "الكوبونات",
+      path: "/coupons",
     },
   ];
+
+  const handleCardClick = (path: string) => {
+    navigate(path);
+  };
 
   return (
     <section className="pt-0 pb-10 relative overflow-hidden">
@@ -139,6 +150,7 @@ const PopularCountries: React.FC = () => {
                     boxShadow:
                       "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
                   }}
+                  onClick={() => handleCardClick(card.path)}
                 >
                   {/* Background Gradient */}
                   <div className="absolute inset-0 bg-gradient-to-br from-purple-50 via-white to-orange-50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
