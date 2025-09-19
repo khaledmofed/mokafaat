@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUserStore } from "@stores/userStore";
 import { useTranslation } from "react-i18next";
-import { AkaratCircle, Splash, LogoLight } from "@assets";
+import { AkaratCircle, Splash, LogoLight, Soudi } from "@assets";
 import { IoPersonOutline, IoMailOutline } from "react-icons/io5";
 
 const RegisterPage: React.FC = () => {
@@ -298,7 +298,7 @@ const RegisterPage: React.FC = () => {
                   <div className="w-24 flex items-center justify-center bg-gray-50 border border-gray-300 rounded-full px-2 py-2">
                     <div className="flex items-center gap-2">
                       <img
-                        src="/src/assets/images/soudi.png"
+                        src={Soudi}
                         alt="Saudi Arabia Flag"
                         className="w-8 h-8 object-cover rounded-sm"
                       />

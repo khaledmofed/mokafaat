@@ -230,7 +230,7 @@ import ApplePay from "./images/aplpay.png";
 import Mada from "./images/mda.png";
 import Wallet from "./images/w1.png";
 import WalletIcon from "./images/walet.png";
-
+import Soudi from "./images/soudi.png";
 export {
   Logo,
   LogoLight,
@@ -435,4 +435,5 @@ export {
   copon3,
   copon4,
   cutCopon,
+  Soudi,
 };
