@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Language Toggle - Example</title>
+  <link rel="stylesheet" href="LanguageToggle.styles.css">
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      padding: 2rem;
+      background: #f9fafb;
+    }
+    .example-container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      margin-bottom: 2rem;
+      color: #111827;
+    }
+  </style>
+</head>
+<body>
+  <div class="example-container">
+    <h1>مثال على Language Toggle Component</h1>
+    
+    <div class="language-toggle-container" id="languageToggle">
+      <!-- Main Toggle Button -->
+      <button class="language-toggle-button" onclick="toggleDropdown()">
+        <div class="language-toggle-globe">
+          <span class="language-toggle-globe-icon">🌐</span>
+        </div>
+        <div class="language-toggle-separator"></div>
+        <div class="language-toggle-flag-container">
+          <img src="https://flagcdn.com/w40/sa.png" alt="Saudi" class="language-toggle-flag-image" />
+        </div>
+      </button>
+      
+      <!-- Dropdown Menu -->
+      <div class="language-toggle-dropdown" id="dropdown" dir="rtl" style="display: none;">
+        <!-- Header Tabs -->
+        <div class="language-toggle-tabs">
+          <button class="language-toggle-tab active" onclick="switchTab('languages')">
+            <span class="language-toggle-tab-text">اللغات</span>
+          </button>
+          <button class="language-toggle-tab" onclick="switchTab('countries')">
+            <span class="language-toggle-tab-text">البلد</span>
+          </button>
+        </div>
+        
+        <!-- Languages Tab Content -->
+        <div id="languagesTab" class="language-toggle-content">
+          <button class="language-toggle-item active" dir="rtl" onclick="selectLanguage('ar', 'العربية')">
+            <div class="language-toggle-item-flag">
+              <img src="https://flagcdn.com/w40/sa.png" class="language-toggle-item-flag-image" />
+            </div>
+            <div class="language-toggle-item-info">
+              <div class="language-toggle-item-name">العربية</div>
+              <div class="language-toggle-item-subtitle">المملكة العربية السعودية</div>
+            </div>
+          </button>
+          
+          <button class="language-toggle-item" dir="ltr" onclick="selectLanguage('en', 'English')">
+            <div class="language-toggle-item-flag">
+              <img src="https://flagcdn.com/w40/us.png" class="language-toggle-item-flag-image" />
+            </div>
+            <div class="language-toggle-item-info">
+              <div class="language-toggle-item-name">English</div>
+              <div class="language-toggle-item-subtitle">United States</div>
+            </div>
+          </button>
+        </div>
+        
+        <!-- Countries Tab Content -->
+        <div id="countriesTab" class="language-toggle-content" style="display: none;">
+          <div class="language-toggle-countries-grid">
+            <button class="language-toggle-country-item" dir="ltr" onclick="selectCountry('us', 'United States')">
+              <div class="language-toggle-country-flag">
+                <img src="https://flagcdn.com/w40/us.png" class="language-toggle-country-flag-image" />
+              </div>
+              <div class="language-toggle-country-info">
+                <div class="language-toggle-country-name">United States</div>
+                <div class="language-toggle-country-language">English</div>
+              </div>
+            </button>
+            
+            <button class="language-toggle-country-item" dir="rtl" onclick="selectCountry('sa', 'Saudi Arabia')">
+              <div class="language-toggle-country-flag">
+                <img src="https://flagcdn.com/w40/sa.png" class="language-toggle-country-flag-image" />
+              </div>
+              <div class="language-toggle-country-info">
+                <div class="language-toggle-country-name">السعودية</div>
+                <div class="language-toggle-country-language">العربية</div>
+              </div>
+            </button>
+            
+            <button class="language-toggle-country-item" dir="ltr" onclick="selectCountry('uk', 'United Kingdom')">
+              <div class="language-toggle-country-flag">
+                <img src="https://flagcdn.com/w40/gb.png" class="language-toggle-country-flag-image" />
+              </div>
+              <div class="language-toggle-country-info">
+                <div class="language-toggle-country-name">United Kingdom</div>
+                <div class="language-toggle-country-language">English</div>
+              </div>
+            </button>
+            
+            <button class="language-toggle-country-item" dir="ltr" onclick="selectCountry('es', 'Spain')">
+              <div class="language-toggle-country-flag">
+                <img src="https://flagcdn.com/w40/es.png" class="language-toggle-country-flag-image" />
+              </div>
+              <div class="language-toggle-country-info">
+                <div class="language-toggle-country-name">Spain</div>
+                <div class="language-toggle-country-language">Español</div>
+              </div>
+            </button>
+            
+            <button class="language-toggle-country-item" dir="ltr" onclick="selectCountry('fr', 'France')">
+              <div class="language-toggle-country-flag">
+                <img src="https://flagcdn.com/w40/fr.png" class="language-toggle-country-flag-image" />
+              </div>
+              <div class="language-toggle-country-info">
+                <div class="language-toggle-country-name">France</div>
+                <div class="language-toggle-country-language">Français</div>
+              </div>
+            </button>
+            
+            <button class="language-toggle-country-item" dir="ltr" onclick="selectCountry('nl', 'Netherlands')">
+              <div class="language-toggle-country-flag">
+                <img src="https://flagcdn.com/w40/nl.png" class="language-toggle-country-flag-image" />
+              </div>
+              <div class="language-toggle-country-info">
+                <div class="language-toggle-country-name">Netherlands</div>
+                <div class="language-toggle-country-language">Nederlands</div>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let isOpen = false;
+    let currentTab = 'languages';
+
+    function toggleDropdown() {
+      const dropdown = document.getElementById('dropdown');
+      isOpen = !isOpen;
+      dropdown.style.display = isOpen ? 'block' : 'none';
+    }
+
+    function switchTab(tab) {
+      currentTab = tab;
+      const languagesTab = document.getElementById('languagesTab');
+      const countriesTab = document.getElementById('countriesTab');
+      const tabs = document.querySelectorAll('.language-toggle-tab');
+      
+      if (tab === 'languages') {
+        languagesTab.style.display = 'block';
+        countriesTab.style.display = 'none';
+        tabs[0].classList.add('active');
+        tabs[1].classList.remove('active');
+      } else {
+        languagesTab.style.display = 'none';
+        countriesTab.style.display = 'block';
+        tabs[0].classList.remove('active');
+        tabs[1].classList.add('active');
+      }
+    }
+
+    function selectLanguage(code, name) {
+      console.log('Language selected:', code, name);
+      // Update active state
+      document.querySelectorAll('.language-toggle-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      event.currentTarget.classList.add('active');
+      
+      // Update button flag
+      const flagImg = document.querySelector('.language-toggle-flag-container img');
+      flagImg.src = `https://flagcdn.com/w40/${code === 'ar' ? 'sa' : 'us'}.png`;
+      
+      // Close dropdown
+      toggleDropdown();
+    }
+
+    function selectCountry(code, name) {
+      console.log('Country selected:', code, name);
+      // Close dropdown
+      toggleDropdown();
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+      const container = document.getElementById('languageToggle');
+      if (!container.contains(event.target)) {
+        const dropdown = document.getElementById('dropdown');
+        dropdown.style.display = 'none';
+        isOpen = false;
+      }
+    });
+  </script>
+</body>
+</html>
+
+

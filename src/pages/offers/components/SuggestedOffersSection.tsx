@@ -233,7 +233,7 @@ const SuggestedOffersSection: React.FC = () => {
             className="owl-theme"
             {...owlCarouselOptions}
             style={{
-              direction: offers.length > 4 && isRTL ? "ltr" : "rtl",
+              direction: offers.length > 4 && isRTL ? "ltr" : "ltr",
             }}
           >
             {offers.slice(0, 8).map((offer) => (

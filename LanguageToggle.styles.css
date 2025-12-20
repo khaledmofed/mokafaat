@@ -1,0 +1,425 @@
+/* ============================================
+   LanguageToggle Component Styles
+   ============================================ */
+
+/* Container */
+.language-toggle-container {
+  position: relative;
+}
+
+/* Main Toggle Button */
+.language-toggle-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  height: 2.25rem;
+  background-color: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 9999px;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.language-toggle-button:hover {
+  background-color: #e5e7eb;
+}
+
+/* Globe Icon Container */
+.language-toggle-globe {
+  font-size: 0.875rem;
+}
+
+.language-toggle-globe-icon {
+  color: #374151;
+  font-size: 1.25rem;
+}
+
+/* Separator Line */
+.language-toggle-separator {
+  width: 1px;
+  height: 1.5rem;
+  background-color: #9ca3af;
+}
+
+/* Flag Image Container */
+.language-toggle-flag-container {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 9999px;
+  overflow: hidden;
+  border: none;
+  border-color: #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.language-toggle-flag-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Dropdown Menu */
+.language-toggle-dropdown {
+  position: absolute;
+  top: 100%;
+  margin-top: 0.5rem;
+  width: 24rem;
+  background-color: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+  z-index: 50;
+  overflow: hidden;
+  padding: 1.5rem;
+}
+
+/* RTL Support */
+.language-toggle-dropdown[dir="rtl"] {
+  left: 0;
+}
+
+.language-toggle-dropdown:not([dir="rtl"]) {
+  right: 0;
+}
+
+/* Header Tabs Container */
+.language-toggle-tabs {
+  display: flex;
+  border-bottom: 1px solid #f3f4f6;
+  background-color: #f3f4f6;
+  padding: 0.5rem;
+  border-radius: 9999px;
+  margin-bottom: 0.5rem;
+}
+
+/* Tab Button */
+.language-toggle-tab {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  text-align: center;
+  transition: colors 0.2s;
+  border-radius: 9999px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+}
+
+.language-toggle-tab.active {
+  background-color: white;
+  color: #1f2937;
+}
+
+.language-toggle-tab:not(.active) {
+  color: #6b7280;
+}
+
+.language-toggle-tab:not(.active):hover {
+  background-color: #f9fafb;
+}
+
+.language-toggle-tab-text {
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+/* Content Container */
+.language-toggle-content {
+  max-height: 20rem;
+  overflow-y: auto;
+}
+
+/* Language List Item */
+.language-toggle-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  transition: background-color 0.2s;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  text-align: left;
+}
+
+.language-toggle-item[dir="rtl"] {
+  text-align: right;
+}
+
+.language-toggle-item:hover {
+  background-color: #f9fafb;
+}
+
+.language-toggle-item.active {
+  background-color: #f3f4f6;
+}
+
+/* Language Flag Container */
+.language-toggle-item-flag {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  overflow: hidden;
+  border: 2px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.language-toggle-item-flag-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Language Info */
+.language-toggle-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.language-toggle-item-name {
+  color: #111827;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.language-toggle-item-subtitle {
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+
+/* Countries Grid */
+.language-toggle-countries-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0;
+}
+
+/* Country Item */
+.language-toggle-country-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  transition: background-color 0.2s;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  text-align: left;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.language-toggle-country-item[dir="rtl"] {
+  text-align: right;
+}
+
+.language-toggle-country-item:hover {
+  background-color: #f9fafb;
+}
+
+.language-toggle-country-item:last-child {
+  border-bottom: none;
+}
+
+/* Country Flag Container */
+.language-toggle-country-flag {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 9999px;
+  overflow: hidden;
+  border: 2px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.language-toggle-country-flag-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Country Info */
+.language-toggle-country-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.language-toggle-country-name {
+  color: #111827;
+  font-weight: 500;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.language-toggle-country-language {
+  color: #6b7280;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============================================
+   Color Palette Reference
+   ============================================
+   
+   Gray Scale:
+   - gray-50: #f9fafb
+   - gray-100: #f3f4f6
+   - gray-200: #e5e7eb
+   - gray-300: #d1d5db
+   - gray-400: #9ca3af
+   - gray-500: #6b7280
+   - gray-700: #374151
+   - gray-800: #1f2937
+   - gray-900: #111827
+   
+   Background Colors:
+   - bg-gray-100: #f3f4f6
+   - bg-gray-200: #e5e7eb
+   - bg-white: #ffffff
+   - bg-[#F3F4F6]: #f3f4f6
+   
+   Border Colors:
+   - border-gray-100: #f3f4f6
+   - border-gray-200: #e5e7eb
+   - border-gray-300: #d1d5db
+   - border-gray-400: #9ca3af
+   
+   Text Colors:
+   - text-gray-500: #6b7280
+   - text-gray-700: #374151
+   - text-gray-800: #1f2937
+   - text-gray-900: #111827
+   
+   ============================================
+   Spacing Reference
+   ============================================
+   
+   Padding:
+   - px-3 py-2: 0.75rem 0.5rem
+   - px-4 py-2: 1rem 0.5rem
+   - px-4 py-3: 1rem 0.75rem
+   - px-3 py-3: 0.75rem 0.75rem
+   - p-2: 0.5rem
+   - p-6: 1.5rem
+   
+   Gap:
+   - gap-2: 0.5rem
+   - gap-3: 0.75rem
+   
+   Margin:
+   - mt-2: 0.5rem
+   - mb-2: 0.5rem
+   
+   ============================================
+   Border Radius Reference
+   ============================================
+   
+   - rounded-full: 9999px
+   - rounded-xl: 0.75rem
+   
+   ============================================
+   Shadow Reference
+   ============================================
+   
+   - shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 
+                0 4px 6px -2px rgba(0, 0, 0, 0.05)
+   
+   ============================================
+   Z-Index Reference
+   ============================================
+   
+   - z-50: 50
+   
+   ============================================
+   Transitions Reference
+   ============================================
+   
+   - transition-all duration-300: all 0.3s
+   - transition-colors: colors 0.2s
+   
+   ============================================
+   Sizes Reference
+   ============================================
+   
+   Heights:
+   - h-6: 1.5rem
+   - h-9: 2.25rem
+   
+   Widths:
+   - w-6: 1.5rem
+   - w-8: 2rem
+   - w-96: 24rem
+   - w-px: 1px
+   - w-full: 100%
+   
+   Font Sizes:
+   - text-xs: 0.75rem
+   - text-sm: 0.875rem
+   - text-xl: 1.25rem
+   
+   Max Heights:
+   - max-h-80: 20rem
+   
+   ============================================
+   Grid Reference
+   ============================================
+   
+   - grid-cols-2: repeat(2, 1fr)
+   - gap-0: 0
+   
+   ============================================
+   Flexbox Reference
+   ============================================
+   
+   - flex: display: flex
+   - items-center: align-items: center
+   - justify-center: justify-content: center
+   - flex-1: flex: 1 1 0%
+   - flex-shrink-0: flex-shrink: 0
+   
+   ============================================
+   Text Alignment Reference
+   ============================================
+   
+   - text-left: text-align: left
+   - text-right: text-align: right
+   - text-center: text-align: center
+   
+   ============================================
+   Overflow Reference
+   ============================================
+   
+   - overflow-hidden: overflow: hidden
+   - overflow-y-auto: overflow-y: auto
+   - truncate: white-space: nowrap; overflow: hidden; text-overflow: ellipsis
+   
+   ============================================
+   Object Fit Reference
+   ============================================
+   
+   - object-cover: object-fit: cover
+   
+   ============================================
+   Border Reference
+   ============================================
+   
+   - border-none: border: none
+   - border-b: border-bottom
+   - last:border-b-0: last-child border-bottom: none
+   
+   ============================================
+   */
+
+

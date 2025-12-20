@@ -141,7 +141,7 @@ const WeeklyDiscountsSection: React.FC = () => {
           className="owl-theme"
           {...carouselOptions}
           style={{
-            direction: weeklyDiscounts.length > 4 && isRTL ? "ltr" : "rtl",
+            direction: weeklyDiscounts.length > 4 && isRTL ? "ltr" : "ltr",
           }}
         >
           {
