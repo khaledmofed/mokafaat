@@ -1,33 +1,45 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
 import { useIsRTL } from "@hooks";
-import { getAllOffers, type Offer } from "@data/offers";
+import { type Offer } from "@data/offers";
 import OfferCard from "./OfferCard";
 import OfferModal from "./OfferModal";
 import OwlCarousel from "react-owl-carousel";
 import { Pattern } from "@assets";
+import { useWebHome } from "@hooks/api/useMokafaatQueries";
+import { mapApiOffersToModels } from "@network/mappers/offersMapper";
 
 const LatestOffersSection: React.FC = () => {
   const isRTL = useIsRTL();
   const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const [carouselKey, setCarouselKey] = useState(0);
   const owlCarouselRef = useRef<OwlCarousel | null>(null);
 
-  const latestOffers = useMemo(() => getAllOffers().slice(0, 8), []);
+  const { data: webHomeResponse, isLoading: apiLoading } = useWebHome();
+
+  const latestOffers = useMemo(() => {
+    if (!webHomeResponse) return [];
+    const res = webHomeResponse as Record<string, unknown>;
+    const data = res?.data as Record<string, unknown> | undefined;
+    const offers = data?.offers as
+      | Record<string, Array<Record<string, unknown>>>
+      | undefined;
+    if (!offers) return [];
+    const all = [
+      ...(Array.isArray(offers.today) ? offers.today : []),
+      ...(Array.isArray(offers.new) ? offers.new : []),
+      ...(Array.isArray(offers.best_selling) ? offers.best_selling : []),
+    ];
+    const unique = all.filter(
+      (o, i, arr) => arr.findIndex((x) => String(x?.id) === String(o?.id)) === i
+    );
+    return mapApiOffersToModels(unique).slice(0, 8);
+  }, [webHomeResponse]);
 
   // Force re-render when language or direction changes
   useEffect(() => {
     setCarouselKey((prev) => prev + 1);
   }, [isRTL]);
-
-  // Simulate loading
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
 
   // OwlCarousel options
   const owlCarouselOptions = useMemo(
@@ -107,7 +119,7 @@ const LatestOffersSection: React.FC = () => {
       </div>
 
       <div className="relative OffersCarousel PropertiesCarousel">
-        {isLoading ? (
+        {apiLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {Array.from({ length: 4 }).map((_, index) => (
               <SkeletonCard key={index} />
@@ -135,6 +147,13 @@ const LatestOffersSection: React.FC = () => {
               ))}
             </OwlCarousel>
           )
+        )}
+        {!apiLoading && latestOffers.length === 0 && (
+          <div className="text-center py-12 text-gray-500">
+            {isRTL
+              ? "لا توجد عروض متاحة حالياً"
+              : "No offers available at the moment"}
+          </div>
         )}
       </div>
 

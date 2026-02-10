@@ -1,60 +1,38 @@
 import { APP_ROUTES } from "@constants";
+// راوتات الموقع العام (Website)
 import {
   HomePage,
   AboutPage,
-  // CareersPage,
-  // JobDetailsPage,
-  // JobApplication,
-  // TalentApplicationPage,
-  // ThanksPage,
   ContactPage,
   PrivacyPolicyPage,
   TermsConditionsPage,
-  // ConfrimEmailPage,
-  // CompanyApplicationSuccessPage,
+  BlogsPage,
+  BlogArticlePage,
+  OffersPage,
+  CategoryOffersPage,
+  RestaurantDetailsPage,
+  OffersPaymentPage,
+  OffersSuccessPage,
+  CardsPage,
+  CompanyDetailsPage,
+  PaymentPage,
+  SuccessPage,
+  CouponsPage,
+  BookingsPage,
+  BookingsPaymentPage,
+  BookingsSuccessPage,
+  LoginPage,
+  RegisterPage,
   NotFoundPage,
-  // ConrtactPage,
-  // RatingPage,
-  // DownloadAppPage,
-  // ProjectsPage,
-  // PortfolioPage,
-  // PortfolioDetailsPage,
-  // JobsPage,
-  // UploadIntroVideo,
-  // ServiceDetailsPage,
-  // ServiceDetailsByIdPage,
-  // GalleryPage,
-} from "@pages";
-// import SearchPage from "@pages/search";
-// import PropertiesPage from "@pages/properties";
-// import PropertyPage from "@pages/properties/[slug]";
-// import PropertyProductPage from "@pages/properties/[propertySlug]/[productSlug]";
-// import InvestmentsPage from "@pages/investments";
-import BlogsPage from "@pages/blogs";
-import BlogArticlePage from "@pages/blogs/[slug]";
-
-// import BusinessRegistrationPage from "@business-registration";
-// import { RequestServicePage } from "@pages";
-import CardsPage from "@pages/cards";
-import CompanyDetailsPage from "@pages/cards/[companyId]";
-import PaymentPage from "@pages/cards/[companyId]/payment";
-import SuccessPage from "@pages/cards/[companyId]/success";
-import OffersPage from "@pages/offers";
-import CategoryOffersPage from "@pages/offers/[category]";
-import RestaurantDetailsPage from "@pages/offers/[category]/[restaurantId]";
-import OffersPaymentPage from "@pages/offers/[category]/[restaurantId]/payment";
-import OffersSuccessPage from "@pages/offers/[category]/[restaurantId]/success";
-import BookingsPage from "@pages/bookings";
-import BookingsPaymentPage from "@pages/bookings/payment";
-import BookingsSuccessPage from "@pages/bookings/success";
-import LoginPage from "@pages/auth/LoginPage";
-import RegisterPage from "@pages/auth/RegisterPage";
-import ProfilePage from "@pages/profile/ProfilePage";
-import SavedPage from "@pages/saved/SavedPage";
-import CartPage from "@pages/cart/CartPage";
-import OrdersPage from "@pages/orders/OrdersPage";
-import WalletPage from "@pages/wallet/WalletPage";
-import CouponsPage from "@pages/coupons";
+} from "@pages/Website";
+// لوحة المستخدم (App / الموبايل)
+import {
+  ProfilePage,
+  SavedPage,
+  CartPage,
+  OrdersPage,
+  WalletPage,
+} from "@pages/App";
 
 export interface AppRouter {
   path: string;
@@ -63,6 +41,7 @@ export interface AppRouter {
 }
 
 export const routes: AppRouter[] = [
+  // ========== Website — الراوتات العامة ==========
   {
     path: APP_ROUTES.home,
     element: HomePage,
@@ -293,6 +272,7 @@ export const routes: AppRouter[] = [
     element: RegisterPage,
     inLayout: false,
   },
+  // ========== App — لوحة المستخدم (موبايل) ==========
   {
     path: "/profile",
     element: ProfilePage,

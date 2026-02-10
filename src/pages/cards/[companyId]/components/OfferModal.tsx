@@ -24,6 +24,7 @@ import {
   Cards14,
 } from "@assets";
 import CurrencyIcon from "@components/CurrencyIcon";
+import { stripHtml } from "@utils/stripHtml";
 
 interface OfferModalProps {
   offer: CardOffer;
@@ -159,7 +160,7 @@ const OfferModal = ({ offer, company, isOpen, onClose }: OfferModalProps) => {
                 {isRTL ? "تعرف أكثر عن الخدمة" : "Learn more about the service"}
               </h4>
               <p className="text-gray-600 text-sm">
-                {offer.description[isRTL ? "ar" : "en"]}
+                {stripHtml(offer.description[isRTL ? "ar" : "en"])}
               </p>
             </div>
           </div>

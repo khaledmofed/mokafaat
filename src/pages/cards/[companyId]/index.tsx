@@ -1,9 +1,9 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useIsRTL } from "@hooks";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { FiArrowLeft } from "react-icons/fi";
-import { getCompanyById, type CardOffer } from "@data/cards";
+import { getCompanyById, type CardCompany, type CardOffer } from "@data/cards";
 import OfferModal from "./components/OfferModal";
 import OfferCard from "./components/OfferCard";
 import {
@@ -21,6 +21,8 @@ import {
   Cards13,
 } from "@assets";
 import GetStartedSection from "@pages/home/components/GetStartedSection";
+import { useWebHome } from "@hooks/api/useMokafaatQueries";
+import { mapApiCardsToModels } from "@network/mappers/cardsMapper";
 
 const CompanyDetailsPage = () => {
   const { companyId } = useParams<{ companyId: string }>();
@@ -29,7 +31,55 @@ const CompanyDetailsPage = () => {
   const [selectedOffer, setSelectedOffer] = useState<CardOffer | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const company = companyId ? getCompanyById(companyId) : null;
+  const { data: webHomeResponse } = useWebHome();
+
+  const apiCompany = useMemo((): CardCompany | null => {
+    if (!webHomeResponse || !companyId) return null;
+    const res = webHomeResponse as Record<string, unknown>;
+    const data = res?.data as Record<string, unknown> | undefined;
+    const cards = data?.cards as Array<Record<string, unknown>> | undefined;
+    if (!Array.isArray(cards)) return null;
+    const models = mapApiCardsToModels(cards);
+    const card = models.find((c) => String(c.id) === String(companyId));
+    if (!card) return null;
+    const offer: CardOffer = {
+      id: String(card.id),
+      title: { ar: card.title, en: card.title },
+      description: {
+        ar: card.description ?? "",
+        en: card.description ?? "",
+      },
+      price: parseFloat(card.price) || 0,
+      currency: "SAR",
+      validity: { ar: "", en: "" },
+      features: [],
+      image: card.image,
+      rating: 0,
+      purchases: 0,
+      views: 0,
+      downloads: 0,
+      bookmarks: 0,
+    };
+    return {
+      id: String(card.id),
+      name: { ar: card.title, en: card.title },
+      logo: card.image,
+      category: {
+        key: card.category || "other",
+        ar: card.category,
+        en: card.category,
+      },
+      description: {
+        ar: card.description ?? "",
+        en: card.description ?? "",
+      },
+      color: "#400198",
+      offers: [offer],
+    };
+  }, [webHomeResponse, companyId]);
+
+  const staticCompany = companyId ? getCompanyById(companyId) : null;
+  const company = staticCompany || apiCompany;
 
   if (!company) {
     return (
@@ -49,8 +99,9 @@ const CompanyDetailsPage = () => {
     );
   }
 
-  // Function to get card image
+  // Function to get card image (supports URL from API or static asset name)
   const getCardImage = (logoName: string) => {
+    if (logoName.startsWith("http")) return logoName;
     switch (logoName) {
       case "Cards1":
         return Cards1;

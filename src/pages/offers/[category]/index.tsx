@@ -11,13 +11,20 @@ import {
   FiGrid,
   FiList,
 } from "react-icons/fi";
-import { getRestaurantsByCategory, offerCategories } from "@data/offers";
+import {
+  getRestaurantsByCategory,
+  offerCategories,
+  type Restaurant,
+  type Offer,
+} from "@data/offers";
 import { Pro1, Pro2, Pro3, Pro4, Pro5, Pro6, Pro7, Pro8 } from "@assets";
 import { AboutPattern } from "@assets";
 import GetStartedSection from "@pages/home/components/GetStartedSection";
 import { BsHeart, BsShare } from "react-icons/bs";
 import FilterSidebar from "../components/FilterSidebar";
 import RestaurantListView from "../components/RestaurantListView";
+import { useWebHome } from "@hooks/api/useMokafaatQueries";
+import { mapApiOffersToModels } from "@network/mappers/offersMapper";
 
 const CategoryOffersPage = () => {
   const { category } = useParams<{ category: string }>();
@@ -37,11 +44,90 @@ const CategoryOffersPage = () => {
   } | null>(null);
   const perPage = 9;
 
-  // Get category info
-  const categoryInfo = offerCategories.find((cat) => cat.key === category);
+  const { data: webHomeResponse } = useWebHome();
 
-  // Function to get restaurant image
+  // Category info: from API categories or fallback to offerCategories
+  const categoryInfo = useMemo(() => {
+    const fallback = offerCategories.find((cat) => cat.key === category);
+    if (!webHomeResponse) return fallback ?? null;
+    const res = webHomeResponse as Record<string, unknown>;
+    const data = res?.data as Record<string, unknown> | undefined;
+    const cats = data?.categories as Array<Record<string, unknown>> | undefined;
+    const apiCat = Array.isArray(cats)
+      ? cats.find((c) => String(c?.slug ?? "") === category)
+      : undefined;
+    if (!apiCat) return fallback ?? null;
+    const name = String(apiCat.name ?? apiCat.title ?? "");
+    const icon = apiCat.image ?? apiCat.image_url;
+    return {
+      key: category!,
+      ar: name,
+      en: name,
+      icon: typeof icon === "string" ? icon : fallback?.icon ?? "",
+      color: fallback?.color ?? "#400198",
+    };
+  }, [category, webHomeResponse]);
+
+  // Restaurants from API (offers grouped by merchant) or fallback to static data
+  const apiRestaurants = useMemo((): Restaurant[] => {
+    if (!category || !webHomeResponse) return [];
+    const res = webHomeResponse as Record<string, unknown>;
+    const data = res?.data as Record<string, unknown> | undefined;
+    const offersData = data?.offers as
+      | Record<string, Array<Record<string, unknown>>>
+      | undefined;
+    const all = [
+      ...(Array.isArray(offersData?.today) ? offersData.today : []),
+      ...(Array.isArray(offersData?.new) ? offersData.new : []),
+      ...(Array.isArray(offersData?.best_selling)
+        ? offersData.best_selling
+        : []),
+    ];
+    const offers = mapApiOffersToModels(all).filter(
+      (o) => (o.category || "").toLowerCase() === (category || "").toLowerCase()
+    );
+    const byCompany = new Map<string, Offer[]>();
+    for (const o of offers) {
+      const id = o.companyId || "unknown";
+      if (!byCompany.has(id)) byCompany.set(id, []);
+      byCompany.get(id)!.push(o);
+    }
+    return Array.from(byCompany.entries()).map(([companyId, companyOffers]) => {
+      const first = companyOffers[0]!;
+      const name = first.merchantName || first.title.ar || first.title.en || "";
+      const logo = first.merchantLogo || first.image || "Pro1";
+      return {
+        id: companyId,
+        slug: companyId,
+        name: { ar: name, en: name },
+        logo,
+        category: {
+          key: category,
+          ar: first.categoryName ?? category,
+          en: first.categoryName ?? category,
+        },
+        description: { ar: "", en: "" },
+        location: { ar: "-", en: "-" },
+        distance: "-",
+        rating: first.rating ?? 0,
+        reviewsCount: 0,
+        views: first.views ?? 0,
+        saves: first.bookmarks ?? 0,
+        color: "#400198",
+        topColor: "bg-[#400198]",
+        offers: companyOffers,
+        menu: [],
+        isOpen: true,
+        deliveryTime: "-",
+        minimumOrder: 0,
+        deliveryFee: 0,
+      };
+    });
+  }, [category, webHomeResponse]);
+
+  // Function to get restaurant image (URL or static asset name)
   const getRestaurantImage = (logoName: string) => {
+    if (logoName.startsWith("http")) return logoName;
     switch (logoName) {
       case "Pro1":
         return Pro1;
@@ -64,13 +150,15 @@ const CategoryOffersPage = () => {
     }
   };
 
-  // Get restaurants based on category
+  // Get restaurants: API first, then fallback to static; then apply search & filters
   const filteredRestaurants = useMemo(() => {
     if (!category) return [];
 
-    let restaurants = getRestaurantsByCategory(category);
+    let restaurants: Restaurant[] =
+      apiRestaurants.length > 0
+        ? apiRestaurants
+        : getRestaurantsByCategory(category);
 
-    // Apply search filter
     if (search) {
       restaurants = restaurants.filter(
         (restaurant) =>
@@ -83,19 +171,16 @@ const CategoryOffersPage = () => {
       );
     }
 
-    // Apply additional filters if any
     if (appliedFilters) {
-      // Sort by
       if (appliedFilters.sortBy === "rating") {
-        restaurants = restaurants.sort((a, b) => b.rating - a.rating);
+        restaurants = [...restaurants].sort((a, b) => b.rating - a.rating);
       } else if (appliedFilters.sortBy === "newest") {
-        restaurants = restaurants.sort((a, b) => b.views - a.views);
+        restaurants = [...restaurants].sort((a, b) => b.views - a.views);
       }
-      // Add more filter logic here as needed
     }
 
     return restaurants;
-  }, [category, search, isRTL, appliedFilters]);
+  }, [category, search, isRTL, appliedFilters, apiRestaurants]);
 
   const handleApplyFilters = (filters: {
     sortBy: string;

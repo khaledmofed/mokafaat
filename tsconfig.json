@@ -40,7 +40,8 @@
       "@locale/*": ["src/locale/*"],
       "@types/*": ["src/types/*"],
       "@validations/*": ["src/validations/*"],
-      "@stores/*": ["src/stores/*"]
+      "@stores/*": ["src/stores/*"],
+      "@config/*": ["src/config/*"]
     }
   },
   "include": ["src"],

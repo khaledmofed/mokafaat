@@ -1,5 +1,5 @@
 import { NavLink, useNavigate, Link } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link as ScrollLink } from "react-scroll";
 import { NavigationLinksProps } from "@interfaces";
 import { APP_ROUTES } from "@constants";
@@ -22,6 +22,7 @@ import {
 import { MdOutlineFlight } from "react-icons/md";
 import { RiHotelLine } from "react-icons/ri";
 import { FaCar } from "react-icons/fa";
+import { useWebHome } from "@hooks/api/useMokafaatQueries";
 
 const NavigationLinks: React.FC<NavigationLinksProps> = ({
   links,
@@ -30,59 +31,111 @@ const NavigationLinks: React.FC<NavigationLinksProps> = ({
 }) => {
   const isRTL = useIsRTL();
   const [isScrolled, setIsScrolled] = useState(false);
+  const { data: webHomeResponse } = useWebHome();
 
-  // Categories data for offers dropdown
-  const offersCategories = [
-    {
-      id: 1,
-      icon: RestaurantIcon,
-      title: t("home.categories.restaurants"),
-      alt: t("home.categories.restaurants"),
-      key: "restaurants",
-    },
-    {
-      id: 2,
-      icon: CoffeeIcon,
-      title: t("home.categories.cafes"),
-      alt: t("home.categories.cafes"),
-      key: "cafes",
-    },
-    {
-      id: 3,
-      icon: HeadphoneIcon,
-      title: t("home.categories.entertainment"),
-      alt: t("home.categories.entertainment"),
-      key: "entertainment",
-    },
-    {
-      id: 4,
-      icon: ShopIcon,
-      title: t("home.categories.shops"),
-      alt: t("home.categories.shops"),
-      key: "shopping",
-    },
-    {
-      id: 5,
-      icon: HotelIcon,
-      title: t("home.categories.hotels"),
-      alt: t("home.categories.hotels"),
-      key: "hotels",
-    },
-    {
-      id: 6,
-      icon: CarIcon,
-      title: t("home.categories.cars"),
-      alt: t("home.categories.cars"),
-      key: "cars",
-    },
-    {
-      id: 7,
-      icon: DeliveryIcon,
-      title: t("home.categories.delivery"),
-      alt: t("home.categories.delivery"),
-      key: "services",
-    },
-  ];
+  // Fallback categories (من الترجمة) إذا الـ API ما رجع بيانات
+  const fallbackOffersCategories = useMemo(
+    () => [
+      {
+        id: 1,
+        icon: RestaurantIcon,
+        title: t("home.categories.restaurants"),
+        alt: t("home.categories.restaurants"),
+        key: "restaurants",
+      },
+      {
+        id: 2,
+        icon: CoffeeIcon,
+        title: t("home.categories.cafes"),
+        alt: t("home.categories.cafes"),
+        key: "cafes",
+      },
+      {
+        id: 3,
+        icon: HeadphoneIcon,
+        title: t("home.categories.entertainment"),
+        alt: t("home.categories.entertainment"),
+        key: "entertainment",
+      },
+      {
+        id: 4,
+        icon: ShopIcon,
+        title: t("home.categories.shops"),
+        alt: t("home.categories.shops"),
+        key: "shopping",
+      },
+      {
+        id: 5,
+        icon: HotelIcon,
+        title: t("home.categories.hotels"),
+        alt: t("home.categories.hotels"),
+        key: "hotels",
+      },
+      {
+        id: 6,
+        icon: CarIcon,
+        title: t("home.categories.cars"),
+        alt: t("home.categories.cars"),
+        key: "cars",
+      },
+      {
+        id: 7,
+        icon: DeliveryIcon,
+        title: t("home.categories.delivery"),
+        alt: t("home.categories.delivery"),
+        key: "services",
+      },
+    ],
+    [t]
+  );
+
+  // استخراج categories من الـ API response لـ mega menu العروض
+  const apiOffersCategories = useMemo(() => {
+    if (!webHomeResponse) return [];
+
+    const res = webHomeResponse as Record<string, unknown>;
+    const data = res?.data as Record<string, unknown> | undefined;
+    const cats = data?.categories as Array<Record<string, unknown>> | undefined;
+
+    if (!Array.isArray(cats) || cats.length === 0) return [];
+
+    const mapped = cats
+      .map((cat) => {
+        const id = cat.id;
+        const name = String(cat.name ?? cat.title ?? "");
+        const slug = String(cat.slug ?? "");
+        let image = String(cat.image ?? cat.image_url ?? "");
+
+        // إصلاح URL مكرر في الصور
+        if (image && image.includes("/storage/https://")) {
+          const storageIndex = image.indexOf("/storage/https://");
+          image =
+            image.substring(0, storageIndex + "/storage".length) +
+            image.substring(storageIndex + "/storage/https://".length);
+        }
+
+        if (!name || !slug) {
+          console.warn("Category missing name or slug:", cat);
+          return null;
+        }
+
+        return {
+          id: typeof id === "number" ? id : 0,
+          icon: image || RestaurantIcon,
+          title: name,
+          alt: name,
+          key: slug,
+        };
+      })
+      .filter((c): c is NonNullable<typeof c> => c !== null);
+
+    return mapped;
+  }, [webHomeResponse]);
+
+  const offersCategories =
+    apiOffersCategories.length > 0
+      ? apiOffersCategories
+      : fallbackOffersCategories;
 
   // Booking types data from BookingsPage tabs
   const bookingTypes = [

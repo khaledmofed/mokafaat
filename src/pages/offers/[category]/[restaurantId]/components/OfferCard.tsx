@@ -4,6 +4,7 @@ import { type Offer } from "@data/offers";
 import { Pro1, Pro2, Pro3, Pro4, Pro5, Pro6, Pro7, Pro8 } from "@assets";
 import CurrencyIcon from "@components/CurrencyIcon";
 import { FiDownload, FiEye } from "react-icons/fi";
+import { stripHtml } from "@utils/stripHtml";
 
 interface OfferCardProps {
   offer: Offer;
@@ -89,7 +90,7 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer, onOfferClick }) => {
         </h3>
 
         <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-          {offer.description[isRTL ? "ar" : "en"]}
+          {stripHtml(offer.description[isRTL ? "ar" : "en"])}
         </p>
 
         {/* Features */}

@@ -1,58 +1,53 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
+import { API_BASE_URL } from "@config/api";
+import i18n from "../i18n";
 
-// Get API base URL based on environment
-const getApiBaseUrl = () => {
-  // Check if we're in production (Vercel)
-  if (window.location.hostname === "events-master.vercel.app") {
-    console.log(
-      "🚀 Production Environment (Vercel) - Using API:",
-      "https://api.staging.eventmasters.co"
-    );
-    return "https://api.staging.eventmasters.co";
-  }
-
-  // Check if we're in staging
-  if (window.location.hostname === "staging.eventmasters.co") {
-    console.log(
-      "🔧 Staging Environment - Using API:",
-      "https://api.staging.eventmasters.co"
-    );
-    return "https://api.staging.eventmasters.co";
-  }
-
-  // Check if we're in development
-  if (
-    window.location.hostname === "localhost" ||
-    window.location.hostname === "127.0.0.1"
-  ) {
-    console.log(
-      "💻 Development Environment - Using API:",
-      "https://api.staging.eventmasters.co"
-    );
-    return "https://api.staging.eventmasters.co";
-  }
-
-  // Default fallback
-  console.log(
-    "⚠️ Unknown Environment - Using Default API:",
-    "https://api.staging.eventmasters.co"
-  );
-  return "https://api.staging.eventmasters.co";
-};
+/** لغة الطلب للـ API: ar | en (وفق لغة الواجهة) */
+function getAcceptLanguage(): string {
+  const lang = i18n.language?.split("-")[0] || "ar";
+  return ["ar", "en", "fr"].includes(lang) ? lang : "ar";
+}
 
 export const api = axios.create({
-  baseURL: getApiBaseUrl(),
+  baseURL: API_BASE_URL,
   headers: {
     Accept: "application/json",
     "Content-Type": "application/json",
   },
 });
 
-api.interceptors.response.use(
-  (res) => {
-    return res;
+// تجنب الاعتماد الدائري: التوكن يُحقَن من التطبيق عبر setAuthTokenGetter
+type TokenGetter = () => string | null;
+type LogoutFn = () => void;
+let getAuthToken: TokenGetter = () => null;
+let onUnauthorized: LogoutFn = () => {};
+
+export function setAuthTokenGetter(fn: TokenGetter) {
+  getAuthToken = fn;
+}
+
+export function setOnUnauthorized(fn: LogoutFn) {
+  onUnauthorized = fn;
+}
+
+api.interceptors.request.use(
+  (config) => {
+    const token = getAuthToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    config.headers["Accept-Language"] = getAcceptLanguage();
+    return config;
   },
-  async (err) => {
+  (error) => Promise.reject(error)
+);
+
+api.interceptors.response.use(
+  (res) => res,
+  (err: AxiosError) => {
+    if (err.response?.status === 401) {
+      onUnauthorized();
+    }
     return Promise.reject(err);
   }
 );

@@ -10,6 +10,7 @@ const LoginPage: React.FC = () => {
   const { sendOtp, verifyOtp, loading, error, otpSent } = useUserStore();
 
   const [phone, setPhone] = useState("");
+  const [countryCode] = useState("966");
   const [code, setCode] = useState(["", "", "", ""]);
   const [timer, setTimer] = useState(45);
   const [isRegisterMode, setIsRegisterMode] = useState(false);
@@ -66,7 +67,7 @@ const LoginPage: React.FC = () => {
     if (!phone.trim()) return;
 
     try {
-      const res = await sendOtp();
+      const res = await sendOtp(phone.trim(), countryCode);
       if (res.status) {
         setToast({ type: "success", message: res.msg });
         setTimer(45);
@@ -83,10 +84,15 @@ const LoginPage: React.FC = () => {
     const otp = code.join("");
     if (otp.length === 4) {
       try {
-        const res = await verifyOtp(phone, otp);
+        const res = await verifyOtp(phone, otp, countryCode);
         if (res.status) {
           setToast({ type: "success", message: res.msg });
-          navigate("/");
+          // إذا البروفايل غير مكتمل → إكمال التسجيل، وإلا → الرئيسية
+          if (res.data?.is_profile_completed === false) {
+            navigate("/register");
+          } else {
+            navigate("/");
+          }
         } else {
           setToast({ type: "error", message: res.msg });
         }
@@ -261,7 +267,7 @@ const LoginPage: React.FC = () => {
                   className="text-[#440798] underline disabled:text-gray-400"
                   disabled={timer > 0 || loading}
                   onClick={() => {
-                    sendOtp();
+                    sendOtp(phone.trim(), countryCode);
                     setTimer(45);
                   }}
                 >

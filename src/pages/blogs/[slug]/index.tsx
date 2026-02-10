@@ -8,38 +8,43 @@ import { LuCalendarRange } from "react-icons/lu";
 import { IoPersonOutline } from "react-icons/io5";
 import { LuPhoneCall } from "react-icons/lu";
 import { HiOutlineEye } from "react-icons/hi";
-import { newsArticles } from "@pages/home/components/NewsBlogs";
 import { UnderTitle } from "@assets";
 import useIsRTL from "@hooks/useIsRTL";
 import { useInquiryModal } from "@context";
 import { MdArrowBackIosNew, MdArrowForwardIos } from "react-icons/md";
 import { GetStartedSection } from "@pages/home/components";
+import { useWebHome } from "@hooks/api/useMokafaatQueries";
+import { mapApiNewsToModels } from "@network/mappers/newsMapper";
 
 const BlogArticlePage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const isRTL = useIsRTL();
   const { openModal } = useInquiryModal();
+  const { data: webHomeResponse, isLoading: newsLoading } = useWebHome();
 
-  // State for read more/less
-  //   const [isExpanded, setIsExpanded] = useState(false);
-
-  // State for recent posts pagination
   const [currentRecentPage, setCurrentRecentPage] = useState(1);
 
-  // Find the current article
-  const currentArticle = useMemo(() => {
-    return newsArticles.find((article) => article.slug === slug);
-  }, [slug]);
+  const newsList = useMemo(() => {
+    if (!webHomeResponse) return [];
+    const res = webHomeResponse as Record<string, unknown>;
+    const data = res?.data as Record<string, unknown> | undefined;
+    const news = data?.news as Array<Record<string, unknown>> | undefined;
+    if (!Array.isArray(news)) return [];
+    return mapApiNewsToModels(news);
+  }, [webHomeResponse]);
 
-  // Get related articles (same category, excluding current)
+  const currentArticle = useMemo(() => {
+    return newsList.find((article) => article.slug === slug);
+  }, [newsList, slug]);
+
   const relatedArticles = useMemo(() => {
     if (!currentArticle) return [];
-    return newsArticles.filter(
+    return newsList.filter(
       (article) =>
         article.category === currentArticle.category && article.slug !== slug
     );
-  }, [currentArticle, slug]);
+  }, [currentArticle, slug, newsList]);
 
   //   const handleShareClick = (id: number) => {
   //     console.log("Share clicked:", id);
@@ -49,7 +54,24 @@ const BlogArticlePage: React.FC = () => {
   //     console.log("Visit clicked:", id);
   //   };
 
-  // If article not found, show 404
+  // Loading: wait for API before showing 404
+  if (newsLoading) {
+    return (
+      <div
+        className="min-h-screen bg-gray-50 flex items-center justify-center"
+        style={{ paddingTop: "72px" }}
+      >
+        <div className="text-center">
+          <div className="animate-spin w-12 h-12 border-4 border-[#400198] border-t-transparent rounded-full mx-auto mb-4" />
+          <p className="text-gray-600">
+            {isRTL ? "جاري التحميل..." : "Loading..."}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // If article not found after load, show 404
   if (!currentArticle) {
     return (
       <div
@@ -468,7 +490,7 @@ const BlogArticlePage: React.FC = () => {
                   {/* Categories List */}
                   <div className="space-y-3">
                     {Array.from(
-                      new Set(newsArticles.map((article) => article.category))
+                      new Set(newsList.map((article) => article.category))
                     ).map((category) => (
                       <div
                         key={category}
@@ -487,14 +509,14 @@ const BlogArticlePage: React.FC = () => {
                         <div className="flex items-center justify-between">
                           <span className="font-medium text-sm">
                             {isRTL
-                              ? newsArticles.find(
+                              ? newsList.find(
                                   (article) => article.category === category
                                 )?.categoryAr || category
                               : category}
                           </span>
                           <span className="text-xs opacity-75">
                             {
-                              newsArticles.filter(
+                              newsList.filter(
                                 (article) => article.category === category
                               ).length
                             }{" "}

@@ -5,6 +5,11 @@ import { useNavigate } from "react-router-dom";
 import OwlCarousel from "react-owl-carousel";
 import { IoIosArrowRoundForward } from "react-icons/io";
 import { FaTag, FaPercent, FaUtensils } from "react-icons/fa";
+import { useWebHome } from "@hooks/api/useMokafaatQueries";
+import {
+  mapApiCouponsToModels,
+  type CouponModel,
+} from "@network/mappers/couponsMapper";
 
 const CouponsSection: React.FC = () => {
   const isRTL = useIsRTL();
@@ -12,209 +17,89 @@ const CouponsSection: React.FC = () => {
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState<string>("all");
 
-  // Coupon data
-  const couponsData = useMemo(
-    () => [
-      {
-        id: 1,
-        title: "عرض خاص الغداء فقط ب 29",
-        price: "ريال",
-        savings: "وفر ١٣ ريال علي فاتورتك",
-        validity: "صلاحية ٣٠ يوم",
-        reusable: true,
-        reusableText: "قابل لاعادة الاستخدام",
-        color: "purple",
-        icon: <FaUtensils className="text-2xl" />,
-        dealText: "واحد",
-        dealSubtext: "والثاني مجانا",
-      },
-      {
-        id: 2,
-        title: "خصم 25% على كامل الفاتورة",
-        price: "25% خصم",
-        savings: "خصم شامل على جميع المنتجات",
-        validity: "صلاحية ٣٠ يوم",
-        reusable: true,
-        reusableText: "قابل لاعادة الاستخدام",
-        color: "green",
-        icon: <FaPercent className="text-2xl" />,
-        dealText: "25%",
-        dealSubtext: "خصم",
-      },
-      {
-        id: 3,
-        title: "مشروب قهوة عربية",
-        price: "9 ريال",
-        savings: "قهوة عربية أصيلة",
-        validity: "صلاحية ٣٠ يوم",
-        reusable: true,
-        reusableText: "قابل لاعادة الاستخدام عدة مرات",
-        color: "orange",
-        icon: <FaUtensils className="text-2xl" />,
-        dealText: "واحد",
-        dealSubtext: "والثاني مجانا",
-      },
-      {
-        id: 4,
-        title: "خصم 5 ريال",
-        price: "مجاناً 5 ريال",
-        savings: "خصم مباشر على الفاتورة",
-        validity: "صلاحية ٣٠ يوم",
-        reusable: false,
-        reusableText: "غير قابل لاعادة الاستخدام",
-        color: "purple",
-        icon: <FaTag className="text-2xl" />,
-        dealText: "مجاناً",
-        dealSubtext: "5 ريال",
-      },
-      {
-        id: 5,
-        title: "عرض خاص الغداء فقط ب 29",
-        price: "ريال",
-        savings: "وفر ١٣ ريال علي فاتورتك",
-        validity: "صلاحية ٣٠ يوم",
-        reusable: true,
-        reusableText: "قابل لاعادة الاستخدام",
-        color: "orange",
-        icon: <FaUtensils className="text-2xl" />,
-        dealText: "واحد",
-        dealSubtext: "والثاني مجانا",
-      },
-      {
-        id: 6,
-        title: "خصم 25% على كامل الفاتورة",
-        price: "25% خصم",
-        savings: "خصم شامل على جميع المنتجات",
-        validity: "صلاحية ٣٠ يوم",
-        reusable: true,
-        reusableText: "قابل لاعادة الاستخدام",
-        color: "green",
-        icon: <FaPercent className="text-2xl" />,
-        dealText: "25%",
-        dealSubtext: "خصم",
-      },
-      {
-        id: 11,
-        title: "عرض خاص الغداء فقط ب 29",
-        price: "ريال",
-        savings: "وفر ١٣ ريال علي فاتورتك",
-        validity: "صلاحية ٣٠ يوم",
-        reusable: true,
-        reusableText: "قابل لاعادة الاستخدام",
-        color: "purple",
-        icon: <FaUtensils className="text-2xl" />,
-        dealText: "واحد",
-        dealSubtext: "والثاني مجانا",
-      },
-      {
-        id: 12,
-        title: "خصم 25% على كامل الفاتورة",
-        price: "25% خصم",
-        savings: "خصم شامل على جميع المنتجات",
-        validity: "صلاحية ٣٠ يوم",
-        reusable: true,
-        reusableText: "قابل لاعادة الاستخدام",
-        color: "green",
-        icon: <FaPercent className="text-2xl" />,
-        dealText: "25%",
-        dealSubtext: "خصم",
-      },
-      {
-        id: 13,
-        title: "مشروب قهوة عربية",
-        price: "9 ريال",
-        savings: "قهوة عربية أصيلة",
-        validity: "صلاحية ٣٠ يوم",
-        reusable: true,
-        reusableText: "قابل لاعادة الاستخدام عدة مرات",
-        color: "orange",
-        icon: <FaUtensils className="text-2xl" />,
-        dealText: "واحد",
-        dealSubtext: "والثاني مجانا",
-      },
-      {
-        id: 14,
-        title: "خصم 5 ريال",
-        price: "مجاناً 5 ريال",
-        savings: "خصم مباشر على الفاتورة",
-        validity: "صلاحية ٣٠ يوم",
-        reusable: false,
-        reusableText: "غير قابل لاعادة الاستخدام",
-        color: "purple",
-        icon: <FaTag className="text-2xl" />,
-        dealText: "مجاناً",
-        dealSubtext: "5 ريال",
-      },
-      {
-        id: 15,
-        title: "عرض خاص الغداء فقط ب 29",
-        price: "ريال",
-        savings: "وفر ١٣ ريال علي فاتورتك",
-        validity: "صلاحية ٣٠ يوم",
-        reusable: true,
-        reusableText: "قابل لاعادة الاستخدام",
-        color: "orange",
-        icon: <FaUtensils className="text-2xl" />,
-        dealText: "واحد",
-        dealSubtext: "والثاني مجانا",
-      },
-      {
-        id: 16,
-        title: "خصم 25% على كامل الفاتورة",
-        price: "25% خصم",
-        savings: "خصم شامل على جميع المنتجات",
-        validity: "صلاحية ٣٠ يوم",
-        reusable: true,
-        reusableText: "قابل لاعادة الاستخدام",
-        color: "green",
-        icon: <FaPercent className="text-2xl" />,
-        dealText: "25%",
-        dealSubtext: "خصم",
-      },
-    ],
-    []
-  );
+  // Fetch coupons from API
+  const { data: webHomeResponse } = useWebHome();
+
+  // Extract coupons from API response
+  const apiCoupons = useMemo(() => {
+    if (!webHomeResponse) return { all: [], by_category: {} };
+    const res = webHomeResponse as Record<string, unknown>;
+    const data = res?.data as Record<string, unknown> | undefined;
+    const coupons = data?.coupons as Record<string, unknown> | undefined;
+    if (!coupons) return { all: [], by_category: {} };
+    return {
+      all: Array.isArray(coupons.all) ? coupons.all : [],
+      by_category: coupons.by_category || {},
+    };
+  }, [webHomeResponse]);
+
+  // Map API coupons to frontend models
+  const couponsData = useMemo(() => {
+    // Use "all" coupons for now, can filter by category later if needed
+    return mapApiCouponsToModels(apiCoupons.all);
+  }, [apiCoupons]);
+
+  // Add icons to coupons based on category or discount
+  const couponsWithIcons = useMemo(() => {
+    return couponsData.map((coupon) => {
+      let icon = <FaTag className="text-2xl" />;
+      if (coupon.discountPercentage) {
+        icon = <FaPercent className="text-2xl" />;
+      } else if (
+        coupon.category?.includes("مطاعم") ||
+        coupon.title.includes("وجبة")
+      ) {
+        icon = <FaUtensils className="text-2xl" />;
+      }
+      return { ...coupon, icon };
+    });
+  }, [couponsData]);
 
   // Filter options
   const filters = [
     {
       key: "all",
       label: t("home.coupons.filters.all"),
-      count: couponsData.length,
+      count: couponsWithIcons.length,
     },
     {
       key: "discounts",
       label: t("home.coupons.filters.discounts"),
-      count: couponsData.filter((item) => item.title.includes("خصم")).length,
+      count: couponsWithIcons.filter(
+        (item) => item.discountPercentage !== undefined
+      ).length,
     },
     {
       key: "coffee",
       label: t("home.coupons.filters.coffee"),
-      count: couponsData.filter((item) => item.title.includes("قهوة")).length,
+      count: couponsWithIcons.filter((item) => item.title.includes("قهوة"))
+        .length,
     },
     {
       key: "reusable",
       label: t("home.coupons.filters.reusable"),
-      count: couponsData.filter((item) => item.reusable).length,
+      count: couponsWithIcons.filter((item) => item.reusable).length,
     },
   ];
 
   // Filtered coupons based on active filter
   const filteredCoupons = useMemo(() => {
     if (activeFilter === "all") {
-      return couponsData;
+      return couponsWithIcons;
     }
     if (activeFilter === "discounts") {
-      return couponsData.filter((item) => item.title.includes("خصم"));
+      return couponsWithIcons.filter(
+        (item) => item.discountPercentage !== undefined
+      );
     }
     if (activeFilter === "coffee") {
-      return couponsData.filter((item) => item.title.includes("قهوة"));
+      return couponsWithIcons.filter((item) => item.title.includes("قهوة"));
     }
     if (activeFilter === "reusable") {
-      return couponsData.filter((item) => item.reusable);
+      return couponsWithIcons.filter((item) => item.reusable);
     }
-    return couponsData;
-  }, [activeFilter, couponsData]);
+    return couponsWithIcons;
+  }, [activeFilter, couponsWithIcons]);
 
   // Group coupons in pairs for slider
   const groupedCoupons = useMemo(() => {
@@ -259,21 +144,11 @@ const CouponsSection: React.FC = () => {
     }
   };
 
-  interface Coupon {
-    id: number;
-    title: string;
-    price: string;
-    savings: string;
-    validity: string;
-    reusable: boolean;
-    reusableText: string;
-    color: string;
-    icon: React.ReactNode;
-    dealText: string;
-    dealSubtext: string;
-  }
-
-  const CouponCard = ({ coupon }: { coupon: Coupon }) => (
+  const CouponCard = ({
+    coupon,
+  }: {
+    coupon: CouponModel & { icon: React.ReactNode };
+  }) => (
     <div
       className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
       style={{ direction: "rtl" }}
@@ -311,14 +186,16 @@ const CouponsSection: React.FC = () => {
             {/* Main Text */}
             <div className="flex-1">
               <div className="flex items-baseline gap-2 mb-1">
-                <h3 className="text-base font-bold text-gray-800">
+                <h3 className="text-base font-bold text-gray-800 line-clamp-1">
                   {coupon.title}
                 </h3>
                 {/* <span className="text-base font-bold text-gray-800">
                   {coupon.price}
                 </span> */}
               </div>
-              <p className="text-sm text-gray-500 mb-2">{coupon.savings}</p>
+              <p className="text-sm text-gray-500 mb-2 line-clamp-1">
+                {coupon.savings}
+              </p>
               <p className="text-xs text-gray-400">{coupon.validity}</p>
             </div>
           </div>
@@ -326,7 +203,7 @@ const CouponsSection: React.FC = () => {
           {/* Bottom Section */}
           <div className="flex items-center justify-between">
             <span
-              className={`px-3 py-1 rounded-full text-xs font-medium ${
+              className={`px-3 py-1 rounded-full text-xs font-medium ms-12 ${
                 coupon.reusable
                   ? "bg-orange-100 text-orange-700"
                   : "bg-red-100 text-red-700"
@@ -382,7 +259,7 @@ const CouponsSection: React.FC = () => {
         {/* Coupons Carousel */}
         <div className="relative OffersCarousel PropertiesCarousel">
           <OwlCarousel
-            key={activeFilter}
+            key={`${activeFilter}-${groupedCoupons.length}`}
             className="owl-theme"
             {...owlCarouselOptions}
             style={{

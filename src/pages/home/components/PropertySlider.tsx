@@ -7,6 +7,7 @@ import { FaMapMarkerAlt, FaCheck, FaEye, FaStar } from "react-icons/fa";
 import { PatternNewProperty, Restu1, Restu2, Restu3 } from "@assets";
 import { IoIosArrowRoundForward } from "react-icons/io";
 import { BsHeart, BsShare } from "react-icons/bs";
+import { useWebHome } from "@hooks/api/useMokafaatQueries";
 
 interface RestaurantType {
   id: number;
@@ -25,18 +26,85 @@ interface RestaurantType {
   hasDiscountTag?: boolean;
 }
 
+const TOP_COLORS = [
+  "bg-orange-500",
+  "bg-orange-600",
+  "bg-pink-500",
+  "bg-red-500",
+  "bg-yellow-500",
+  "bg-green-500",
+  "bg-purple-500",
+  "bg-indigo-500",
+];
+
+const DEFAULT_LOGOS = [Restu1, Restu2, Restu3];
+
+function mapMerchantToRestaurant(
+  merchant: Record<string, unknown>,
+  index: number
+): RestaurantType {
+  const id = Number(merchant.id ?? 0);
+  const name = String(merchant.name ?? "");
+  const description = String(merchant.description ?? "");
+  let logo = String(merchant.logo ?? "");
+  const rating = Number(merchant.rating ?? 0) || 0;
+
+  if (!logo || logo === "null") {
+    logo = DEFAULT_LOGOS[index % DEFAULT_LOGOS.length];
+  } else if (logo.includes("/storage/https://")) {
+    const i = logo.indexOf("/storage/https://");
+    logo =
+      logo.substring(0, i + "/storage".length) +
+      logo.substring(i + "/storage/https://".length);
+  }
+
+  return {
+    id,
+    name: name || `تاجر ${id}`,
+    location: "—",
+    distance: "—",
+    discount: "",
+    offer: description || "عروض متاحة",
+    categories: "—",
+    saves: 0,
+    views: 0,
+    rating: rating || 0,
+    logo,
+    slug: `merchant-${id}`,
+    topColor: TOP_COLORS[index % TOP_COLORS.length],
+    hasDiscountTag: false,
+  };
+}
+
 const PropertySlider: React.FC = () => {
   const isRTL = useIsRTL();
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [key, setKey] = useState(0); // Key for forcing re-render
 
+  const { data: webHomeResponse } = useWebHome();
+
+  const apiMerchants = useMemo(() => {
+    if (!webHomeResponse) return [];
+    const res = webHomeResponse as Record<string, unknown>;
+    const data = res?.data as Record<string, unknown> | undefined;
+    const merchants = data?.merchants as
+      | Array<Record<string, unknown>>
+      | undefined;
+    return Array.isArray(merchants) ? merchants : [];
+  }, [webHomeResponse]);
+
+  const restaurantsFromApi = useMemo(
+    () => apiMerchants.map((m, i) => mapMerchantToRestaurant(m, i)),
+    [apiMerchants]
+  );
+
   // Force re-render when language changes
   useEffect(() => {
     setKey((prev) => prev + 1);
   }, [i18n.language]);
 
-  const restaurants: RestaurantType[] = useMemo(
+  const restaurantsStatic: RestaurantType[] = useMemo(
     () => [
       {
         id: 1,
@@ -138,6 +206,12 @@ const PropertySlider: React.FC = () => {
     [t]
   );
 
+  const restaurants: RestaurantType[] = useMemo(
+    () =>
+      restaurantsFromApi.length > 0 ? restaurantsFromApi : restaurantsStatic,
+    [restaurantsFromApi, restaurantsStatic]
+  );
+
   const owlCarouselOptions = useMemo(
     () => ({
       loop: true,
@@ -230,7 +304,7 @@ const PropertySlider: React.FC = () => {
         {/* Owl Carousel Container */}
         <div className="relative">
           <OwlCarousel
-            key={key} // Force re-render when language changes
+            key={`${key}-${restaurants.length}`}
             className="owl-theme"
             {...owlCarouselOptions}
             style={{ direction: "ltr" }}

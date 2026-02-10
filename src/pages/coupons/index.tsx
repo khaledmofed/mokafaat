@@ -7,6 +7,25 @@ import { FiGrid, FiList } from "react-icons/fi";
 import { copon1, copon2, copon3, copon4, cutCopon } from "@assets";
 import CouponsHero from "./components/CouponsHero";
 import GetStartedSection from "@pages/home/components/GetStartedSection";
+import { useWebHome } from "@hooks/api/useMokafaatQueries";
+import { mapApiCouponsToModels } from "@network/mappers/couponsMapper";
+import { stripHtml } from "@utils/stripHtml";
+
+type CouponDisplay = {
+  id: string;
+  storeName: string;
+  storeCategory: string;
+  logo: string;
+  discount: string;
+  offer: string;
+  uses: number;
+  expiry: string;
+  rating: number;
+  views: number;
+  downloads: number;
+  isNearby: boolean;
+  visits: number;
+};
 
 const CouponsPage = () => {
   const { t } = useTranslation();
@@ -17,8 +36,37 @@ const CouponsPage = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const perPage = 9;
 
-  // Function to get coupon image
+  const { data: webHomeResponse } = useWebHome();
+
+  const apiCouponsAsDisplay = useMemo((): CouponDisplay[] => {
+    if (!webHomeResponse) return [];
+    const res = webHomeResponse as Record<string, unknown>;
+    const data = res?.data as Record<string, unknown> | undefined;
+    const coupons = data?.coupons as Record<string, unknown> | undefined;
+    const all = Array.isArray(coupons?.all) ? coupons.all : [];
+    const models = mapApiCouponsToModels(all as Array<Record<string, unknown>>);
+    const logos = ["copon1", "copon2", "copon3", "copon4"];
+    return models.map((c, i) => ({
+      id: String(c.id),
+      storeName: c.title,
+      storeCategory: c.category ?? "",
+      logo: logos[i % logos.length],
+      discount:
+        c.dealSubtext ??
+        (c.discountPercentage ? `${c.discountPercentage}%` : ""),
+      offer: c.savings,
+      uses: 0,
+      expiry: c.validity,
+      rating: 0,
+      views: 0,
+      downloads: 0,
+      isNearby: i % 2 === 0,
+      visits: 0,
+    }));
+  }, [webHomeResponse]);
+
   const getCouponImage = (logoName: string) => {
+    if (logoName.startsWith("http")) return logoName;
     switch (logoName) {
       case "copon1":
         return copon1;
@@ -33,148 +81,9 @@ const CouponsPage = () => {
     }
   };
 
-  // Filter coupons based on selected filter
   const filteredCoupons = useMemo(() => {
-    // Mock coupons data
-    const couponsData = [
-      {
-        id: "1",
-        storeName: "متجر اي هيرب",
-        storeCategory: "تصنيف المتجر",
-        logo: "copon1",
-        discount: "50%",
-        offer: "احصل علي خصم حتي 50% لاول شراء",
-        uses: 62,
-        expiry: "30 مايو 2025",
-        rating: 4.8,
-        views: 1250,
-        downloads: 340,
-        isNearby: true,
-        visits: 890,
-      },
-      {
-        id: "2",
-        storeName: "متجر نتفليكس",
-        storeCategory: "ترفيه",
-        logo: "copon2",
-        discount: "30%",
-        offer: "خصم 30% على الاشتراك الشهري",
-        uses: 45,
-        expiry: "15 يونيو 2025",
-        rating: 4.9,
-        views: 2100,
-        downloads: 520,
-        isNearby: false,
-        visits: 1500,
-      },
-      {
-        id: "3",
-        storeName: "متجر ستاربكس",
-        storeCategory: "مطاعم",
-        logo: "copon3",
-        discount: "25%",
-        offer: "خصم 25% على جميع المشروبات",
-        uses: 78,
-        expiry: "20 مايو 2025",
-        rating: 4.7,
-        views: 1800,
-        downloads: 450,
-        isNearby: true,
-        visits: 1200,
-      },
-      {
-        id: "4",
-        storeName: "متجر أمازون",
-        storeCategory: "تسوق",
-        logo: "copon4",
-        discount: "40%",
-        offer: "خصم 40% على الإلكترونيات",
-        uses: 95,
-        expiry: "10 يونيو 2025",
-        rating: 4.6,
-        views: 3200,
-        downloads: 780,
-        isNearby: false,
-        visits: 2100,
-      },
-      {
-        id: "5",
-        storeName: "متجر ماكدونالدز",
-        storeCategory: "مطاعم",
-        logo: "copon1",
-        discount: "20%",
-        offer: "خصم 20% على الوجبات السريعة",
-        uses: 120,
-        expiry: "25 مايو 2025",
-        rating: 4.5,
-        views: 1500,
-        downloads: 380,
-        isNearby: true,
-        visits: 950,
-      },
-      {
-        id: "6",
-        storeName: "متجر آبل",
-        storeCategory: "تكنولوجيا",
-        logo: "copon2",
-        discount: "15%",
-        offer: "خصم 15% على منتجات آبل",
-        uses: 35,
-        expiry: "5 يونيو 2025",
-        rating: 4.9,
-        views: 2800,
-        downloads: 650,
-        isNearby: false,
-        visits: 1800,
-      },
-      {
-        id: "7",
-        storeName: "متجر زارا",
-        storeCategory: "أزياء",
-        logo: "copon3",
-        discount: "35%",
-        offer: "خصم 35% على الملابس",
-        uses: 67,
-        expiry: "18 مايو 2025",
-        rating: 4.4,
-        views: 1900,
-        downloads: 420,
-        isNearby: true,
-        visits: 1100,
-      },
-      {
-        id: "8",
-        storeName: "متجر آيكيا",
-        storeCategory: "منزل",
-        logo: "copon4",
-        discount: "45%",
-        offer: "خصم 45% على الأثاث",
-        uses: 82,
-        expiry: "12 يونيو 2025",
-        rating: 4.8,
-        views: 2400,
-        downloads: 580,
-        isNearby: false,
-        visits: 1600,
-      },
-      {
-        id: "9",
-        storeName: "متجر أديداس",
-        storeCategory: "رياضة",
-        logo: "copon1",
-        discount: "30%",
-        offer: "خصم 30% على الأحذية الرياضية",
-        uses: 55,
-        expiry: "8 يونيو 2025",
-        rating: 4.7,
-        views: 1700,
-        downloads: 390,
-        isNearby: true,
-        visits: 1050,
-      },
-    ];
-
-    let coupons = [...couponsData];
+    let coupons: CouponDisplay[] =
+      apiCouponsAsDisplay.length > 0 ? apiCouponsAsDisplay : [];
 
     if (search) {
       coupons = coupons.filter(
@@ -185,23 +94,22 @@ const CouponsPage = () => {
       );
     }
 
-    // Apply filter
     switch (selectedFilter) {
       case "nearby":
         coupons = coupons.filter((coupon) => coupon.isNearby);
         break;
       case "most_visited":
-        coupons = coupons.sort((a, b) => b.visits - a.visits);
+        coupons = [...coupons].sort((a, b) => b.visits - a.visits);
         break;
       case "highest_rated":
-        coupons = coupons.sort((a, b) => b.rating - a.rating);
+        coupons = [...coupons].sort((a, b) => b.rating - a.rating);
         break;
       default:
         break;
     }
 
     return coupons;
-  }, [selectedFilter, search]);
+  }, [selectedFilter, search, apiCouponsAsDisplay]);
 
   const totalPages = Math.ceil(filteredCoupons.length / perPage) || 1;
   const startIdx = (currentPage - 1) * perPage;
@@ -335,13 +243,13 @@ const CouponsPage = () => {
 
                         <div>
                           <h3 className="font-bold text-gray-900 text-base">
-                            {coupon.storeName}
+                            {stripHtml(coupon.storeName)}
                           </h3>
                           <p className="text-sm text-gray-500">
-                            {coupon.storeCategory}
+                            {stripHtml(coupon.storeCategory)}
                           </p>
                           <h4 className="text-sm font-bold text-gray-900 mt-1">
-                            {coupon.offer}
+                            {stripHtml(coupon.offer)}
                           </h4>
                         </div>
                       </div>
@@ -440,10 +348,10 @@ const CouponsPage = () => {
                           </div>
                           <div>
                             <h3 className="font-bold text-gray-900 text-sm">
-                              {coupon.storeName}
+                              {stripHtml(coupon.storeName)}
                             </h3>
                             <p className="text-sm text-gray-500">
-                              {coupon.storeCategory}
+                              {stripHtml(coupon.storeCategory)}
                             </p>
                           </div>
                         </div>
@@ -452,7 +360,7 @@ const CouponsPage = () => {
                       {/* Offer */}
                       <div className="mb-4">
                         <h4 className="text-base font-bold text-gray-900 mb-2">
-                          {coupon.offer}
+                          {stripHtml(coupon.offer)}
                         </h4>
                       </div>
 

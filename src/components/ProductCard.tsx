@@ -5,6 +5,7 @@ import { FiEye } from "react-icons/fi";
 import { useIsRTL } from "../hooks";
 import { useTranslation } from "react-i18next";
 import CurrencyIcon from "./CurrencyIcon";
+import { stripHtml } from "@utils/stripHtml";
 
 interface ProductCardProps {
   id: number;
@@ -133,7 +134,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
         {/* Description */}
         <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-          {t("home.product.description")}
+          {stripHtml(t("home.product.description"))}
         </p>
 
         {/* Features */}

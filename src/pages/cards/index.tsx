@@ -4,6 +4,7 @@ import { Helmet } from "react-helmet-async";
 import { useMemo, useState } from "react";
 import { FiStar, FiEye, FiDownload } from "react-icons/fi";
 import { cardCategories, getCompaniesByCategory } from "@data/cards";
+import type { CardCompany } from "@data/cards";
 import {
   Cards1,
   Cards2,
@@ -20,6 +21,8 @@ import {
 } from "@assets";
 import GetStartedSection from "@pages/home/components/GetStartedSection";
 import { BsHeart, BsShare } from "react-icons/bs";
+import { useWebHome } from "@hooks/api/useMokafaatQueries";
+import { mapApiCardsToModels } from "@network/mappers/cardsMapper";
 
 const CardsPage = () => {
   const isRTL = useIsRTL();
@@ -29,14 +32,66 @@ const CardsPage = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const perPage = 9;
 
+  const { data: webHomeResponse } = useWebHome();
+
+  // API cards and categories derived from them
+  const apiCardsAsCompanies = useMemo((): CardCompany[] => {
+    if (!webHomeResponse) return [];
+    const res = webHomeResponse as Record<string, unknown>;
+    const data = res?.data as Record<string, unknown> | undefined;
+    const cards = data?.cards as Array<Record<string, unknown>> | undefined;
+    if (!Array.isArray(cards)) return [];
+    const models = mapApiCardsToModels(cards);
+    return models.map((c) => ({
+      id: String(c.id),
+      name: { ar: c.title, en: c.title },
+      logo: c.image,
+      category: { key: c.category || "other", ar: c.category, en: c.category },
+      description: {
+        ar: c.description ?? "",
+        en: c.description ?? "",
+      },
+      color: "#400198",
+      offers: [
+        {
+          id: String(c.id),
+          title: { ar: c.title, en: c.title },
+          description: { ar: c.description ?? "", en: c.description ?? "" },
+          price: parseFloat(c.price) || 0,
+          currency: "SAR",
+          validity: { ar: "", en: "" },
+          features: [],
+          image: c.image,
+          rating: 0,
+          purchases: 0,
+          views: 0,
+          downloads: 0,
+          bookmarks: 0,
+        },
+      ],
+    }));
+  }, [webHomeResponse]);
+
+  const apiCategories = useMemo(() => {
+    const cats = new Map<string, { key: string; ar: string; en: string }>();
+    cats.set("all", { key: "all", ar: "الكل", en: "All" });
+    for (const c of apiCardsAsCompanies) {
+      const k = c.category.key || "other";
+      if (!cats.has(k))
+        cats.set(k, {
+          key: k,
+          ar: c.category.ar,
+          en: c.category.en,
+        });
+    }
+    return Array.from(cats.values());
+  }, [apiCardsAsCompanies]);
+
+  const categories = apiCategories.length > 1 ? apiCategories : cardCategories;
+
   // Function to get card image
   const getCardImage = (logoName: string) => {
-    // If it's already a URL, return it directly
-    if (logoName.startsWith("http")) {
-      return logoName;
-    }
-
-    // Otherwise, use the local images
+    if (logoName.startsWith("http")) return logoName;
     switch (logoName) {
       case "Cards1":
         return Cards1;
@@ -67,9 +122,17 @@ const CardsPage = () => {
     }
   };
 
-  // Get companies based on selected category
+  // Companies: API first, then fallback to static; then filter by category and search
   const filteredCompanies = useMemo(() => {
-    let companies = getCompaniesByCategory(selectedCategory);
+    const source: CardCompany[] =
+      apiCardsAsCompanies.length > 0
+        ? apiCardsAsCompanies
+        : getCompaniesByCategory("all");
+
+    let companies =
+      selectedCategory === "all"
+        ? source
+        : source.filter((c) => c.category.key === selectedCategory);
 
     if (search) {
       companies = companies.filter(
@@ -84,7 +147,7 @@ const CardsPage = () => {
     }
 
     return companies;
-  }, [selectedCategory, search, isRTL]);
+  }, [selectedCategory, search, isRTL, apiCardsAsCompanies]);
 
   const totalPages = Math.ceil(filteredCompanies.length / perPage) || 1;
   const startIdx = (currentPage - 1) * perPage;

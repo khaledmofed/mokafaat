@@ -20,11 +20,24 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer, onOfferClick }) => {
   const isRTL = useIsRTL();
   const navigate = useNavigate();
 
-  // Get company and category data
+  // Remove HTML tags from text
+  const stripHtml = (html: string): string => {
+    return html.replace(/<[^>]*>/g, "").trim();
+  };
+
+  // Get company and category data - prefer API data if available
   const company = getRestaurantById(offer.companyId);
   const categoryInfo = offerCategories.find(
     (cat) => cat.key === offer.category
   );
+
+  // Use API data if available, otherwise fallback to static data
+  const displayCategoryName =
+    offer.categoryName ||
+    (categoryInfo ? (isRTL ? categoryInfo.ar : categoryInfo.en) : "");
+  const displayMerchantName =
+    offer.merchantName ||
+    (company ? (isRTL ? company.name.ar : company.name.en) : "");
 
   const handleCategoryClick = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering the card click
@@ -94,7 +107,7 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer, onOfferClick }) => {
           className="text-sm text-gray-600 mb-3 line-clamp-2"
           style={{ height: "40px", overflow: "hidden" }}
         >
-          {offer.description[isRTL ? "ar" : "en"]}
+          {stripHtml(offer.description[isRTL ? "ar" : "en"])}
         </p>
 
         {/* Features */}
@@ -119,22 +132,22 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer, onOfferClick }) => {
         {/* Breadcrumb Navigation */}
         <div className="mb-4">
           <div className="flex items-center gap-1 text-xs">
-            {categoryInfo && (
+            {displayCategoryName && (
               <>
                 <button
                   onClick={handleCategoryClick}
                   className="text-[#400198] hover:text-[#3000a0] font-medium transition-colors hover:underline"
                 >
-                  {isRTL ? categoryInfo.ar : categoryInfo.en}
+                  {displayCategoryName}
                 </button>
-                {company && (
+                {displayMerchantName && (
                   <>
                     <span className="text-gray-400">•</span>
                     <button
                       onClick={handleCompanyClick}
                       className="text-[#400198] hover:text-[#3000a0] font-medium transition-colors hover:underline"
                     >
-                      {isRTL ? company.name.ar : company.name.en}
+                      {displayMerchantName}
                     </button>
                   </>
                 )}

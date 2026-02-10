@@ -23,6 +23,19 @@ import // CarIcon,
 import { FaXTwitter } from "react-icons/fa6";
 // import CategoryCard from "../../../components/CategoryCard";
 import CategorySection from "@pages/offers/components/CategorySection";
+import { useWebHome } from "@hooks/api/useMokafaatQueries";
+import { mapApiResponseToHeroSlides } from "@network/mappers/heroSlidesMapper";
+
+const DEFAULT_SLIDE_IMAGES = [
+  "https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+  "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+  "https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+];
+const DEFAULT_GRADIENTS = [
+  "linear-gradient(135deg, rgba(64, 1, 152, 0.8) 0%, rgba(253, 103, 26, 0.6) 100%)",
+  "linear-gradient(135deg, rgba(253, 103, 26, 0.8) 0%, rgba(64, 1, 152, 0.6) 100%)",
+  "linear-gradient(135deg, rgba(64, 1, 152, 0.7) 0%, rgba(253, 103, 26, 0.5) 50%, rgba(64, 1, 152, 0.7) 100%)",
+];
 
 const HeroSlider = () => {
   const { t } = useTranslation();
@@ -30,36 +43,50 @@ const HeroSlider = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
-  // Slides with translation - will be updated when language changes
-  const slides = useMemo(
+  const { data: webHomeResponse, isSuccess } = useWebHome();
+
+  const fallbackSlides = useMemo(
     () => [
       {
         title: t("home.hero.slides.slide1.title"),
         description: t("home.hero.slides.slide1.description"),
-        background:
-          "https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
-        gradient:
-          "linear-gradient(135deg, rgba(64, 1, 152, 0.8) 0%, rgba(253, 103, 26, 0.6) 100%)",
+        background: DEFAULT_SLIDE_IMAGES[0],
+        gradient: DEFAULT_GRADIENTS[0],
       },
       {
         title: t("home.hero.slides.slide2.title"),
         description: t("home.hero.slides.slide2.description"),
-        background:
-          "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
-        gradient:
-          "linear-gradient(135deg, rgba(253, 103, 26, 0.8) 0%, rgba(64, 1, 152, 0.6) 100%)",
+        background: DEFAULT_SLIDE_IMAGES[1],
+        gradient: DEFAULT_GRADIENTS[1],
       },
       {
         title: t("home.hero.slides.slide3.title"),
         description: t("home.hero.slides.slide3.description"),
-        background:
-          "https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
-        gradient:
-          "linear-gradient(135deg, rgba(64, 1, 152, 0.7) 0%, rgba(253, 103, 26, 0.5) 50%, rgba(64, 1, 152, 0.7) 100%)",
+        background: DEFAULT_SLIDE_IMAGES[2],
+        gradient: DEFAULT_GRADIENTS[2],
       },
     ],
     [t]
   );
+
+  const apiSlides = useMemo(() => {
+    if (!isSuccess || !webHomeResponse) return [];
+    const list = mapApiResponseToHeroSlides(webHomeResponse);
+    return list.map((s, i) => ({
+      title: s.title,
+      description: s.description,
+      background:
+        s.background || DEFAULT_SLIDE_IMAGES[i % DEFAULT_SLIDE_IMAGES.length],
+      gradient: s.gradient || DEFAULT_GRADIENTS[i % DEFAULT_GRADIENTS.length],
+    }));
+  }, [isSuccess, webHomeResponse]);
+
+  const slides = apiSlides.length > 0 ? apiSlides : fallbackSlides;
+
+  useEffect(() => {
+    if (currentSlide >= slides.length)
+      setCurrentSlide(Math.max(0, slides.length - 1));
+  }, [slides.length, currentSlide]);
 
   const nextSlide = useCallback(() => {
     if (!isTransitioning) {
@@ -281,10 +308,10 @@ const HeroSlider = () => {
               }`}
             >
               <button
-                onClick={() => navigate("/")}
+                onClick={() => navigate("/offers")}
                 className="hover:scale-105 transition-transform duration-300 text-md sm:text-md px-8 sm:px-8 lg:px-8 py-4 sm:py-4 font-semibold rounded-full text-white flex items-center gap-2"
                 style={{ backgroundColor: "#fd671a" }}
-                aria-label="View properties"
+                aria-label="View offers"
               >
                 {t("home.hero.viewMore")}
                 <IoIosArrowRoundForward className="text-3xl transform -rotate-45" />

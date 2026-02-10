@@ -14,6 +14,8 @@ import useGetUpcomingProjects from "./useGetUpcomingProjects";
 import useVerifyOtp from "./useVerifyOtp";
 import useUploadFreelancerIntroVideo from "./useUploadFreelancerIntroVideo";
 
+export * from "./api/useMokafaatQueries";
+
 export {
   useIsRTL,
   useInputValue,

@@ -3,6 +3,7 @@ import { routes } from "@constants/AppRoutes";
 import Layout from "@components/Layout";
 import { InquiryModalProvider } from "@context";
 import { InquiryModal } from "@components";
+import AuthApiBootstrap from "@components/AuthApiBootstrap";
 
 function App() {
   const layoutRoutes = routes.filter((route) => route.inLayout);
@@ -10,6 +11,7 @@ function App() {
 
   return (
     <InquiryModalProvider>
+      <AuthApiBootstrap />
       <Router>
         <Routes>
           {/* Routes that use Layout */}

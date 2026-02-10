@@ -4,6 +4,7 @@ import { FiMinus, FiPlus, FiStar } from "react-icons/fi";
 import { type Offer, type Restaurant } from "@data/offers";
 import { Pro1, Pro2, Pro3, Pro4, Pro5, Pro6, Pro7, Pro8 } from "@assets";
 import CurrencyIcon from "@components/CurrencyIcon";
+import { stripHtml } from "@utils/stripHtml";
 
 interface OfferModalProps {
   offer: Offer;
@@ -150,7 +151,7 @@ const OfferModal = ({
                 {isRTL ? "وصف العرض" : "Offer Description"}
               </h4>
               <p className="text-gray-600 text-sm">
-                {offer.description[isRTL ? "ar" : "en"]}
+                {stripHtml(offer.description[isRTL ? "ar" : "en"])}
               </p>
             </div>
           </div>
@@ -179,7 +180,7 @@ const OfferModal = ({
               {isRTL ? "الشروط والأحكام" : "Terms & Conditions"}
             </h4>
             <p className="text-gray-600 text-sm">
-              {offer.terms[isRTL ? "ar" : "en"]}
+              {stripHtml(offer.terms[isRTL ? "ar" : "en"])}
             </p>
           </div>
 

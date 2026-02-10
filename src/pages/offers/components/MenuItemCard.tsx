@@ -4,6 +4,7 @@ import { BsHeart, BsShare } from "react-icons/bs";
 import { FaStar, FaEye } from "react-icons/fa";
 import { useIsRTL } from "@hooks";
 import CurrencyIcon from "@components/CurrencyIcon";
+import { stripHtml } from "@utils/stripHtml";
 
 interface MenuItemCardProps {
   menuItem: MenuItem;
@@ -99,7 +100,7 @@ const MenuItemCard: React.FC<MenuItemCardProps> = ({
 
         {/* Description */}
         <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-          {isRTL ? menuItem.description.ar : menuItem.description.en}
+          {stripHtml(isRTL ? menuItem.description.ar : menuItem.description.en)}
         </p>
 
         {/* Features */}

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useUserStore } from "@stores/userStore";
+import { toast } from "react-toastify";
 import {
   IoPersonOutline,
   IoMailOutline,
@@ -30,10 +31,16 @@ const ProfilePage: React.FC = () => {
   const handleSave = async () => {
     setIsLoading(true);
     try {
-      updateProfile(formData);
-      setIsEditing(false);
+      const res = await updateProfile(formData);
+      if (res.status) {
+        setIsEditing(false);
+        toast.success(res.msg);
+      } else {
+        toast.error(res.msg);
+      }
     } catch (error) {
       console.error("Error updating profile:", error);
+      toast.error("حدث خطأ أثناء تحديث البروفايل");
     } finally {
       setIsLoading(false);
     }

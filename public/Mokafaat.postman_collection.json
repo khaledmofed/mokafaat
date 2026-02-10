@@ -1,0 +1,3005 @@
+{
+  "info": {
+    "_postman_id": "0146dd99-e8c3-44cd-b0f1-1a986033efd4",
+    "name": "Mokafaat",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "3366899",
+    "_collection_link": "https://go.postman.co/collection/3366899-0146dd99-e8c3-44cd-b0f1-1a986033efd4?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Send OTP",
+          "protocolProfileBehavior": {
+            "disabledSystemHeaders": {
+              "host": true
+            }
+          },
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/api/auth/send-otp?phone=505441212&country_code=966&type=sms",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "send-otp"
+              ],
+              "query": [
+                {
+                  "key": "phone",
+                  "value": "505441212"
+                },
+                {
+                  "key": "country_code",
+                  "value": "966"
+                },
+                {
+                  "key": "type",
+                  "value": "sms"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Verify Otp",
+          "protocolProfileBehavior": {
+            "disabledSystemHeaders": {
+              "host": true
+            }
+          },
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/api/auth/verify-otp?phone=505441212&country_code=966&otp_code=1111",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "verify-otp"
+              ],
+              "query": [
+                {
+                  "key": "phone",
+                  "value": "505441212"
+                },
+                {
+                  "key": "country_code",
+                  "value": "966"
+                },
+                {
+                  "key": "otp_code",
+                  "value": "1111"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "logout",
+          "protocolProfileBehavior": {
+            "disabledSystemHeaders": {
+              "host": true
+            }
+          },
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/api/auth/logout",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "logout"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "User Requests",
+      "item": [
+        {
+          "name": "Complete Profile",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "234",
+                  "type": "text",
+                  "uuid": "d7e2565b-2973-4770-8d9c-b4baf1b56c9c"
+                },
+                {
+                  "key": "email",
+                  "value": "234@wer.wer",
+                  "type": "text",
+                  "uuid": "325756fe-6fac-459d-9090-8725e89245f8"
+                },
+                {
+                  "key": "account_type",
+                  "value": "individual",
+                  "type": "text",
+                  "uuid": "7e880ae9-be12-4ece-9d10-3f9ade185c99"
+                },
+                {
+                  "key": "company_id",
+                  "value": "",
+                  "type": "text",
+                  "uuid": "8ce66e33-cae6-4bc8-bff8-75d9115e1bb4"
+                },
+                {
+                  "key": "job_title",
+                  "value": "12312",
+                  "type": "text",
+                  "uuid": "8bef82e2-702c-490b-affb-1587452adab2"
+                },
+                {
+                  "key": "avatar",
+                  "type": "file",
+                  "uuid": "8f09b0e5-ad55-43ef-bf0c-77b408aea472",
+                  "src": "/Users/apple/Desktop/Screenshot 2026-02-06 at 9.31.55 PM.png"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{url}}/api/auth/complete-profile",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "complete-profile"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Set Location",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "234",
+                  "type": "text",
+                  "uuid": "d7e2565b-2973-4770-8d9c-b4baf1b56c9c"
+                },
+                {
+                  "key": "email",
+                  "value": "234@wer.wer",
+                  "type": "text",
+                  "uuid": "325756fe-6fac-459d-9090-8725e89245f8"
+                },
+                {
+                  "key": "account_type",
+                  "value": "individual",
+                  "type": "text",
+                  "uuid": "7e880ae9-be12-4ece-9d10-3f9ade185c99"
+                },
+                {
+                  "key": "company_id",
+                  "value": "",
+                  "type": "text",
+                  "uuid": "8ce66e33-cae6-4bc8-bff8-75d9115e1bb4"
+                },
+                {
+                  "key": "job_title",
+                  "value": "12312",
+                  "type": "text",
+                  "uuid": "8bef82e2-702c-490b-affb-1587452adab2"
+                },
+                {
+                  "key": "avatar",
+                  "type": "file",
+                  "uuid": "8f09b0e5-ad55-43ef-bf0c-77b408aea472",
+                  "src": "/Users/apple/Desktop/Screenshot 2026-02-06 at 9.31.55 PM.png"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{url}}/api/auth/set-location?latitude=12&longitude=12",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "set-location"
+              ],
+              "query": [
+                {
+                  "key": "latitude",
+                  "value": "12"
+                },
+                {
+                  "key": "longitude",
+                  "value": "12"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Set Interests",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "234",
+                  "type": "text",
+                  "uuid": "d7e2565b-2973-4770-8d9c-b4baf1b56c9c"
+                },
+                {
+                  "key": "email",
+                  "value": "234@wer.wer",
+                  "type": "text",
+                  "uuid": "325756fe-6fac-459d-9090-8725e89245f8"
+                },
+                {
+                  "key": "account_type",
+                  "value": "individual",
+                  "type": "text",
+                  "uuid": "7e880ae9-be12-4ece-9d10-3f9ade185c99"
+                },
+                {
+                  "key": "company_id",
+                  "value": "",
+                  "type": "text",
+                  "uuid": "8ce66e33-cae6-4bc8-bff8-75d9115e1bb4"
+                },
+                {
+                  "key": "job_title",
+                  "value": "12312",
+                  "type": "text",
+                  "uuid": "8bef82e2-702c-490b-affb-1587452adab2"
+                },
+                {
+                  "key": "avatar",
+                  "type": "file",
+                  "uuid": "8f09b0e5-ad55-43ef-bf0c-77b408aea472",
+                  "src": "/Users/apple/Desktop/Screenshot 2026-02-06 at 9.31.55 PM.png"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{url}}/api/auth/set-interests?category_ids[]=[1,2,3]",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "set-interests"
+              ],
+              "query": [
+                {
+                  "key": "category_ids[]",
+                  "value": "[1,2,3]"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add to favourite",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "234",
+                  "type": "text",
+                  "uuid": "d7e2565b-2973-4770-8d9c-b4baf1b56c9c"
+                },
+                {
+                  "key": "email",
+                  "value": "234@wer.wer",
+                  "type": "text",
+                  "uuid": "325756fe-6fac-459d-9090-8725e89245f8"
+                },
+                {
+                  "key": "account_type",
+                  "value": "individual",
+                  "type": "text",
+                  "uuid": "7e880ae9-be12-4ece-9d10-3f9ade185c99"
+                },
+                {
+                  "key": "company_id",
+                  "value": "",
+                  "type": "text",
+                  "uuid": "8ce66e33-cae6-4bc8-bff8-75d9115e1bb4"
+                },
+                {
+                  "key": "job_title",
+                  "value": "12312",
+                  "type": "text",
+                  "uuid": "8bef82e2-702c-490b-affb-1587452adab2"
+                },
+                {
+                  "key": "avatar",
+                  "type": "file",
+                  "uuid": "8f09b0e5-ad55-43ef-bf0c-77b408aea472",
+                  "src": "/Users/apple/Desktop/Screenshot 2026-02-06 at 9.31.55 PM.png"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{url}}/api/favorites/toggle?favorable_type=offer&favorable_id=1",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "favorites",
+                "toggle"
+              ],
+              "query": [
+                {
+                  "key": "favorable_type",
+                  "value": "offer"
+                },
+                {
+                  "key": "favorable_id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "My Favourite",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "234",
+                  "type": "text",
+                  "uuid": "d7e2565b-2973-4770-8d9c-b4baf1b56c9c"
+                },
+                {
+                  "key": "email",
+                  "value": "234@wer.wer",
+                  "type": "text",
+                  "uuid": "325756fe-6fac-459d-9090-8725e89245f8"
+                },
+                {
+                  "key": "account_type",
+                  "value": "individual",
+                  "type": "text",
+                  "uuid": "7e880ae9-be12-4ece-9d10-3f9ade185c99"
+                },
+                {
+                  "key": "company_id",
+                  "value": "",
+                  "type": "text",
+                  "uuid": "8ce66e33-cae6-4bc8-bff8-75d9115e1bb4"
+                },
+                {
+                  "key": "job_title",
+                  "value": "12312",
+                  "type": "text",
+                  "uuid": "8bef82e2-702c-490b-affb-1587452adab2"
+                },
+                {
+                  "key": "avatar",
+                  "type": "file",
+                  "uuid": "8f09b0e5-ad55-43ef-bf0c-77b408aea472",
+                  "src": "/Users/apple/Desktop/Screenshot 2026-02-06 at 9.31.55 PM.png"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{url}}/api/favorites",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "favorites"
+              ],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "offer",
+                  "type": "text",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Settings",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "234",
+                  "type": "text",
+                  "uuid": "d7e2565b-2973-4770-8d9c-b4baf1b56c9c"
+                },
+                {
+                  "key": "email",
+                  "value": "234@wer.wer",
+                  "type": "text",
+                  "uuid": "325756fe-6fac-459d-9090-8725e89245f8"
+                },
+                {
+                  "key": "account_type",
+                  "value": "individual",
+                  "type": "text",
+                  "uuid": "7e880ae9-be12-4ece-9d10-3f9ade185c99"
+                },
+                {
+                  "key": "company_id",
+                  "value": "",
+                  "type": "text",
+                  "uuid": "8ce66e33-cae6-4bc8-bff8-75d9115e1bb4"
+                },
+                {
+                  "key": "job_title",
+                  "value": "12312",
+                  "type": "text",
+                  "uuid": "8bef82e2-702c-490b-affb-1587452adab2"
+                },
+                {
+                  "key": "avatar",
+                  "type": "file",
+                  "uuid": "8f09b0e5-ad55-43ef-bf0c-77b408aea472",
+                  "src": "/Users/apple/Desktop/Screenshot 2026-02-06 at 9.31.55 PM.png"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{url}}/api/settings",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "settings"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Pages",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "234",
+                  "type": "text",
+                  "uuid": "d7e2565b-2973-4770-8d9c-b4baf1b56c9c"
+                },
+                {
+                  "key": "email",
+                  "value": "234@wer.wer",
+                  "type": "text",
+                  "uuid": "325756fe-6fac-459d-9090-8725e89245f8"
+                },
+                {
+                  "key": "account_type",
+                  "value": "individual",
+                  "type": "text",
+                  "uuid": "7e880ae9-be12-4ece-9d10-3f9ade185c99"
+                },
+                {
+                  "key": "company_id",
+                  "value": "",
+                  "type": "text",
+                  "uuid": "8ce66e33-cae6-4bc8-bff8-75d9115e1bb4"
+                },
+                {
+                  "key": "job_title",
+                  "value": "12312",
+                  "type": "text",
+                  "uuid": "8bef82e2-702c-490b-affb-1587452adab2"
+                },
+                {
+                  "key": "avatar",
+                  "type": "file",
+                  "uuid": "8f09b0e5-ad55-43ef-bf0c-77b408aea472",
+                  "src": "/Users/apple/Desktop/Screenshot 2026-02-06 at 9.31.55 PM.png"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{url}}/api/pages?platform=mobile",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "pages"
+              ],
+              "query": [
+                {
+                  "key": "platform",
+                  "value": "mobile"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "page Details",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "234",
+                  "type": "text",
+                  "uuid": "d7e2565b-2973-4770-8d9c-b4baf1b56c9c"
+                },
+                {
+                  "key": "email",
+                  "value": "234@wer.wer",
+                  "type": "text",
+                  "uuid": "325756fe-6fac-459d-9090-8725e89245f8"
+                },
+                {
+                  "key": "account_type",
+                  "value": "individual",
+                  "type": "text",
+                  "uuid": "7e880ae9-be12-4ece-9d10-3f9ade185c99"
+                },
+                {
+                  "key": "company_id",
+                  "value": "",
+                  "type": "text",
+                  "uuid": "8ce66e33-cae6-4bc8-bff8-75d9115e1bb4"
+                },
+                {
+                  "key": "job_title",
+                  "value": "12312",
+                  "type": "text",
+                  "uuid": "8bef82e2-702c-490b-affb-1587452adab2"
+                },
+                {
+                  "key": "avatar",
+                  "type": "file",
+                  "uuid": "8f09b0e5-ad55-43ef-bf0c-77b408aea472",
+                  "src": "/Users/apple/Desktop/Screenshot 2026-02-06 at 9.31.55 PM.png"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{url}}/api/pages/refund-policy",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "pages",
+                "refund-policy"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Change Language",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "234",
+                  "type": "text",
+                  "uuid": "d7e2565b-2973-4770-8d9c-b4baf1b56c9c"
+                },
+                {
+                  "key": "email",
+                  "value": "234@wer.wer",
+                  "type": "text",
+                  "uuid": "325756fe-6fac-459d-9090-8725e89245f8"
+                },
+                {
+                  "key": "account_type",
+                  "value": "individual",
+                  "type": "text",
+                  "uuid": "7e880ae9-be12-4ece-9d10-3f9ade185c99"
+                },
+                {
+                  "key": "company_id",
+                  "value": "",
+                  "type": "text",
+                  "uuid": "8ce66e33-cae6-4bc8-bff8-75d9115e1bb4"
+                },
+                {
+                  "key": "job_title",
+                  "value": "12312",
+                  "type": "text",
+                  "uuid": "8bef82e2-702c-490b-affb-1587452adab2"
+                },
+                {
+                  "key": "avatar",
+                  "type": "file",
+                  "uuid": "8f09b0e5-ad55-43ef-bf0c-77b408aea472",
+                  "src": "/Users/apple/Desktop/Screenshot 2026-02-06 at 9.31.55 PM.png"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{url}}/api/settings/update-language?language=en",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "settings",
+                "update-language"
+              ],
+              "query": [
+                {
+                  "key": "language",
+                  "value": "en",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Change Country",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "234",
+                  "type": "text",
+                  "uuid": "d7e2565b-2973-4770-8d9c-b4baf1b56c9c"
+                },
+                {
+                  "key": "email",
+                  "value": "234@wer.wer",
+                  "type": "text",
+                  "uuid": "325756fe-6fac-459d-9090-8725e89245f8"
+                },
+                {
+                  "key": "account_type",
+                  "value": "individual",
+                  "type": "text",
+                  "uuid": "7e880ae9-be12-4ece-9d10-3f9ade185c99"
+                },
+                {
+                  "key": "company_id",
+                  "value": "",
+                  "type": "text",
+                  "uuid": "8ce66e33-cae6-4bc8-bff8-75d9115e1bb4"
+                },
+                {
+                  "key": "job_title",
+                  "value": "12312",
+                  "type": "text",
+                  "uuid": "8bef82e2-702c-490b-affb-1587452adab2"
+                },
+                {
+                  "key": "avatar",
+                  "type": "file",
+                  "uuid": "8f09b0e5-ad55-43ef-bf0c-77b408aea472",
+                  "src": "/Users/apple/Desktop/Screenshot 2026-02-06 at 9.31.55 PM.png"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{url}}/api/settings/update?country_id=1",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "settings",
+                "update"
+              ],
+              "query": [
+                {
+                  "key": "country_id",
+                  "value": "1",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Dark Mode",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "234",
+                  "type": "text",
+                  "uuid": "d7e2565b-2973-4770-8d9c-b4baf1b56c9c"
+                },
+                {
+                  "key": "email",
+                  "value": "234@wer.wer",
+                  "type": "text",
+                  "uuid": "325756fe-6fac-459d-9090-8725e89245f8"
+                },
+                {
+                  "key": "account_type",
+                  "value": "individual",
+                  "type": "text",
+                  "uuid": "7e880ae9-be12-4ece-9d10-3f9ade185c99"
+                },
+                {
+                  "key": "company_id",
+                  "value": "",
+                  "type": "text",
+                  "uuid": "8ce66e33-cae6-4bc8-bff8-75d9115e1bb4"
+                },
+                {
+                  "key": "job_title",
+                  "value": "12312",
+                  "type": "text",
+                  "uuid": "8bef82e2-702c-490b-affb-1587452adab2"
+                },
+                {
+                  "key": "avatar",
+                  "type": "file",
+                  "uuid": "8f09b0e5-ad55-43ef-bf0c-77b408aea472",
+                  "src": "/Users/apple/Desktop/Screenshot 2026-02-06 at 9.31.55 PM.png"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{url}}/api/settings/update?dark_mode=true",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "settings",
+                "update"
+              ],
+              "query": [
+                {
+                  "key": "dark_mode",
+                  "value": "true"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Settings",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "234",
+                  "type": "text",
+                  "uuid": "d7e2565b-2973-4770-8d9c-b4baf1b56c9c"
+                },
+                {
+                  "key": "email",
+                  "value": "234@wer.wer",
+                  "type": "text",
+                  "uuid": "325756fe-6fac-459d-9090-8725e89245f8"
+                },
+                {
+                  "key": "account_type",
+                  "value": "individual",
+                  "type": "text",
+                  "uuid": "7e880ae9-be12-4ece-9d10-3f9ade185c99"
+                },
+                {
+                  "key": "company_id",
+                  "value": "",
+                  "type": "text",
+                  "uuid": "8ce66e33-cae6-4bc8-bff8-75d9115e1bb4"
+                },
+                {
+                  "key": "job_title",
+                  "value": "12312",
+                  "type": "text",
+                  "uuid": "8bef82e2-702c-490b-affb-1587452adab2"
+                },
+                {
+                  "key": "avatar",
+                  "type": "file",
+                  "uuid": "8f09b0e5-ad55-43ef-bf0c-77b408aea472",
+                  "src": "/Users/apple/Desktop/Screenshot 2026-02-06 at 9.31.55 PM.png"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{url}}/api/settings/update?app_notifications=false&offers_and_alerts=true&new_offers=true&discount_offers=true&trip_offers=true&shopping_sections_offers=true&email_newsletters=true&sms_notifications=true&whatsapp_notifications=true",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "settings",
+                "update"
+              ],
+              "query": [
+                {
+                  "key": "app_notifications",
+                  "value": "false"
+                },
+                {
+                  "key": "offers_and_alerts",
+                  "value": "true"
+                },
+                {
+                  "key": "new_offers",
+                  "value": "true"
+                },
+                {
+                  "key": "discount_offers",
+                  "value": "true"
+                },
+                {
+                  "key": "trip_offers",
+                  "value": "true"
+                },
+                {
+                  "key": "shopping_sections_offers",
+                  "value": "true"
+                },
+                {
+                  "key": "email_newsletters",
+                  "value": "true"
+                },
+                {
+                  "key": "sms_notifications",
+                  "value": "true"
+                },
+                {
+                  "key": "whatsapp_notifications",
+                  "value": "true"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "General requests",
+      "item": [
+        {
+          "name": "Categories",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/api/categories",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "categories"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get countries",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/api/locations/countries",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "locations",
+                "countries"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Regions",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/api/locations/regions/1",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "locations",
+                "regions",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get cities",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/api/locations/cities/1",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "locations",
+                "cities",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Offers",
+      "item": [
+        {
+          "name": "Home",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/api/home",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "home"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Offers By ID",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/api/offers-by-category/1",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "offers-by-category",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search Offers",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/api/search?q=&type=&category_id&city_id&min_price&max_price&sort",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": ""
+                },
+                {
+                  "key": "type",
+                  "value": "",
+                  "description": "all/offers/merchants"
+                },
+                {
+                  "key": "category_id",
+                  "value": null
+                },
+                {
+                  "key": "city_id",
+                  "value": null
+                },
+                {
+                  "key": "min_price",
+                  "value": null
+                },
+                {
+                  "key": "max_price",
+                  "value": null
+                },
+                {
+                  "key": "sort",
+                  "value": null,
+                  "description": "newest/price_asc/price_desc/discount"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Filter Options",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/api/filter-options",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "filter-options"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Offer Details",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/api/offers/1",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "offers",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Merchant Page",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/api/merchants/1",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "merchants",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Follow/UnFollow Merchant",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/api/merchants/1/follow",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "merchants",
+                "1",
+                "follow"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Review Merchant",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/api/merchants/review?merchant_id=1&rating=5&comment=qwe",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "merchants",
+                "review"
+              ],
+              "query": [
+                {
+                  "key": "merchant_id",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "rating",
+                  "value": "5",
+                  "type": "text"
+                },
+                {
+                  "key": "comment",
+                  "value": "qwe",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Subscriptions",
+      "item": [
+        {
+          "name": "Plans",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/api/subscription/plans",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "subscription",
+                "plans"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Subscribe",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/api/subscription/subscribe?plan_id=1&payment_method=online",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "subscription",
+                "subscribe"
+              ],
+              "query": [
+                {
+                  "key": "plan_id",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "payment_method",
+                  "value": "online",
+                  "description": "cash/online/bank",
+                  "type": "text"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Subscription Status",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/api/subscription/status",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "subscription",
+                "status"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Subscription History",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/api/subscription/history",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "subscription",
+                "history"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Order",
+      "item": [
+        {
+          "name": "Create Order",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/api/orders?order_type=offer&item_id=1&branch_id&quantity=2",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "orders"
+              ],
+              "query": [
+                {
+                  "key": "order_type",
+                  "value": "offer"
+                },
+                {
+                  "key": "item_id",
+                  "value": "1"
+                },
+                {
+                  "key": "branch_id",
+                  "value": null,
+                  "description": "optional"
+                },
+                {
+                  "key": "quantity",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "My Orders",
+          "protocolProfileBehavior": {
+            "disabledSystemHeaders": {
+              "host": true
+            }
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/api/orders",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "orders"
+              ],
+              "query": [
+                {
+                  "key": "order_type",
+                  "value": "offer",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Order Details",
+          "protocolProfileBehavior": {
+            "disabledSystemHeaders": {
+              "host": true
+            }
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/api/orders/1",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "orders",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Coupons",
+      "item": [
+        {
+          "name": "Coupons Home",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/api/coupons/home",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "coupons",
+                "home"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Coupons Search",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/api/coupons/search?q=",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "coupons",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": ""
+                },
+                {
+                  "key": "category_id",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "merchant_id",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Coupons By Category",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/api/coupons/by-category/1",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "coupons",
+                "by-category",
+                "1"
+              ],
+              "query": [
+                {
+                  "key": "category_id",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "merchant_id",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Coupons By Merchant",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/api/coupons/by-merchant/1",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "coupons",
+                "by-merchant",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Coupon Details",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/api/coupons/1",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "coupons",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Use Coupon",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/api/coupons/1/use",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "coupons",
+                "1",
+                "use"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Cards",
+      "item": [
+        {
+          "name": "Home",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/api/cards/home",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "cards",
+                "home"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Search",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/api/cards/search?q=",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "cards",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": ""
+                },
+                {
+                  "key": "category_id",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "merchant_id",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cards By Category",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/api/cards/by-category/1",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "cards",
+                "by-category",
+                "1"
+              ],
+              "query": [
+                {
+                  "key": "category_id",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "merchant_id",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cards By Merchant",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/api/cards/by-merchant/1",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "cards",
+                "by-merchant",
+                "1"
+              ],
+              "query": [
+                {
+                  "key": "category_id",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "merchant_id",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cards Details",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/api/cards/1",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "cards",
+                "1"
+              ],
+              "query": [
+                {
+                  "key": "category_id",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "merchant_id",
+                  "value": "",
+                  "disabled": true
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Website",
+      "item": [
+        {
+          "name": "Cards",
+          "item": [
+            {
+              "name": "Cards",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/web/cards?category_id&price_min&price_max&pricing_type&search&sort_by&is_renewable=1",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "web",
+                    "cards"
+                  ],
+                  "query": [
+                    {
+                      "key": "category_id",
+                      "value": null
+                    },
+                    {
+                      "key": "price_min",
+                      "value": null
+                    },
+                    {
+                      "key": "price_max",
+                      "value": null
+                    },
+                    {
+                      "key": "pricing_type",
+                      "value": null
+                    },
+                    {
+                      "key": "search",
+                      "value": null,
+                      "description": "كلمة البخث"
+                    },
+                    {
+                      "key": "sort_by",
+                      "value": null
+                    },
+                    {
+                      "key": "is_renewable",
+                      "value": "1",
+                      "type": "text"
+                    }
+                  ]
+                },
+                "description": "**الفلاتر المتاحة:**\n\n- `category_id` - فلترة حسب التصنيف\n    \n- `merchant_id` - فلترة حسب التاجر\n    \n- `pricing_type` - نوع السعر (free, paid, paid_no_subscription)\n    \n- `price_min` & `price_max` - نطاق السعر\n    \n- `discount_min` - الحد الأدنى للخصم\n    \n- `search` - البحث في الاسم والوصف\n    \n\n**خيارات الترتيب:**\n\n- `newest` - الأحدث (افتراضي)\n    \n- `best_selling` - الأكثر مبيعاً\n    \n- `highest_discount` - الخصم الأعلى\n    \n- `price_low_high` - السعر من الأقل للأعلى\n    \n- `price_high_low` - السعر من الأعلى للأقل\n    \n\n**Pagination:**\n\n- `per_page` - عدد النتائج (افتراضي: 20)\n    \n- `page` - رقم الصفحة"
+              },
+              "response": []
+            },
+            {
+              "name": "Card Details",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/web/cards/1",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "web",
+                    "cards",
+                    "1"
+                  ]
+                },
+                "description": "**الفلاتر المتاحة:**\n\n- `category_id` - فلترة حسب التصنيف\n    \n- `merchant_id` - فلترة حسب التاجر\n    \n- `pricing_type` - نوع السعر (free, paid, paid_no_subscription)\n    \n- `price_min` & `price_max` - نطاق السعر\n    \n- `discount_min` - الحد الأدنى للخصم\n    \n- `search` - البحث في الاسم والوصف\n    \n\n**خيارات الترتيب:**\n\n- `newest` - الأحدث (افتراضي)\n    \n- `best_selling` - الأكثر مبيعاً\n    \n- `highest_discount` - الخصم الأعلى\n    \n- `price_low_high` - السعر من الأقل للأعلى\n    \n- `price_high_low` - السعر من الأعلى للأقل\n    \n\n**Pagination:**\n\n- `per_page` - عدد النتائج (افتراضي: 20)\n    \n- `page` - رقم الصفحة"
+              },
+              "response": []
+            },
+            {
+              "name": "Card Category Slug",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/web/categories/google-play/cards",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "web",
+                    "categories",
+                    "google-play",
+                    "cards"
+                  ]
+                },
+                "description": "**الفلاتر المتاحة:**\n\n- `category_id` - فلترة حسب التصنيف\n    \n- `merchant_id` - فلترة حسب التاجر\n    \n- `pricing_type` - نوع السعر (free, paid, paid_no_subscription)\n    \n- `price_min` & `price_max` - نطاق السعر\n    \n- `discount_min` - الحد الأدنى للخصم\n    \n- `search` - البحث في الاسم والوصف\n    \n\n**خيارات الترتيب:**\n\n- `newest` - الأحدث (افتراضي)\n    \n- `best_selling` - الأكثر مبيعاً\n    \n- `highest_discount` - الخصم الأعلى\n    \n- `price_low_high` - السعر من الأقل للأعلى\n    \n- `price_high_low` - السعر من الأعلى للأقل\n    \n\n**Pagination:**\n\n- `per_page` - عدد النتائج (افتراضي: 20)\n    \n- `page` - رقم الصفحة"
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Blog",
+          "item": [
+            {
+              "name": "Blog",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/web/news",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "web",
+                    "news"
+                  ]
+                },
+                "description": "**الفلاتر المتاحة:**\n\n- `category_id` - فلترة حسب التصنيف\n    \n- `merchant_id` - فلترة حسب التاجر\n    \n- `pricing_type` - نوع السعر (free, paid, paid_no_subscription)\n    \n- `price_min` & `price_max` - نطاق السعر\n    \n- `discount_min` - الحد الأدنى للخصم\n    \n- `search` - البحث في الاسم والوصف\n    \n\n**خيارات الترتيب:**\n\n- `newest` - الأحدث (افتراضي)\n    \n- `best_selling` - الأكثر مبيعاً\n    \n- `highest_discount` - الخصم الأعلى\n    \n- `price_low_high` - السعر من الأقل للأعلى\n    \n- `price_high_low` - السعر من الأعلى للأقل\n    \n\n**Pagination:**\n\n- `per_page` - عدد النتائج (افتراضي: 20)\n    \n- `page` - رقم الصفحة"
+              },
+              "response": []
+            },
+            {
+              "name": "Blog Details",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/web/news/new-mobile-app-available",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "web",
+                    "news",
+                    "new-mobile-app-available"
+                  ]
+                },
+                "description": "**الفلاتر المتاحة:**\n\n- `category_id` - فلترة حسب التصنيف\n    \n- `merchant_id` - فلترة حسب التاجر\n    \n- `pricing_type` - نوع السعر (free, paid, paid_no_subscription)\n    \n- `price_min` & `price_max` - نطاق السعر\n    \n- `discount_min` - الحد الأدنى للخصم\n    \n- `search` - البحث في الاسم والوصف\n    \n\n**خيارات الترتيب:**\n\n- `newest` - الأحدث (افتراضي)\n    \n- `best_selling` - الأكثر مبيعاً\n    \n- `highest_discount` - الخصم الأعلى\n    \n- `price_low_high` - السعر من الأقل للأعلى\n    \n- `price_high_low` - السعر من الأعلى للأقل\n    \n\n**Pagination:**\n\n- `per_page` - عدد النتائج (افتراضي: 20)\n    \n- `page` - رقم الصفحة"
+              },
+              "response": []
+            },
+            {
+              "name": "Blog By Category",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/web/news/categories/app-news",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "web",
+                    "news",
+                    "categories",
+                    "app-news"
+                  ]
+                },
+                "description": "**الفلاتر المتاحة:**\n\n- `category_id` - فلترة حسب التصنيف\n    \n- `merchant_id` - فلترة حسب التاجر\n    \n- `pricing_type` - نوع السعر (free, paid, paid_no_subscription)\n    \n- `price_min` & `price_max` - نطاق السعر\n    \n- `discount_min` - الحد الأدنى للخصم\n    \n- `search` - البحث في الاسم والوصف\n    \n\n**خيارات الترتيب:**\n\n- `newest` - الأحدث (افتراضي)\n    \n- `best_selling` - الأكثر مبيعاً\n    \n- `highest_discount` - الخصم الأعلى\n    \n- `price_low_high` - السعر من الأقل للأعلى\n    \n- `price_high_low` - السعر من الأعلى للأقل\n    \n\n**Pagination:**\n\n- `per_page` - عدد النتائج (افتراضي: 20)\n    \n- `page` - رقم الصفحة"
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Coupons",
+          "item": [
+            {
+              "name": "Coupons",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/web/coupons?category_id&price_min&price_max&pricing_type&search&sort_by&is_renewable=1",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "web",
+                    "coupons"
+                  ],
+                  "query": [
+                    {
+                      "key": "category_id",
+                      "value": null
+                    },
+                    {
+                      "key": "price_min",
+                      "value": null
+                    },
+                    {
+                      "key": "price_max",
+                      "value": null
+                    },
+                    {
+                      "key": "pricing_type",
+                      "value": null
+                    },
+                    {
+                      "key": "search",
+                      "value": null,
+                      "description": "كلمة البخث"
+                    },
+                    {
+                      "key": "sort_by",
+                      "value": null
+                    },
+                    {
+                      "key": "is_renewable",
+                      "value": "1"
+                    }
+                  ]
+                },
+                "description": "**الفلاتر المتاحة:**\n\n- `category_id` - فلترة حسب التصنيف\n    \n- `merchant_id` - فلترة حسب التاجر\n    \n- `pricing_type` - نوع السعر (free, paid, paid_no_subscription)\n    \n- `price_min` & `price_max` - نطاق السعر\n    \n- `discount_min` - الحد الأدنى للخصم\n    \n- `search` - البحث في الاسم والوصف\n    \n\n**خيارات الترتيب:**\n\n- `newest` - الأحدث (افتراضي)\n    \n- `best_selling` - الأكثر مبيعاً\n    \n- `highest_discount` - الخصم الأعلى\n    \n- `price_low_high` - السعر من الأقل للأعلى\n    \n- `price_high_low` - السعر من الأعلى للأقل\n    \n\n**Pagination:**\n\n- `per_page` - عدد النتائج (افتراضي: 20)\n    \n- `page` - رقم الصفحة"
+              },
+              "response": []
+            },
+            {
+              "name": "Coupon Details",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/web/coupons/1",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "web",
+                    "coupons",
+                    "1"
+                  ]
+                },
+                "description": "**الفلاتر المتاحة:**\n\n- `category_id` - فلترة حسب التصنيف\n    \n- `merchant_id` - فلترة حسب التاجر\n    \n- `pricing_type` - نوع السعر (free, paid, paid_no_subscription)\n    \n- `price_min` & `price_max` - نطاق السعر\n    \n- `discount_min` - الحد الأدنى للخصم\n    \n- `search` - البحث في الاسم والوصف\n    \n\n**خيارات الترتيب:**\n\n- `newest` - الأحدث (افتراضي)\n    \n- `best_selling` - الأكثر مبيعاً\n    \n- `highest_discount` - الخصم الأعلى\n    \n- `price_low_high` - السعر من الأقل للأعلى\n    \n- `price_high_low` - السعر من الأعلى للأقل\n    \n\n**Pagination:**\n\n- `per_page` - عدد النتائج (افتراضي: 20)\n    \n- `page` - رقم الصفحة"
+              },
+              "response": []
+            },
+            {
+              "name": "Coupon Category Slug",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/web/categories/restaurant/coupons",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "web",
+                    "categories",
+                    "restaurant",
+                    "coupons"
+                  ]
+                },
+                "description": "**الفلاتر المتاحة:**\n\n- `category_id` - فلترة حسب التصنيف\n    \n- `merchant_id` - فلترة حسب التاجر\n    \n- `pricing_type` - نوع السعر (free, paid, paid_no_subscription)\n    \n- `price_min` & `price_max` - نطاق السعر\n    \n- `discount_min` - الحد الأدنى للخصم\n    \n- `search` - البحث في الاسم والوصف\n    \n\n**خيارات الترتيب:**\n\n- `newest` - الأحدث (افتراضي)\n    \n- `best_selling` - الأكثر مبيعاً\n    \n- `highest_discount` - الخصم الأعلى\n    \n- `price_low_high` - السعر من الأقل للأعلى\n    \n- `price_high_low` - السعر من الأعلى للأقل\n    \n\n**Pagination:**\n\n- `per_page` - عدد النتائج (افتراضي: 20)\n    \n- `page` - رقم الصفحة"
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "offers",
+          "item": [
+            {
+              "name": "Offers",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/web/offers?category_id&price_min&price_max&pricing_type&search&sort_by",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "web",
+                    "offers"
+                  ],
+                  "query": [
+                    {
+                      "key": "category_id",
+                      "value": null
+                    },
+                    {
+                      "key": "price_min",
+                      "value": null
+                    },
+                    {
+                      "key": "price_max",
+                      "value": null
+                    },
+                    {
+                      "key": "pricing_type",
+                      "value": null
+                    },
+                    {
+                      "key": "search",
+                      "value": null,
+                      "description": "كلمة البخث"
+                    },
+                    {
+                      "key": "sort_by",
+                      "value": null
+                    }
+                  ]
+                },
+                "description": "**الفلاتر المتاحة:**\n\n- `category_id` - فلترة حسب التصنيف\n    \n- `merchant_id` - فلترة حسب التاجر\n    \n- `pricing_type` - نوع السعر (free, paid, paid_no_subscription)\n    \n- `price_min` & `price_max` - نطاق السعر\n    \n- `discount_min` - الحد الأدنى للخصم\n    \n- `search` - البحث في الاسم والوصف\n    \n\n**خيارات الترتيب:**\n\n- `newest` - الأحدث (افتراضي)\n    \n- `best_selling` - الأكثر مبيعاً\n    \n- `highest_discount` - الخصم الأعلى\n    \n- `price_low_high` - السعر من الأقل للأعلى\n    \n- `price_high_low` - السعر من الأعلى للأقل\n    \n\n**Pagination:**\n\n- `per_page` - عدد النتائج (افتراضي: 20)\n    \n- `page` - رقم الصفحة"
+              },
+              "response": []
+            },
+            {
+              "name": "Offers By Category",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/web/categories/restaurant/offers?sort_by=highest_discount",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "web",
+                    "categories",
+                    "restaurant",
+                    "offers"
+                  ],
+                  "query": [
+                    {
+                      "key": "sort_by",
+                      "value": "highest_discount"
+                    }
+                  ]
+                },
+                "description": "**الفلاتر المتاحة:**\n\n- `category_id` - فلترة حسب التصنيف\n    \n- `merchant_id` - فلترة حسب التاجر\n    \n- `pricing_type` - نوع السعر (free, paid, paid_no_subscription)\n    \n- `price_min` & `price_max` - نطاق السعر\n    \n- `discount_min` - الحد الأدنى للخصم\n    \n- `search` - البحث في الاسم والوصف\n    \n\n**خيارات الترتيب:**\n\n- `newest` - الأحدث (افتراضي)\n    \n- `best_selling` - الأكثر مبيعاً\n    \n- `highest_discount` - الخصم الأعلى\n    \n- `price_low_high` - السعر من الأقل للأعلى\n    \n- `price_high_low` - السعر من الأعلى للأقل\n    \n\n**Pagination:**\n\n- `per_page` - عدد النتائج (افتراضي: 20)\n    \n- `page` - رقم الصفحة"
+              },
+              "response": []
+            },
+            {
+              "name": "Filters",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/web/filters",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "web",
+                    "filters"
+                  ]
+                },
+                "description": "**الفلاتر المتاحة:**\n\n- `category_id` - فلترة حسب التصنيف\n    \n- `merchant_id` - فلترة حسب التاجر\n    \n- `pricing_type` - نوع السعر (free, paid, paid_no_subscription)\n    \n- `price_min` & `price_max` - نطاق السعر\n    \n- `discount_min` - الحد الأدنى للخصم\n    \n- `search` - البحث في الاسم والوصف\n    \n\n**خيارات الترتيب:**\n\n- `newest` - الأحدث (افتراضي)\n    \n- `best_selling` - الأكثر مبيعاً\n    \n- `highest_discount` - الخصم الأعلى\n    \n- `price_low_high` - السعر من الأقل للأعلى\n    \n- `price_high_low` - السعر من الأعلى للأقل\n    \n\n**Pagination:**\n\n- `per_page` - عدد النتائج (افتراضي: 20)\n    \n- `page` - رقم الصفحة"
+              },
+              "response": []
+            },
+            {
+              "name": "Offer Details",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{url}}/api/web/offers/1",
+                  "host": [
+                    "{{url}}"
+                  ],
+                  "path": [
+                    "api",
+                    "web",
+                    "offers",
+                    "1"
+                  ]
+                },
+                "description": "**الفلاتر المتاحة:**\n\n- `category_id` - فلترة حسب التصنيف\n    \n- `merchant_id` - فلترة حسب التاجر\n    \n- `pricing_type` - نوع السعر (free, paid, paid_no_subscription)\n    \n- `price_min` & `price_max` - نطاق السعر\n    \n- `discount_min` - الحد الأدنى للخصم\n    \n- `search` - البحث في الاسم والوصف\n    \n\n**خيارات الترتيب:**\n\n- `newest` - الأحدث (افتراضي)\n    \n- `best_selling` - الأكثر مبيعاً\n    \n- `highest_discount` - الخصم الأعلى\n    \n- `price_low_high` - السعر من الأقل للأعلى\n    \n- `price_high_low` - السعر من الأعلى للأقل\n    \n\n**Pagination:**\n\n- `per_page` - عدد النتائج (افتراضي: 20)\n    \n- `page` - رقم الصفحة"
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Index Page",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/api/web/home",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "web",
+                "home"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "About",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/api/web/about",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "web",
+                "about"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Contact us",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{url}}/api/web/contact?name=w&email=wer@asd.asd&phone=123123123&subject=wer&message=wer",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "api",
+                "web",
+                "contact"
+              ],
+              "query": [
+                {
+                  "key": "name",
+                  "value": "w"
+                },
+                {
+                  "key": "email",
+                  "value": "wer@asd.asd"
+                },
+                {
+                  "key": "phone",
+                  "value": "123123123"
+                },
+                {
+                  "key": "subject",
+                  "value": "wer"
+                },
+                {
+                  "key": "message",
+                  "value": "wer"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "url",
+      "value": ""
+    },
+    {
+      "key": "token",
+      "value": ""
+    }
+  ]
+}

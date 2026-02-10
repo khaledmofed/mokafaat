@@ -1,81 +1,58 @@
 import { useTranslation } from "react-i18next";
-
-// Import cards images
-import {
-  Cards1,
-  Cards2,
-  Cards3,
-  Cards4,
-  // Cards5,
-  Cards8,
-  Cards6,
-  Cards7,
-} from "@assets";
+import { useMemo } from "react";
 import { IoIosArrowRoundForward } from "react-icons/io";
 import { useIsRTL } from "@hooks";
 import { useNavigate } from "react-router-dom";
+import { useWebHome } from "@hooks/api/useMokafaatQueries";
+import { mapApiCardsToModels } from "@network/mappers/cardsMapper";
 
 const CardsSections = () => {
   const { t } = useTranslation();
   const isRTL = useIsRTL();
   const navigate = useNavigate();
-  // No need for API call since we're using static cards
 
-  // Cards data - using static cards images
-  const cardsImages = [
-    {
-      id: 1,
-      image: Cards3,
-      title: "STC Card",
-    },
-    {
-      id: 2,
-      image: Cards4,
-      title: "Gathern Card",
-    },
-    {
-      id: 3,
-      image: Cards1,
-      title: "VIP Package",
-    },
-    {
-      id: 4,
-      image: Cards8,
-      title: "STC Pay Card",
-    },
-    {
-      id: 5,
-      image: Cards3,
-      title: "Hunger Station Card",
-    },
-    {
-      id: 6,
-      image: Cards6,
-      title: "STC 3 Months",
-    },
-    {
-      id: 7,
-      image: Cards7,
-      title: "STC TV Classic",
-    },
-    {
-      id: 8,
-      image: Cards2,
-      title: "STC TV Classic",
-    },
-  ];
+  // Fetch cards from API
+  const { data: webHomeResponse } = useWebHome();
 
-  // Cards display - using static cards
-  const cardsDisplay = {
-    img1: cardsImages[0], // STC Card
-    img2: cardsImages[1], // Gathern Card
-    img3: cardsImages[2], // VIP Package
-    img4: cardsImages[3], // STC Pay Card
-    img5: cardsImages[4], // Hunger Station Card
-    img6: cardsImages[5], // STC 3 Months
-    img7: cardsImages[6], // STC TV Classic
-    img8: cardsImages[7], // STC Card (repeat for 8th position)
-  };
+  // Extract cards from API response
+  const apiCards = useMemo(() => {
+    if (!webHomeResponse) return [];
+    const res = webHomeResponse as Record<string, unknown>;
+    const data = res?.data as Record<string, unknown> | undefined;
+    const cards = data?.cards as Array<Record<string, unknown>> | undefined;
+    if (!Array.isArray(cards)) return [];
+    return cards;
+  }, [webHomeResponse]);
+
+  // Map API cards to frontend models
+  const cardsImages = useMemo(() => {
+    return mapApiCardsToModels(apiCards);
+  }, [apiCards]);
+
+  // Cards display - take first 8 cards, pad with placeholder if needed
+  const cardsDisplay = useMemo(() => {
+    const placeholder = {
+      id: 0,
+      image: "https://via.placeholder.com/300x200?text=Card",
+      title: "بطاقة",
+      price: "0.00",
+      category: "",
+    };
+    const padded = [...cardsImages];
+    while (padded.length < 8) {
+      padded.push({ ...placeholder, id: padded.length + 1 });
+    }
+    return {
+      img1: padded[0] || placeholder,
+      img2: padded[1] || placeholder,
+      img3: padded[2] || placeholder,
+      img4: padded[3] || placeholder,
+      img5: padded[4] || placeholder,
+      img6: padded[5] || placeholder,
+      img7: padded[6] || placeholder,
+      img8: padded[7] || placeholder,
+    };
+  }, [cardsImages]);
 
   // Cards are static - no need to update them
 

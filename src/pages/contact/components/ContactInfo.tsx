@@ -24,41 +24,58 @@ const ContactInfo = () => {
         className="flex flex-col items-start text-sm gap-5 wow fadeInUp"
         data-wow-delay="0.2s"
       >
-        <ContactInfoItem
-          to={`tel:${contactInfos?.mobileNumber}`}
-          icon={FaPhone}
-          text={contactInfos?.mobileNumber || ""}
-        />
-
-        <ContactInfoItem
-          to={`mailto:${contactInfos?.email}`}
-          icon={MdOutlineEmail}
-          text={contactInfos?.email || ""}
-        />
-
-        <ContactInfoItem
-          to=""
-          icon={GrLocation}
-          text={contactInfos?.location || ""}
-        />
+        {contactInfos?.mobileNumber && (
+          <ContactInfoItem
+            to={`tel:${contactInfos.mobileNumber}`}
+            icon={FaPhone}
+            text={contactInfos.mobileNumber}
+          />
+        )}
+        {contactInfos?.email && (
+          <ContactInfoItem
+            to={`mailto:${contactInfos.email}`}
+            icon={MdOutlineEmail}
+            text={contactInfos.email}
+          />
+        )}
+        {contactInfos?.location && (
+          <ContactInfoItem
+            to=""
+            icon={GrLocation}
+            text={contactInfos.location}
+          />
+        )}
       </div>
 
       <div
         className="flex gap-2 mt-4 md:mt-0 wow fadeInUp"
         data-wow-delay="0.3s"
       >
-        <SocialMediaButton
-          to={contactInfos?.linkedInUrl || ""}
-          icon={FaLinkedinIn}
-        />
-        <SocialMediaButton
-          to={contactInfos?.instagramUrl || ""}
-          icon={FaInstagram}
-        />
-        <SocialMediaButton
-          to={contactInfos?.whatsappNumber || ""}
-          icon={FaWhatsapp}
-        />
+        {contactInfos?.linkedInUrl && (
+          <SocialMediaButton
+            to={contactInfos.linkedInUrl}
+            icon={FaLinkedinIn}
+          />
+        )}
+        {contactInfos?.instagramUrl && (
+          <SocialMediaButton
+            to={contactInfos.instagramUrl}
+            icon={FaInstagram}
+          />
+        )}
+        {contactInfos?.whatsappNumber && (
+          <SocialMediaButton
+            to={
+              contactInfos.whatsappNumber.startsWith("http")
+                ? contactInfos.whatsappNumber
+                : `https://wa.me/${contactInfos.whatsappNumber.replace(
+                    /\D/g,
+                    ""
+                  )}`
+            }
+            icon={FaWhatsapp}
+          />
+        )}
       </div>
     </div>
   );

@@ -12,6 +12,7 @@ const RegisterPage: React.FC = () => {
     useUserStore();
 
   const [phone, setPhone] = useState("");
+  const [countryCode] = useState("966");
   const [code, setCode] = useState(["", "", "", ""]);
   const [timer, setTimer] = useState(45);
   // const [, setIsRegisterMode] = useState(true);
@@ -74,7 +75,7 @@ const RegisterPage: React.FC = () => {
     if (!phone.trim()) return;
 
     try {
-      const res = await sendOtp();
+      const res = await sendOtp(phone.trim(), countryCode);
       if (res.status) {
         setToast({ type: "success", message: res.msg });
         setTimer(45);
@@ -91,11 +92,11 @@ const RegisterPage: React.FC = () => {
     const otp = code.join("");
     if (otp.length === 4) {
       try {
-        const res = await verifyOtp(phone, otp);
+        const res = await verifyOtp(phone, otp, countryCode);
         if (res.status) {
           setToast({ type: "success", message: res.msg });
-          // إذا كان المستخدم جديد، اعرض نموذج التسجيل
-          if (res.data?.user?.name === "مستخدم جديد") {
+          // إذا البروفايل غير مكتمل → اعرض نموذج إكمال التسجيل، وإلا → الرئيسية
+          if (res.data?.is_profile_completed === false) {
             setShowRegistrationForm(true);
           } else {
             navigate("/");
@@ -357,7 +358,7 @@ const RegisterPage: React.FC = () => {
                   className="text-[#440798] underline disabled:text-gray-400"
                   disabled={timer > 0 || loading}
                   onClick={() => {
-                    sendOtp();
+                    sendOtp(phone.trim(), countryCode);
                     setTimer(45);
                   }}
                 >

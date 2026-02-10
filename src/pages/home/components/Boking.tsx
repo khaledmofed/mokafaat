@@ -49,7 +49,7 @@ const Boking: React.FC = () => {
     return bookingProperties.filter(
       (property) => property.category === activeFilter
     );
-  }, [activeFilter]);
+  }, [activeFilter, bookingProperties]);
 
   const owlCarouselOptions = {
     loop: true,

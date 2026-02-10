@@ -175,7 +175,7 @@ const Navbar: React.FC = () => {
                         className="w-7 h-7 rounded-full object-cover"
                       />
                     ) : (
-                      <IoPersonOutline className="text-white text-md" />
+                      <IoPersonOutline className="text-[#440798] text-md" />
                     )}
                   </button>
 
@@ -276,7 +276,7 @@ const Navbar: React.FC = () => {
             <button
               onClick={handleToggleSideMenu}
               className={`flex items-center justify-center w-9 h-9 bg-[#fff] border-2 border border-[#440798] rounded-full transition-all duration-300 hover:bg-[#eee] ${
-                isScrolled ? "text-white" : "text-white"
+                isScrolled ? "text-white" : "text-[#440798]"
               }`}
             >
               <RiMenu4Line className="text-[#440798] text-md" />

@@ -30,6 +30,8 @@ export default defineConfig(({ mode }) => {
         "@types": path.resolve(__dirname, "./src/types"),
         "@validations": path.resolve(__dirname, "./src/validations"),
         "@stores": path.resolve(__dirname, "./src/stores"),
+        "@config": path.resolve(__dirname, "./src/config"),
+        "@utils": path.resolve(__dirname, "./src/utils"),
       },
     },
     plugins: [react()],

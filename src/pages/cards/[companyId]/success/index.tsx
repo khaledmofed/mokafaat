@@ -1,23 +1,83 @@
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useIsRTL } from "@hooks";
-import { getCompanyById, getOfferById } from "@data/cards";
-
+import { useMemo } from "react";
+import {
+  getCompanyById,
+  getOfferById,
+  type CardCompany,
+  type CardOffer,
+} from "@data/cards";
 import CurrencyIcon from "@components/CurrencyIcon";
 import { Cardpayment } from "@assets";
+import { useWebHome } from "@hooks/api/useMokafaatQueries";
+import { mapApiCardsToModels } from "@network/mappers/cardsMapper";
 
 const SuccessPage = () => {
   const { companyId } = useParams<{ companyId: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const isRTL = useIsRTL();
+  const { data: webHomeResponse } = useWebHome();
 
   const offerId = searchParams.get("offer");
   const quantity = parseInt(searchParams.get("quantity") || "1");
   const total = parseFloat(searchParams.get("total") || "0");
 
-  const company = companyId ? getCompanyById(companyId) : null;
-  const offer = companyId && offerId ? getOfferById(companyId, offerId) : null;
+  const apiCardCompanyAndOffer = useMemo((): {
+    company: CardCompany;
+    offer: CardOffer;
+  } | null => {
+    if (!webHomeResponse || !companyId) return null;
+    const res = webHomeResponse as Record<string, unknown>;
+    const data = res?.data as Record<string, unknown> | undefined;
+    const cards = data?.cards as Array<Record<string, unknown>> | undefined;
+    if (!Array.isArray(cards)) return null;
+    const models = mapApiCardsToModels(cards);
+    const card = models.find((c) => String(c.id) === String(companyId));
+    if (!card) return null;
+    const offer: CardOffer = {
+      id: String(card.id),
+      title: { ar: card.title, en: card.title },
+      description: { ar: card.description ?? "", en: card.description ?? "" },
+      price: parseFloat(card.price) || 0,
+      currency: "SAR",
+      validity: { ar: "", en: "" },
+      features: [],
+      image: card.image,
+      rating: 0,
+      purchases: 0,
+      views: 0,
+      downloads: 0,
+      bookmarks: 0,
+    };
+    const company: CardCompany = {
+      id: String(card.id),
+      name: { ar: card.title, en: card.title },
+      logo: card.image,
+      category: {
+        key: card.category || "other",
+        ar: card.category,
+        en: card.category,
+      },
+      description: { ar: card.description ?? "", en: card.description ?? "" },
+      color: "#400198",
+      offers: [offer],
+    };
+    return { company, offer };
+  }, [webHomeResponse, companyId]);
+
+  const staticCompany = companyId ? getCompanyById(companyId) : null;
+  const staticOffer =
+    companyId && offerId ? getOfferById(companyId, offerId) : null;
+  const company = staticCompany || apiCardCompanyAndOffer?.company || null;
+  const offer =
+    staticOffer ||
+    (apiCardCompanyAndOffer &&
+    String(apiCardCompanyAndOffer.offer.id) === String(offerId)
+      ? apiCardCompanyAndOffer.offer
+      : null) ||
+    null;
 
   if (!company || !offer) {
     return (

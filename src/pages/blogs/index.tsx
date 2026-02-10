@@ -6,11 +6,15 @@ import { useIsRTL } from "@hooks";
 
 import FAQSection from "@pages/home/components/FAQSection";
 import { useNavigate, useLocation } from "react-router-dom";
-import { newsArticles } from "@pages/home/components/NewsBlogs";
 import NewsCard from "@pages/home/components/NewsCard";
 import Pagination from "../../components/Pagination";
 import { useInquiryModal } from "@context";
 import GetStartedSection from "@pages/home/components/GetStartedSection";
+import { useWebHome } from "@hooks/api/useMokafaatQueries";
+import { mapApiNewsToModels } from "@network/mappers/newsMapper";
+import type { NewsArticleModel } from "@network/mappers/newsMapper";
+
+const ALL_CATEGORY_KEY = "__all__";
 
 const BlogsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -18,49 +22,57 @@ const BlogsPage: React.FC = () => {
   const isRTL = useIsRTL();
   const { openModal } = useInquiryModal();
 
-  // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
-
-  // Filter state
-  const [selectedCategory, setSelectedCategory] = useState<string>(
-    isRTL ? "جميع الفئات" : "All Category"
-  );
+  const [selectedCategory, setSelectedCategory] =
+    useState<string>(ALL_CATEGORY_KEY);
   const [showMoreCategories, setShowMoreCategories] = useState(false);
 
-  // Check if category was passed from article detail page
+  const { data: webHomeResponse } = useWebHome();
+
+  const newsList = useMemo((): NewsArticleModel[] => {
+    if (!webHomeResponse) return [];
+    const res = webHomeResponse as Record<string, unknown>;
+    const data = res?.data as Record<string, unknown> | undefined;
+    const news = data?.news as Array<Record<string, unknown>> | undefined;
+    if (!Array.isArray(news)) return [];
+    return mapApiNewsToModels(news);
+  }, [webHomeResponse]);
+
+  const categories = useMemo(() => {
+    const allLabel = {
+      key: ALL_CATEGORY_KEY,
+      ar: "جميع الفئات",
+      en: "All Category",
+    };
+    const byKey = new Map<string, { key: string; ar: string; en: string }>();
+    byKey.set(ALL_CATEGORY_KEY, allLabel);
+    newsList.forEach((article) => {
+      if (article.category && !byKey.has(article.category)) {
+        byKey.set(article.category, {
+          key: article.category,
+          ar: article.categoryAr,
+          en: article.categoryEn,
+        });
+      }
+    });
+    return Array.from(byKey.values());
+  }, [newsList]);
+
   useEffect(() => {
     if (location.state?.selectedCategory) {
-      setSelectedCategory(location.state.selectedCategory);
-      setCurrentPage(1); // Reset to first page
-      // Clear the state to prevent re-applying on refresh
+      setSelectedCategory(String(location.state.selectedCategory));
+      setCurrentPage(1);
       navigate(location.pathname, { replace: true });
     }
   }, [location.state, navigate, location.pathname]);
 
-  // Get unique categories
-  const categories = useMemo(() => {
-    const uniqueCategories = Array.from(
-      new Set(newsArticles.map((article) => article.category))
-    );
-    return [isRTL ? "جميع الفئات" : "All Category", ...uniqueCategories];
-  }, [isRTL]);
-
-  // Filter news based on selected category
   const filteredNews = useMemo(() => {
-    if (selectedCategory === (isRTL ? "جميع الفئات" : "All Category")) {
-      return newsArticles;
-    }
-    return newsArticles.filter(
-      (article) => article.category === selectedCategory
-    );
-  }, [selectedCategory, isRTL]);
+    if (selectedCategory === ALL_CATEGORY_KEY) return newsList;
+    return newsList.filter((article) => article.category === selectedCategory);
+  }, [selectedCategory, newsList]);
 
-  // Use centralized news data
-  const allNews = useMemo(() => {
-    console.log("News Articles:", filteredNews);
-    return filteredNews;
-  }, [filteredNews]);
+  const allNews = filteredNews;
 
   // Pagination logic
   const totalPages = Math.ceil(allNews.length / itemsPerPage);
@@ -74,34 +86,18 @@ const BlogsPage: React.FC = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleCategoryChange = (category: string) => {
-    setSelectedCategory(category);
-    setCurrentPage(1); // Reset to first page when changing category
+  const handleCategoryChange = (categoryKey: string) => {
+    setSelectedCategory(categoryKey);
+    setCurrentPage(1);
   };
 
   const toggleShowMoreCategories = () => {
     setShowMoreCategories(!showMoreCategories);
   };
 
-  const handleNewsClick = (news: {
-    id: number;
-    title: string;
-    description: string;
-    date: string;
-    views: string;
-    category: string;
-    slug: string;
-  }) => {
-    console.log("News clicked:", news);
-    console.log("Navigating to article:", news.slug);
+  const handleNewsClick = (news: NewsArticleModel) => {
     navigate(`/blogs/${news.slug}`);
   };
-
-  // Debug: طباعة حالة البوب أب
-  console.log("BlogsPage render - Modal context available:", !!openModal);
-  console.log("Categories:", categories);
-  console.log("Selected Category:", selectedCategory);
-  console.log("Filtered News Count:", filteredNews.length);
 
   return (
     <>
@@ -170,23 +166,17 @@ const BlogsPage: React.FC = () => {
               <div className="flex flex-wrap gap-3">
                 {categories
                   .slice(0, showMoreCategories ? categories.length : 6)
-                  .map((category) => (
+                  .map((cat) => (
                     <button
-                      key={category}
-                      onClick={() => handleCategoryChange(category)}
+                      key={cat.key}
+                      onClick={() => handleCategoryChange(cat.key)}
                       className={`px-6 py-3 rounded-full text-sm font-medium transition-all duration-200 shadow-md hover:shadow-lg  ${
-                        selectedCategory === category
+                        selectedCategory === cat.key
                           ? "bg-[#400198] text-white"
                           : "bg-white text-[#4C4C4C] border border-gray-300 hover:border-[#400198]"
                       }`}
                     >
-                      {isRTL
-                        ? newsArticles.find(
-                            (article) => article.category === category
-                          )?.categoryAr || category
-                        : newsArticles.find(
-                            (article) => article.category === category
-                          )?.categoryEn || category}
+                      {isRTL ? cat.ar : cat.en}
                     </button>
                   ))}
                 {categories.length > 6 && (

@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import { authService } from "@network/services/authService";
 
 // واجهة المستخدم
 export interface User {
@@ -74,15 +75,19 @@ interface UserState {
   // الطلبات
   orders: Order[];
 
-  // الإجراءات OTP
-  sendOtp: () => Promise<{ status: boolean; msg: string }>;
+  // الإجراءات OTP (مرتبطة بـ API مكافآت)
+  sendOtp: (
+    phone: string,
+    countryCode?: string
+  ) => Promise<{ status: boolean; msg: string }>;
   verifyOtp: (
     phone: string,
-    otp: string
+    otp: string,
+    countryCode?: string
   ) => Promise<{
     status: boolean;
     msg: string;
-    data?: { user: User; token: string };
+    data?: { user: User; token: string; is_profile_completed: boolean };
   }>;
   completeRegistration: (
     userData: Partial<User>
@@ -92,7 +97,9 @@ interface UserState {
   login: (email: string, password: string) => Promise<boolean>;
   register: (userData: Partial<User>) => Promise<boolean>;
   logout: () => void;
-  updateProfile: (userData: Partial<User>) => void;
+  updateProfile: (
+    userData: Partial<User>
+  ) => Promise<{ status: boolean; msg: string }>;
 
   // المحفوظات
   addToSaved: (item: Omit<SavedItem, "id" | "savedAt">) => void;
@@ -524,117 +531,187 @@ export const useUserStore = create<UserState>()(
         },
       ],
 
-      // إرسال OTP
-      sendOtp: async () => {
+      // إرسال OTP عبر API مكافآت (POST مع query: phone, country_code, type=sms)
+      sendOtp: async (phone: string, countryCode = "966") => {
         set({ loading: true, error: null });
         try {
-          // محاكاة API call
-          await new Promise((resolve) => setTimeout(resolve, 1000));
+          const res = await authService.sendOtp({
+            phone,
+            country_code: countryCode,
+            type: "sms",
+          });
+          const data = res.data as {
+            status?: boolean;
+            message?: string;
+            msg?: string;
+          };
+          if (data?.status === false) {
+            const errorMsg = data?.message ?? data?.msg ?? "Error sending OTP";
+            set({ loading: false, error: errorMsg });
+            return { status: false, msg: errorMsg };
+          }
+          const msg = data?.message ?? data?.msg ?? "Verification code sent";
+          set({ otpSent: true, loading: false, error: null });
+          return { status: true, msg };
+        } catch (err: unknown) {
+          const errData = (
+            err as { response?: { data?: { message?: string } } }
+          )?.response?.data;
+          const errorMsg =
+            errData?.message ?? "Error sending verification code";
+          set({ error: errorMsg, loading: false });
+          return { status: false, msg: errorMsg };
+        }
+      },
 
-          // محاكاة إرسال OTP ناجح
+      // التحقق من OTP عبر API مكافآت (POST مع query: phone, country_code, otp_code)
+      // الاستجابة: { status, msg, data: { user: { id, name, phone, email, token, is_profile_completed, ... } } }
+      verifyOtp: async (phone: string, otp: string, countryCode = "966") => {
+        set({ loading: true, error: null });
+        try {
+          const res = await authService.verifyOtp({
+            phone,
+            country_code: countryCode,
+            otp_code: otp,
+          });
+          const data = res.data as {
+            status?: boolean;
+            msg?: string;
+            message?: string;
+            data?: {
+              user?: Record<string, unknown> & {
+                token?: string;
+                is_profile_completed?: boolean;
+              };
+            };
+          };
+          if (data?.status === false) {
+            const errorMsg =
+              data?.message ?? data?.msg ?? "Invalid verification code";
+            set({ loading: false, error: errorMsg });
+            return { status: false, msg: errorMsg };
+          }
+          // الـ token و الـ user داخل data.user
+          const apiUser = data?.data?.user;
+          const token =
+            apiUser?.token ??
+            (data?.data as { user?: { token?: string } })?.user?.token;
+          if (!apiUser || !token || typeof token !== "string") {
+            set({ loading: false, error: "Invalid response from server" });
+            return { status: false, msg: "Invalid response from server" };
+          }
+          const isProfileCompleted = Boolean(apiUser.is_profile_completed);
+          // name قد يكون null من الـ API
+          const rawName = apiUser.name;
+          const userName =
+            rawName != null && rawName !== ""
+              ? String(rawName)
+              : apiUser.email
+              ? String(apiUser.email).split("@")[0]
+              : "User";
+          const user: User = {
+            id: String(apiUser.id ?? "user_unknown"),
+            email: String(apiUser.email ?? ""),
+            name: userName,
+            phone: String(apiUser.phone ?? phone),
+            avatar: apiUser.avatar as string | undefined,
+            isVerified: Boolean(
+              apiUser.email_verified_at ?? isProfileCompleted ?? true
+            ),
+            createdAt: String(apiUser.created_at ?? new Date().toISOString()),
+            preferences: {
+              language: "ar",
+              notifications: true,
+              emailUpdates: true,
+            },
+          };
           set({
-            otpSent: true,
+            user,
+            token,
+            isAuthenticated: true,
+            otpSent: false,
             loading: false,
             error: null,
           });
-
+          const msg = data?.message ?? data?.msg ?? "Login successful";
           return {
             status: true,
-            msg: "Verification code sent to mobile number",
+            msg,
+            data: { user, token, is_profile_completed: isProfileCompleted },
           };
-        } catch (error) {
-          const errorMsg = "Error sending verification code";
+        } catch (err: unknown) {
+          const errData = (
+            err as { response?: { data?: { message?: string; msg?: string } } }
+          )?.response?.data;
+          const errorMsg =
+            errData?.message ?? errData?.msg ?? "Invalid verification code";
           set({ error: errorMsg, loading: false });
           return { status: false, msg: errorMsg };
         }
       },
 
-      // التحقق من OTP
-      verifyOtp: async (phone: string, otp: string) => {
-        set({ loading: true, error: null });
-        try {
-          // محاكاة API call
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-
-          // محاكاة التحقق من OTP
-          if (otp === "1234") {
-            // البحث عن مستخدم موجود أو إنشاء مستخدم جديد
-            const existingUser = mockUsers.find((u) => u.phone === phone);
-            let user: User;
-
-            if (existingUser) {
-              user = existingUser;
-            } else {
-              // إنشاء مستخدم جديد
-              user = {
-                id: `user_${Date.now()}`,
-                email: `${phone}@example.com`,
-                name: "New User",
-                phone: phone,
-                avatar:
-                  "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-                isVerified: true,
-                createdAt: new Date().toISOString(),
-                preferences: {
-                  language: "ar",
-                  notifications: true,
-                  emailUpdates: true,
-                },
-              };
-            }
-
-            const token = `token_${user.id}_${Date.now()}`;
-
-            set({
-              user,
-              token,
-              isAuthenticated: true,
-              otpSent: false,
-              loading: false,
-              error: null,
-            });
-
-            return {
-              status: true,
-              msg: "Login successful",
-              data: { user, token },
-            };
-          } else {
-            set({ loading: false, error: "Invalid verification code" });
-            return { status: false, msg: "Invalid verification code" };
-          }
-        } catch (error) {
-          const errorMsg = "Error verifying code";
-          set({ error: errorMsg, loading: false });
-          return { status: false, msg: errorMsg };
-        }
-      },
-
-      // إكمال التسجيل
+      // إكمال التسجيل عبر API مكافآت (POST /api/auth/complete-profile مع FormData)
       completeRegistration: async (userData: Partial<User>) => {
         set({ loading: true, error: null });
         try {
-          // محاكاة API call
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-
-          const { user } = get();
-          if (user) {
-            const updatedUser = { ...user, ...userData };
-            set({
-              user: updatedUser,
-              loading: false,
-              error: null,
-            });
-
-            return {
-              status: true,
-              msg: "Data updated successfully",
-            };
-          } else {
-            throw new Error("User not found");
+          const res = await authService.completeProfile({
+            name: userData.name ?? "",
+            email: userData.email ?? "",
+            account_type: "individual",
+            job_title: userData.preferences ? undefined : undefined,
+          });
+          const data = res.data as {
+            status?: boolean;
+            message?: string;
+            msg?: string;
+            user?: Record<string, unknown>;
+            data?: { user?: Record<string, unknown> };
+          };
+          if (data?.status === false) {
+            const errorMsg =
+              data?.message ?? data?.msg ?? "Error updating data";
+            set({ loading: false, error: errorMsg });
+            return { status: false, msg: errorMsg };
           }
-        } catch (error) {
-          const errorMsg = "Error updating data";
+          const apiUser = data?.user ?? data?.data?.user;
+          const { user: currentUser } = get();
+          const mergedUser = currentUser
+            ? { ...currentUser, ...userData }
+            : null;
+          if (apiUser) {
+            const updatedUser: User = {
+              id: String(apiUser?.id ?? mergedUser?.id ?? "user_unknown"),
+              email: String(apiUser?.email ?? mergedUser?.email ?? ""),
+              name: String(apiUser?.name ?? mergedUser?.name ?? "User"),
+              phone: String(apiUser?.phone ?? mergedUser?.phone ?? ""),
+              avatar: (apiUser?.avatar ?? mergedUser?.avatar) as
+                | string
+                | undefined,
+              isVerified: Boolean(apiUser?.email_verified_at ?? true),
+              createdAt: String(
+                apiUser?.created_at ??
+                  mergedUser?.createdAt ??
+                  new Date().toISOString()
+              ),
+              preferences: mergedUser?.preferences ?? {
+                language: "ar",
+                notifications: true,
+                emailUpdates: true,
+              },
+            };
+            set({ user: updatedUser, loading: false, error: null });
+          } else if (mergedUser) {
+            set({ user: mergedUser, loading: false, error: null });
+          } else {
+            set({ loading: false });
+          }
+          const msg = data?.message ?? data?.msg ?? "Data updated successfully";
+          return { status: true, msg };
+        } catch (err: unknown) {
+          const errData = (
+            err as { response?: { data?: { message?: string } } }
+          )?.response?.data;
+          const errorMsg = errData?.message ?? "Error updating data";
           set({ error: errorMsg, loading: false });
           return { status: false, msg: errorMsg };
         }
@@ -697,8 +774,9 @@ export const useUserStore = create<UserState>()(
         }
       },
 
-      // تسجيل الخروج
+      // تسجيل الخروج (POST /api/auth/logout مع Bearer ثم مسح الحالة المحلية)
       logout: () => {
+        authService.logout().catch(() => {});
         set({
           user: null,
           token: null,
@@ -707,13 +785,57 @@ export const useUserStore = create<UserState>()(
         });
       },
 
-      // تحديث البروفايل
-      updateProfile: (userData: Partial<User>) => {
+      // تحديث البروفايل عبر API (POST /api/auth/complete-profile)
+      updateProfile: async (userData: Partial<User>) => {
         const { user } = get();
-        if (user) {
-          set({
-            user: { ...user, ...userData },
+        if (!user) {
+          return { status: false, msg: "Not authenticated" };
+        }
+        try {
+          const res = await authService.completeProfile({
+            name: userData.name ?? user.name,
+            email: userData.email ?? user.email,
+            account_type: "individual",
           });
+          const data = res.data as {
+            status?: boolean;
+            message?: string;
+            msg?: string;
+            user?: Record<string, unknown>;
+            data?: { user?: Record<string, unknown> };
+          };
+          if (data?.status === false) {
+            const errorMsg =
+              data?.message ?? data?.msg ?? "Error updating profile";
+            return { status: false, msg: errorMsg };
+          }
+          const apiUser = data?.user ?? data?.data?.user;
+          if (apiUser) {
+            const updatedUser: User = {
+              id: String(apiUser?.id ?? user.id),
+              email: String(apiUser?.email ?? userData.email ?? user.email),
+              name: String(apiUser?.name ?? userData.name ?? user.name),
+              phone: String(apiUser?.phone ?? userData.phone ?? user.phone),
+              avatar: (apiUser?.avatar ?? user.avatar) as string | undefined,
+              isVerified: Boolean(
+                apiUser?.email_verified_at ?? user.isVerified
+              ),
+              createdAt: String(apiUser?.created_at ?? user.createdAt),
+              preferences: user.preferences,
+            };
+            set({ user: updatedUser });
+          } else {
+            set({ user: { ...user, ...userData } });
+          }
+          const msg =
+            data?.message ?? data?.msg ?? "Profile updated successfully";
+          return { status: true, msg };
+        } catch (err: unknown) {
+          const errData = (
+            err as { response?: { data?: { message?: string } } }
+          )?.response?.data;
+          const errorMsg = errData?.message ?? "Error updating profile";
+          return { status: false, msg: errorMsg };
         }
       },
 

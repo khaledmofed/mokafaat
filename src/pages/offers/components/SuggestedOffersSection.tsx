@@ -1,16 +1,13 @@
 import React, { useState, useMemo, useRef } from "react";
 import { useIsRTL } from "@hooks";
 import OwlCarousel from "react-owl-carousel";
-import {
-  getHighestRatedOffers,
-  getMostViewedOffers,
-  getNearbyOffers,
-  type Offer,
-} from "@data/offers";
+import { type Offer } from "@data/offers";
 import OfferCard from "./OfferCard";
 import OfferModal from "./OfferModal";
 import { FiEye, FiStar } from "react-icons/fi";
 import { IoLocationOutline } from "react-icons/io5";
+import { useWebHome } from "@hooks/api/useMokafaatQueries";
+import { mapApiOffersToModels } from "@network/mappers/offersMapper";
 
 const SuggestedOffersSection: React.FC = () => {
   const isRTL = useIsRTL();
@@ -26,6 +23,26 @@ const SuggestedOffersSection: React.FC = () => {
     lat: number;
     lng: number;
   } | null>(null);
+
+  const { data: webHomeResponse } = useWebHome();
+
+  const apiOffersByType = useMemo(() => {
+    if (!webHomeResponse) return { today: [], new: [], best_selling: [] };
+    const res = webHomeResponse as Record<string, unknown>;
+    const data = res?.data as Record<string, unknown> | undefined;
+    const offers = data?.offers as
+      | Record<string, Array<Record<string, unknown>>>
+      | undefined;
+    return {
+      today: mapApiOffersToModels(
+        Array.isArray(offers?.today) ? offers.today : []
+      ),
+      new: mapApiOffersToModels(Array.isArray(offers?.new) ? offers.new : []),
+      best_selling: mapApiOffersToModels(
+        Array.isArray(offers?.best_selling) ? offers.best_selling : []
+      ),
+    };
+  }, [webHomeResponse]);
 
   const filters = [
     {
@@ -45,22 +62,18 @@ const SuggestedOffersSection: React.FC = () => {
     },
   ];
 
-  // Get offers from filter
   const offers = useMemo(() => {
     switch (activeFilter) {
       case "most-viewed":
-        return getMostViewedOffers();
+        return apiOffersByType.best_selling;
       case "highest-rated":
-        return getHighestRatedOffers();
+        return apiOffersByType.new;
       case "nearby":
-        if (userLocation) {
-          return getNearbyOffers(userLocation.lat, userLocation.lng);
-        }
-        return [];
+        return userLocation ? apiOffersByType.today : [];
       default:
         return [];
     }
-  }, [activeFilter, userLocation]);
+  }, [activeFilter, userLocation, apiOffersByType]);
 
   // OwlCarousel options
   const owlCarouselOptions = useMemo(
@@ -109,24 +122,18 @@ const SuggestedOffersSection: React.FC = () => {
     }
   };
 
-  const handleFilterChange = async (
+  const handleFilterChange = (
     filterKey: "most-viewed" | "highest-rated" | "nearby"
   ) => {
     setIsLoading(true);
     setActiveFilter(filterKey);
-
-    // Force re-render of carousel by changing key
     setCarouselKey((prev) => prev + 1);
 
-    // Request location if needed
     if (filterKey === "nearby" && !userLocation) {
       handleLocationRequest();
     }
 
-    // Simulate loading delay
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 800);
+    requestAnimationFrame(() => setIsLoading(false));
   };
 
   const handleOfferClick = (offer: Offer) => {

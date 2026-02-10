@@ -26,6 +26,7 @@ import {
   Cards7,
   Cards8,
 } from "@assets";
+import { stripHtml } from "@utils/stripHtml";
 
 interface OfferCardProps {
   offer: CardOffer;
@@ -191,7 +192,7 @@ const OfferCard: React.FC<OfferCardProps> = ({
 
         {/* Description */}
         <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-          {offer.description[isRTL ? "ar" : "en"]}
+          {stripHtml(offer.description[isRTL ? "ar" : "en"])}
         </p>
 
         {/* Features List */}

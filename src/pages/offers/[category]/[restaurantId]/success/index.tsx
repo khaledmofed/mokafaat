@@ -17,6 +17,7 @@ import {
   offerCategories,
 } from "@data/offers";
 import { GetStartedSection } from "@pages/home/components";
+import { stripHtml } from "@utils/stripHtml";
 
 const SuccessPage: React.FC = () => {
   const { category, restaurantId } = useParams<{
@@ -102,9 +103,11 @@ const SuccessPage: React.FC = () => {
 
           {/* Description */}
           <p className="text-white/80 text-base mb-4">
-            {isRTL
-              ? "شكراً لك! تم تأكيد طلبك بنجاح"
-              : "Thank you! Your order has been confirmed successfully"}
+            {stripHtml(
+              isRTL
+                ? "شكراً لك! تم تأكيد طلبك بنجاح"
+                : "Thank you! Your order has been confirmed successfully"
+            )}
           </p>
 
           {/* Location and Status */}

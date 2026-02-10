@@ -21,6 +21,7 @@ import {
   AboutPattern,
 } from "@assets";
 import { GetStartedSection } from "@pages/home/components";
+import { stripHtml } from "@utils/stripHtml";
 
 // Mock booking data - in real app this would come from API
 const getBookingById = (type: string, id: string) => {
@@ -292,9 +293,11 @@ const PaymentPage: React.FC = () => {
 
           {/* Description */}
           <p className="text-white/80 text-base mb-4">
-            {isRTL
-              ? `إتمام عملية الدفع لـ ${getTypeLabel()} المحدد`
-              : `Complete payment for the selected ${getTypeLabel()}`}
+            {stripHtml(
+              isRTL
+                ? `إتمام عملية الدفع لـ ${getTypeLabel()} المحدد`
+                : `Complete payment for the selected ${getTypeLabel()}`
+            )}
           </p>
 
           {/* Booking Details */}

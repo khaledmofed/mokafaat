@@ -1,8 +1,8 @@
 // Removed unused imports
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useTranslate } from "@hooks";
-import usePostRequestWithData from "@hooks/api/usePostRequestWithData";
-import { API_ENDPOINTS } from "@network/apiEndpoints";
+import { useMutation } from "@tanstack/react-query";
+import { webApi } from "@network/services/mokafaatService";
 import { contactFormSchema } from "@validations";
 import { t } from "i18next";
 import { useEffect } from "react";
@@ -29,6 +29,7 @@ const ContactForm = () => {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<ContactFormValues>({
     // Casting resolver due to mismatch between yup and RHF resolver generics
@@ -48,27 +49,48 @@ const ContactForm = () => {
     mutate,
     data: response,
     isPending,
-  } = usePostRequestWithData({
-    endpoint: API_ENDPOINTS.sendTechSupportMessage,
+  } = useMutation({
+    mutationFn: (params: {
+      name: string;
+      email: string;
+      phone: string;
+      subject: string;
+      message: string;
+    }) => webApi.contact(params),
   });
 
-  useEffect(() => {
-    if (response?.status == true) {
-      toast(t("messages.messageSent"));
-    } else if (response?.status == false && response.message) {
-      toast(response.message);
-    }
-  }, [response?.status, response]);
+  const body = response?.data as
+    | { status?: boolean; message?: string }
+    | undefined;
 
-  const submitForm = (data: ContactFormValues) => mutate(data);
+  useEffect(() => {
+    if (body?.status === true) {
+      toast(t("messages.messageSent"));
+      reset({
+        fullName: "",
+        email: "",
+        mobileNumber: "",
+        companyName: null,
+        message: "",
+      });
+    } else if (body?.status === false && body?.message) {
+      toast(body.message);
+    }
+  }, [body?.status, body?.message, reset]);
+
+  const submitForm = (data: ContactFormValues) => {
+    mutate({
+      name: data.fullName,
+      email: data.email,
+      phone: data.mobileNumber,
+      subject: data.companyName ?? "",
+      message: data.message,
+    });
+  };
 
   return (
     <div className="bg-white rounded-3xl shadow-lg border border-gray-100 p-8 lg:w-2/3 w-full">
-      <form
-        action="POST"
-        onSubmit={handleSubmit(submitForm)}
-        className="space-y-4"
-      >
+      <form onSubmit={handleSubmit(submitForm)} className="space-y-4">
         {/* Two Column Input Section */}
         <div className="grid md:grid-cols-2 grid-cols-1 gap-4">
           {/* Left Column */}

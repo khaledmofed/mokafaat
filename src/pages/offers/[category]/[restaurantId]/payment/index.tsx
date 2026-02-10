@@ -25,6 +25,7 @@ import {
   offerCategories,
 } from "@data/offers";
 import { GetStartedSection } from "@pages/home/components";
+import { stripHtml } from "@utils/stripHtml";
 
 const PaymentPage: React.FC = () => {
   const { category, restaurantId } = useParams<{
@@ -159,9 +160,11 @@ const PaymentPage: React.FC = () => {
 
           {/* Description */}
           <p className="text-white/80 text-base mb-4">
-            {isRTL
-              ? "إتمام عملية الدفع للعرض المحدد"
-              : "Complete payment for the selected offer"}
+            {stripHtml(
+              isRTL
+                ? "إتمام عملية الدفع للعرض المحدد"
+                : "Complete payment for the selected offer"
+            )}
           </p>
 
           {/* Location and Status */}

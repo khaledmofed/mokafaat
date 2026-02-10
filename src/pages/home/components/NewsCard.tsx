@@ -122,7 +122,7 @@ const NewsCard: React.FC<NewsCardProps> = ({
 
         {/* Description */}
         <p
-          className="text-sm text-gray-600 mb-4 leading-relaxed line-clamp-2"
+          className="text-sm text-gray-600 mb-4 leading-relaxed line-clamp-1"
           style={{
             fontFamily: isRTL ? "Readex Pro, sans-serif" : "Jost, sans-serif",
           }}

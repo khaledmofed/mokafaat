@@ -9,15 +9,12 @@ import {
   FaTicketAlt,
 } from "react-icons/fa";
 import {
-  // PatternNewProperty,
-
   WorldwidePropertiesplaneVector,
   NewOffers,
   PatternNewProperty,
-  // OurAppPattern,
 } from "@assets";
 
-interface NewCard {
+interface CardItem {
   id: number;
   name: string;
   icon: React.ReactNode;
@@ -30,33 +27,33 @@ const PopularCountries: React.FC = () => {
   const isRTL = useIsRTL();
   const navigate = useNavigate();
 
-  const newCards: NewCard[] = [
+  const newCards: CardItem[] = [
     {
       id: 1,
       name: "bookings",
       icon: <FaCalendarAlt className="text-4xl text-purple-600" />,
-      title: "الحجوزات",
+      title: t("home.serviceCards.bookings.title"),
       path: "/bookings",
     },
     {
       id: 2,
       name: "discounts",
       icon: <FaPercent className="text-4xl text-orange-600" />,
-      title: "الخصومات",
+      title: t("home.serviceCards.discounts.title"),
       path: "/offers",
     },
     {
       id: 3,
       name: "cards",
       icon: <FaCreditCard className="text-4xl text-blue-600" />,
-      title: "البطاقات",
+      title: t("home.serviceCards.cards.title"),
       path: "/cards",
     },
     {
       id: 4,
       name: "coupons",
       icon: <FaTicketAlt className="text-4xl text-green-600" />,
-      title: "الكوبونات",
+      title: t("home.serviceCards.coupons.title"),
       path: "/coupons",
     },
   ];
@@ -140,7 +137,7 @@ const PopularCountries: React.FC = () => {
               {t("popularCountries.description")}
             </p>
 
-            {/* New Cards */}
+            {/* البطاقات الأربع (الحجوزات، الخصومات، البطاقات، الكوبونات) */}
             <div className="grid grid-cols-2 lg:flex lg:gap-6 gap-4 overflow-x-auto lg:overflow-visible py-8 relative z-10">
               {newCards.map((card) => (
                 <div
@@ -159,19 +156,15 @@ const PopularCountries: React.FC = () => {
                   <div className="flex flex-col items-center h-full relative z-10">
                     {/* Card Icon Container */}
                     <div className="mb-4 flex-1 flex items-center justify-center relative">
-                      {/* Icon Background Circle */}
                       <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-100 to-orange-100 flex items-center justify-center group-hover:from-purple-200 group-hover:to-orange-200 transition-all duration-500 shadow-lg">
                         <div className="group-hover:scale-110 transition-transform duration-500">
                           {card.icon}
                         </div>
                       </div>
-
-                      {/* Floating Elements */}
                       <div className="absolute -top-2 -right-2 w-4 h-4 bg-purple-400 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-700 delay-100 animate-pulse"></div>
                       <div className="absolute -bottom-1 -left-2 w-3 h-3 bg-orange-400 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-700 delay-200 animate-pulse"></div>
                     </div>
 
-                    {/* Card Title */}
                     <h3
                       className="text-base font-bold text-gray-800 text-center leading-tight group-hover:text-purple-700 transition-colors duration-300"
                       style={{
@@ -183,11 +176,9 @@ const PopularCountries: React.FC = () => {
                       {card.title}
                     </h3>
 
-                    {/* Bottom Accent Line */}
                     <div className="w-8 h-1 bg-gradient-to-r from-purple-400 to-orange-400 rounded-full mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                   </div>
 
-                  {/* Hover Border Effect */}
                   <div className="absolute inset-0 rounded-2xl border-2 border-transparent group-hover:border-purple-200 transition-colors duration-500"></div>
                 </div>
               ))}

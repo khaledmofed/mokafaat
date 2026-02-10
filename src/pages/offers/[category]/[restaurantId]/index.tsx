@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useIsRTL } from "@hooks";
@@ -8,6 +8,7 @@ import {
   offerCategories,
   type Offer,
   type MenuItem,
+  type Restaurant,
 } from "@data/offers";
 import OfferModal from "./components/OfferModal";
 import OfferCard from "./components/OfferCard";
@@ -15,6 +16,9 @@ import MenuItemCard from "../../components/MenuItemCard";
 import { Pro1, Pro2, Pro3, Pro4, Pro5, Pro6, Pro7, Pro8 } from "@assets";
 import { AboutPattern } from "@assets";
 import GetStartedSection from "@pages/home/components/GetStartedSection";
+import { useWebHome } from "@hooks/api/useMokafaatQueries";
+import { stripHtml } from "@utils/stripHtml";
+import { mapApiOffersToModels } from "@network/mappers/offersMapper";
 
 const RestaurantDetailsPage = () => {
   const { category, restaurantId } = useParams<{
@@ -26,11 +30,82 @@ const RestaurantDetailsPage = () => {
   const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"offers" | "menu">("offers");
+  const { data: webHomeResponse } = useWebHome();
 
-  const restaurant = restaurantId ? getRestaurantById(restaurantId) : null;
+  const staticRestaurant = restaurantId
+    ? getRestaurantById(restaurantId)
+    : null;
+
+  // Restaurant مشتق من عروض الـ API (companyId) في حال عدم وجوده في الداتا الثابتة
+  const apiRestaurant = useMemo<Restaurant | null>(() => {
+    if (!webHomeResponse || !restaurantId) return null;
+
+    const res = webHomeResponse as Record<string, unknown>;
+    const data = res?.data as Record<string, unknown> | undefined;
+    const offersData = data?.offers as
+      | Record<string, Array<Record<string, unknown>>>
+      | undefined;
+
+    const allApiOffers = [
+      ...(Array.isArray(offersData?.today) ? offersData!.today : []),
+      ...(Array.isArray(offersData?.new) ? offersData!.new : []),
+      ...(Array.isArray(offersData?.best_selling)
+        ? offersData!.best_selling
+        : []),
+    ];
+
+    const mappedOffers = mapApiOffersToModels(allApiOffers);
+
+    const companyOffers = mappedOffers.filter(
+      (o) => String(o.companyId || "") === String(restaurantId)
+    );
+
+    if (companyOffers.length === 0) return null;
+
+    const first = companyOffers[0]!;
+    const name =
+      first.merchantName || first.title.ar || first.title.en || restaurantId;
+    const logo = first.merchantLogo || first.image || "Pro1";
+    const categoryKey =
+      (category as string | undefined) || first.category || "restaurants";
+    const categoryName = first.categoryName || categoryKey;
+
+    return {
+      id: String(restaurantId),
+      slug: String(restaurantId),
+      name: { ar: name, en: name },
+      logo,
+      category: {
+        key: categoryKey,
+        ar: categoryName,
+        en: categoryName,
+      },
+      description: {
+        ar: first.description.ar,
+        en: first.description.en,
+      },
+      location: { ar: "-", en: "-" },
+      distance: "-",
+      rating: first.rating ?? 0,
+      reviewsCount: 0,
+      views: first.views ?? 0,
+      saves: first.bookmarks ?? 0,
+      color: "#400198",
+      topColor: "bg-[#400198]",
+      offers: companyOffers,
+      menu: [],
+      isOpen: true,
+      deliveryTime: "-",
+      minimumOrder: 0,
+      deliveryFee: 0,
+    };
+  }, [webHomeResponse, restaurantId, category]);
+
+  const restaurant: Restaurant | null = staticRestaurant || apiRestaurant;
+
   const categoryInfo = offerCategories.find((cat) => cat.key === category);
 
-  if (!restaurant || !categoryInfo) {
+  if (!restaurant) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -156,7 +231,7 @@ const RestaurantDetailsPage = () => {
 
           {/* Description */}
           <p className="text-white/80 text-base mb-4">
-            {restaurant.description[isRTL ? "ar" : "en"]}
+            {stripHtml(restaurant.description[isRTL ? "ar" : "en"])}
           </p>
 
           {/* Location and Status */}
@@ -212,7 +287,11 @@ const RestaurantDetailsPage = () => {
               to={`/offers/${category}`}
               className="text-white hover:text-purple-300 transition-colors cursor-pointer text-xs"
             >
-              {isRTL ? categoryInfo.ar : categoryInfo.en}
+              {categoryInfo
+                ? isRTL
+                  ? categoryInfo.ar
+                  : categoryInfo.en
+                : category}
             </Link>
             <span className="text-white text-xs mx-2">|</span>
             <span className="text-[#fd671a] font-medium text-xs">
@@ -239,7 +318,7 @@ const RestaurantDetailsPage = () => {
               {isRTL ? restaurant.name.ar : restaurant.name.en}
             </h2>
             <p className="text-md text-gray-700 leading-relaxed">
-              {restaurant.description[isRTL ? "ar" : "en"]}
+              {stripHtml(restaurant.description[isRTL ? "ar" : "en"])}
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-2">

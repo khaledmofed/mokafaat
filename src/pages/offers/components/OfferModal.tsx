@@ -29,21 +29,32 @@ const OfferModal: React.FC<OfferModalProps> = ({ offer, isOpen, onClose }) => {
   const isRTL = useIsRTL();
   const [quantity, setQuantity] = useState(1);
 
+  // Remove HTML tags from text
+  const stripHtml = (html: string): string => {
+    return html.replace(/<[^>]*>/g, "").trim();
+  };
+
   if (!isOpen) return null;
 
   const company = getRestaurantById(offer.companyId);
-  if (!company) return null;
+  // Use API data when company not in static data (e.g. offers from API)
+  const companyName =
+    offer.merchantName ||
+    (company ? (isRTL ? company.name.ar : company.name.en) : "");
+  const companyLogo =
+    offer.merchantLogo || (company ? getOfferImage(company.logo) : "");
+  const categoryKey = company ? company.category.key : offer.category;
+  const displayLogo = company
+    ? getOfferImage(company.logo)
+    : companyLogo || "https://via.placeholder.com/80?text=Logo";
 
   const totalPrice = offer.discountPrice * quantity;
 
   const handlePurchase = () => {
-    // Navigate to dynamic payment page
-    const category = company.category.key;
-    const companyId = company.id;
+    const companyId = offer.companyId;
     const offerId = offer.id;
-
     navigate(
-      `/offers/${category}/${companyId}/payment?offer=${offerId}&quantity=${quantity}`
+      `/offers/${categoryKey}/${companyId}/payment?offer=${offerId}&quantity=${quantity}`
     );
   };
 
@@ -65,17 +76,20 @@ const OfferModal: React.FC<OfferModalProps> = ({ offer, isOpen, onClose }) => {
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
           <div className="flex items-center gap-4">
-            <div className="w-20 h-20 rounded-xl overflow-hidden">
+            <div className="w-20 h-20 rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center flex-shrink-0">
               <img
-                src={getOfferImage(company.logo)}
-                alt={company.name[isRTL ? "ar" : "en"]}
-                className="w-full h-full object-cover"
+                src={displayLogo}
+                alt={companyName}
+                className="w-full h-full object-contain"
               />
             </div>
             <div>
               <h2 className="text-xl font-bold text-gray-800">
                 {offer.title[isRTL ? "ar" : "en"]}
               </h2>
+              {companyName && (
+                <p className="text-sm text-gray-600">{companyName}</p>
+              )}
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <div className="flex items-center gap-1">
                   <FiStar className="text-yellow-400" />
@@ -136,7 +150,7 @@ const OfferModal: React.FC<OfferModalProps> = ({ offer, isOpen, onClose }) => {
                 {isRTL ? "تعرف أكثر عن العرض" : "Learn more about the offer"}
               </h4>
               <p className="text-gray-600 text-sm">
-                {offer.description[isRTL ? "ar" : "en"]}
+                {stripHtml(offer.description[isRTL ? "ar" : "en"])}
               </p>
             </div>
           </div>

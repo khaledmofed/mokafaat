@@ -154,6 +154,10 @@ export interface Offer {
   maxQuantity: number;
   terms: { ar: string; en: string };
   isTodayOffer?: boolean;
+  // API data
+  categoryName?: string; // From API category.name
+  merchantName?: string; // From API merchant.name
+  merchantLogo?: string | null; // From API merchant.logo
 }
 
 // Dummy data for restaurants and offers

@@ -5,58 +5,103 @@ import OfferModal from "../../offers/components/OfferModal";
 import { Pattern, PatternNewProperty } from "../../../assets";
 import OwlCarousel from "react-owl-carousel";
 import { useIsRTL } from "../../../hooks";
-import {
-  getFilteredOffers,
-  getAllOffers,
-  getTodayOffers,
-  getNewOffers,
-  getBestSellerOffers,
-  type Offer,
-} from "@data/offers";
+import { type Offer } from "@data/offers";
+import { useWebHome } from "@hooks/api/useMokafaatQueries";
+import { mapApiOffersToModels } from "@network/mappers/offersMapper";
 
 const OffersSection: React.FC = () => {
   const { t, i18n } = useTranslation();
   const isRTL = useIsRTL();
   const [activeFilter, setActiveFilter] = useState("all");
-  const [isLoading, setIsLoading] = useState(false);
   const [carouselKey, setCarouselKey] = useState(0);
   const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const owlCarouselRef = useRef<OwlCarousel | null>(null);
+
+  // Fetch offers from API
+  const { data: webHomeResponse, isLoading: apiLoading } = useWebHome();
 
   // Force re-render when language or direction changes
   useEffect(() => {
     setCarouselKey((prev) => prev + 1);
   }, [i18n.language, isRTL]);
 
-  // Get offers from unified data
-  const offers = useMemo(() => getFilteredOffers(activeFilter), [activeFilter]);
+  // Extract offers from API response
+  const apiOffers = useMemo(() => {
+    if (!webHomeResponse) return { today: [], new: [], best_selling: [] };
+    const res = webHomeResponse as Record<string, unknown>;
+    const data = res?.data as Record<string, unknown> | undefined;
+    const offers = data?.offers as
+      | Record<string, Array<Record<string, unknown>>>
+      | undefined;
+    if (!offers) return { today: [], new: [], best_selling: [] };
+    return {
+      today: Array.isArray(offers.today) ? offers.today : [],
+      new: Array.isArray(offers.new) ? offers.new : [],
+      best_selling: Array.isArray(offers.best_selling)
+        ? offers.best_selling
+        : [],
+    };
+  }, [webHomeResponse]);
 
-  // Use offers directly for OfferCard
+  // Map API offers to frontend models
+  const mappedOffers = useMemo(() => {
+    return {
+      today: mapApiOffersToModels(apiOffers.today),
+      new: mapApiOffersToModels(apiOffers.new),
+      best_selling: mapApiOffersToModels(apiOffers.best_selling),
+    };
+  }, [apiOffers]);
+
+  // Get filtered offers based on active filter
   const displayOffers = useMemo(() => {
-    return offers;
-  }, [offers]);
+    switch (activeFilter) {
+      case "today":
+        return mappedOffers.today;
+      case "new":
+        return mappedOffers.new;
+      case "bestseller":
+        return mappedOffers.best_selling;
+      case "all":
+      default: {
+        // Combine all offers, removing duplicates by id
+        const allOffers = [
+          ...mappedOffers.today,
+          ...mappedOffers.new,
+          ...mappedOffers.best_selling,
+        ];
+        const uniqueOffers = allOffers.filter(
+          (offer, index, self) =>
+            index === self.findIndex((o) => o.id === offer.id)
+        );
+        return uniqueOffers;
+      }
+    }
+  }, [activeFilter, mappedOffers]);
 
   const filters = [
     {
       key: "all",
       label: t("home.offers.filters.all"),
-      count: getAllOffers().length,
+      count:
+        mappedOffers.today.length +
+        mappedOffers.new.length +
+        mappedOffers.best_selling.length,
     },
     {
       key: "today",
       label: t("home.offers.filters.today"),
-      count: getTodayOffers().length,
+      count: mappedOffers.today.length,
     },
     {
       key: "new",
       label: t("home.offers.filters.new"),
-      count: getNewOffers().length,
+      count: mappedOffers.new.length,
     },
     {
       key: "bestseller",
       label: t("home.offers.filters.bestseller"),
-      count: getBestSellerOffers().length,
+      count: mappedOffers.best_selling.length,
     },
   ];
 
@@ -86,17 +131,10 @@ const OffersSection: React.FC = () => {
     [displayOffers.length, isRTL]
   );
 
-  const handleFilterChange = async (filterKey: string) => {
-    setIsLoading(true);
+  const handleFilterChange = (filterKey: string) => {
     setActiveFilter(filterKey);
-
     // Force re-render of carousel by changing key
     setCarouselKey((prev) => prev + 1);
-
-    // Simulate loading delay
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 800);
   };
 
   const handleOfferClick = (offer: Offer) => {
@@ -171,12 +209,21 @@ const OffersSection: React.FC = () => {
 
         {/* Products Carousel */}
         <div className="relative OffersCarousel PropertiesCarousel">
-          {isLoading ? (
+          {apiLoading ? (
             // Loading skeleton
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pb-10">
               {Array.from({ length: 4 }).map((_, index) => (
                 <SkeletonCard key={index} />
               ))}
+            </div>
+          ) : displayOffers.length === 0 ? (
+            // No offers message
+            <div className="text-center py-12">
+              <p className="text-gray-500 text-lg">
+                {isRTL
+                  ? "لا توجد عروض متاحة حالياً"
+                  : "No offers available at the moment"}
+              </p>
             </div>
           ) : (
             // Products Carousel with key to force re-render
