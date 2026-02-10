@@ -87,7 +87,8 @@ const CardsPage = () => {
     return Array.from(cats.values());
   }, [apiCardsAsCompanies]);
 
-  const categories = apiCategories.length > 1 ? apiCategories : cardCategories;
+  const displayCategories =
+    apiCategories.length > 1 ? apiCategories : cardCategories;
 
   // Function to get card image
   const getCardImage = (logoName: string) => {
@@ -165,7 +166,7 @@ const CardsPage = () => {
         {/* Filters + Search */}
         <div className="flex items-center justify-between flex-wrap gap-4 mb-8">
           <div className="flex items-center gap-3 style-portfolio-button-mobile-container">
-            {cardCategories.map((category) => (
+            {displayCategories.map((category) => (
               <button
                 key={category.key}
                 onClick={() => {

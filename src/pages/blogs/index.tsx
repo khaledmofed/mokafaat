@@ -20,7 +20,7 @@ const BlogsPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isRTL = useIsRTL();
-  const { openModal } = useInquiryModal();
+  useInquiryModal(); // متوفر للاستخدام لاحقاً (مثلاً زر استفسار)
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;

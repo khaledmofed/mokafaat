@@ -9,9 +9,7 @@ export function mapApiBookingToModel(
   try {
     const id = Number(apiBooking.id ?? 0);
     const title = String(apiBooking.title ?? "");
-    const description = String(apiBooking.description ?? "");
     const image = String(apiBooking.image ?? "");
-    const priceBefore = parseFloat(String(apiBooking.price_before ?? "0"));
     const priceAfter = parseFloat(String(apiBooking.price_after ?? "0"));
     const discountPercentage = Number(apiBooking.discount_percentage ?? 0);
     const location = String(apiBooking.location ?? "");
