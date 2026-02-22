@@ -2,17 +2,42 @@ import React from "react";
 import { useIsRTL } from "@hooks";
 import { useTranslation } from "react-i18next";
 import { ManGroup, AkaratCircle } from "@assets";
+import { useAppConfig } from "@hooks/api/useMokafaatQueries";
 // import { IoIosArrowRoundForward } from "react-icons/io";
 
 interface GetStartedSectionProps {
   className?: string;
 }
 
+type AppConfigResponse = {
+  data?: {
+    config?: {
+      app_links?: { app_store?: string; google_play?: string };
+      share?: {
+        ios_link?: string;
+        android_link?: string;
+        title?: string;
+        subtitle?: string;
+        message?: string;
+      };
+    };
+  };
+};
+
 const GetStartedSection: React.FC<GetStartedSectionProps> = ({
   className = "",
 }) => {
   const isRTL = useIsRTL();
   const { t } = useTranslation();
+  const { data: appConfig } = useAppConfig() as { data?: AppConfigResponse };
+  const config = appConfig?.data?.config;
+  const appStoreUrl =
+    config?.app_links?.app_store ?? config?.share?.ios_link ?? "#";
+  const googlePlayUrl =
+    config?.app_links?.google_play ?? config?.share?.android_link ?? "#";
+  const shareTitle = config?.share?.title;
+  const shareSubtitle = config?.share?.subtitle;
+  const shareMessage = config?.share?.message;
 
   // const handleGetStarted = () => {
   //   console.log("Get Started clicked");
@@ -67,7 +92,7 @@ const GetStartedSection: React.FC<GetStartedSectionProps> = ({
                       : "Jost, sans-serif",
                   }}
                 >
-                  {t("getStarted.mainTitle")}{" "}
+                  {shareTitle ?? t("getStarted.mainTitle")}{" "}
                   {/* <span
                     className="text-[#fd671a]"
                     style={{
@@ -90,10 +115,10 @@ const GetStartedSection: React.FC<GetStartedSectionProps> = ({
                     : "Jost, sans-serif",
                 }}
               >
-                {t("getStarted.firstParagraph")}
+                {shareSubtitle ?? t("getStarted.firstParagraph")}
               </p>
 
-              {/* Second Paragraph */}
+              {/* Second Paragraph - من config.share.message */}
               <p
                 className="text-sm text-gray-600 leading-relaxed w-[80%]"
                 style={{
@@ -102,7 +127,7 @@ const GetStartedSection: React.FC<GetStartedSectionProps> = ({
                     : "Jost, sans-serif",
                 }}
               >
-                {t("getStarted.secondParagraph")}
+                {shareMessage ?? t("getStarted.secondParagraph")}
               </p>
 
               {/* Call-to-Action Button */}
@@ -125,9 +150,14 @@ const GetStartedSection: React.FC<GetStartedSectionProps> = ({
                   />
                 </button>
               </div> */}
-              {/* App Download Buttons */}
+              {/* App Download Buttons - روابط من /api/app-config (app_links أو share) */}
               <div className="flex flex-row gap-4 pt-4">
-                <button className="flex items-center justify-center bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors">
+                <a
+                  href={appStoreUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors"
+                >
                   <svg
                     className="w-8 h-8 me-3"
                     viewBox="0 0 24 24"
@@ -139,8 +169,13 @@ const GetStartedSection: React.FC<GetStartedSectionProps> = ({
                     <div className="text-xs">Download on the</div>
                     <div className="text-sm font-semibold">App Store</div>
                   </div>
-                </button>
-                <button className="flex items-center justify-center bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors">
+                </a>
+                <a
+                  href={googlePlayUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center bg-black text-white px-6 py-3 rounded-lg hover:bg-gray-800 transition-colors"
+                >
                   <svg
                     className="w-8 h-8 me-3"
                     viewBox="0 0 24 24"
@@ -152,7 +187,7 @@ const GetStartedSection: React.FC<GetStartedSectionProps> = ({
                     <div className="text-xs">GET IT ON</div>
                     <div className="text-sm font-semibold">Google Play</div>
                   </div>
-                </button>
+                </a>
               </div>
 
               {/* Company Logo - Bottom Right of Content Area */}

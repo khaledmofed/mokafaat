@@ -6,10 +6,26 @@ import { FiPhone } from "react-icons/fi";
 import { IoLocationOutline, IoMailOutline } from "react-icons/io5";
 import { Layer, UnderTitle } from "@assets";
 import useIsRTL from "@hooks/useIsRTL";
-// import { GetStarted } from "@pages/home/components";
+import { useAppConfig } from "@hooks/api/useMokafaatQueries";
+
+type ContactConfig = {
+  data?: {
+    config?: {
+      contact?: {
+        address?: string;
+        email?: string;
+        phone?: string;
+        whatsapp?: string;
+        working_hours?: string;
+      };
+    };
+  };
+};
 
 function ContactPage() {
   const isRTL = useIsRTL();
+  const { data: appConfig } = useAppConfig() as { data?: ContactConfig };
+  const contact = appConfig?.data?.config?.contact;
   // ChangePageTitle({
   //   pageTitle: t("home.navbar.contact"),
   //   path: APP_ROUTES.contact,
@@ -76,66 +92,69 @@ function ContactPage() {
                       />
                     </div>
 
-                    {/* Contact Methods */}
+                    {/* Contact Methods - من /api/app-config (config.contact) */}
                     <div className="space-y-6">
                       {/* Visit Office */}
-                      <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 bg-[#ffffff] rounded-full border-2 border-[#400198] flex items-center justify-center flex-shrink-0">
-                          <IoLocationOutline className="text-[#400198] text-xl" />
+                      {contact?.address && (
+                        <div className="flex items-start gap-4">
+                          <div className="w-12 h-12 bg-[#ffffff] rounded-full border-2 border-[#400198] flex items-center justify-center flex-shrink-0">
+                            <IoLocationOutline className="text-[#400198] text-xl" />
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="text-lg font-bold text-white mb-2">
+                              {isRTL ? "زيارة مكتب" : "Visit A Office"}
+                            </h3>
+                            <p className="text-white/90 text-sm leading-relaxed">
+                              {contact.address}
+                            </p>
+                          </div>
                         </div>
-                        <div className="flex-1">
-                          <h3 className="text-lg font-bold text-white mb-2">
-                            {isRTL ? "زيارة مكتب" : "Visit A Office"}
-                          </h3>
-                          <p className="text-white/90 text-sm leading-relaxed">
-                            {isRTL
-                              ? "المملكة العربية السعودية - الرياض، حي الملك فهد، شارع الملك عبدالعزيز"
-                              : "Saudi Arabia - Riyadh, King Fahd District, King Abdulaziz Street"}
-                          </p>
-                        </div>
-                      </div>
+                      )}
 
                       {/* Make Call */}
-                      <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 bg-[#ffffff] rounded-full border-2 border-[#400198] flex items-center justify-center flex-shrink-0">
-                          <FiPhone className="text-[#400198] text-xl" />
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="text-lg font-bold text-white mb-2">
-                            {isRTL ? "اتصال" : "Make A Call"}
-                          </h3>
-                          <div className="space-y-1">
-                            <p className="text-white/90 text-sm">
-                              {isRTL ? "اتصال: " : "Call : "}+966 50 123 4567
-                            </p>
-                            <p className="text-white/90 text-sm">
-                              {isRTL ? "الدعم: " : "Support : "}+966 50 987 6543
-                            </p>
+                      {(contact?.phone ?? contact?.whatsapp) && (
+                        <div className="flex items-start gap-4">
+                          <div className="w-12 h-12 bg-[#ffffff] rounded-full border-2 border-[#400198] flex items-center justify-center flex-shrink-0">
+                            <FiPhone className="text-[#400198] text-xl" />
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="text-lg font-bold text-white mb-2">
+                              {isRTL ? "اتصال" : "Make A Call"}
+                            </h3>
+                            <div className="space-y-1">
+                              {contact.phone && (
+                                <p className="text-white/90 text-sm">
+                                  {isRTL ? "اتصال: " : "Call : "}
+                                  {contact.phone}
+                                </p>
+                              )}
+                              {contact.whatsapp && contact.whatsapp !== contact.phone && (
+                                <p className="text-white/90 text-sm">
+                                  {isRTL ? "واتساب: " : "WhatsApp : "}
+                                  {contact.whatsapp}
+                                </p>
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
+                      )}
 
                       {/* Send Mail */}
-                      <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 bg-[#ffffff] rounded-full border-2 border-[#400198] flex items-center justify-center flex-shrink-0">
-                          <IoMailOutline className="text-[#400198] text-xl" />
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="text-lg font-bold text-white mb-2">
-                            {isRTL ? "إرسال بريد" : "Send Mail"}
-                          </h3>
-                          <div className="space-y-1">
+                      {contact?.email && (
+                        <div className="flex items-start gap-4">
+                          <div className="w-12 h-12 bg-[#ffffff] rounded-full border-2 border-[#400198] flex items-center justify-center flex-shrink-0">
+                            <IoMailOutline className="text-[#400198] text-xl" />
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="text-lg font-bold text-white mb-2">
+                              {isRTL ? "إرسال بريد" : "Send Mail"}
+                            </h3>
                             <p className="text-white/90 text-sm">
-                              {isRTL ? "المبيعات: " : "Sales : "}
-                              sales@mukafaat.com
-                            </p>
-                            <p className="text-white/90 text-sm">
-                              {isRTL ? "الدعم: " : "Support : "}
-                              support@mukafaat.com
+                              {contact.email}
                             </p>
                           </div>
                         </div>
-                      </div>
+                      )}
                     </div>
 
                     <div

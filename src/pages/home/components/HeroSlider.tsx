@@ -1,29 +1,22 @@
 import { IoIosArrowRoundForward } from "react-icons/io";
 import {
-  // FaChevronLeft,
-  // FaChevronRight,
   FaFacebook,
   FaInstagram,
   FaYoutube,
+  FaLinkedin,
+  FaSnapchat,
+  FaTiktok,
 } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
-// Import background images
-import // CarIcon,
-// CoffeeIcon,
-// DeliveryIcon,
-// HeadphoneIcon,
-// HotelIcon,
-// RestaurantIcon,
-// ShopIcon,
-"@assets";
-import { FaXTwitter } from "react-icons/fa6";
+import "@assets";
 // import CategoryCard from "../../../components/CategoryCard";
 import CategorySection from "@pages/offers/components/CategorySection";
-import { useWebHome } from "@hooks/api/useMokafaatQueries";
+import { useWebHome, useAppConfig } from "@hooks/api/useMokafaatQueries";
 import { mapApiResponseToHeroSlides } from "@network/mappers/heroSlidesMapper";
 
 const DEFAULT_SLIDE_IMAGES = [
@@ -44,6 +37,22 @@ const HeroSlider = () => {
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   const { data: webHomeResponse, isSuccess } = useWebHome();
+  const { data: appConfigResponse } = useAppConfig();
+  const social = (appConfigResponse as { data?: { config?: { social?: Record<string, string> } } })?.data?.config?.social;
+
+  /** ترتيب وعرض كل روابط السوشيال من API - يمكن إضافة أي شبكة جديدة هنا */
+  const SOCIAL_ICONS: Record<string, { Icon: React.ComponentType<{ className?: string }>; label: string }> = {
+    facebook: { Icon: FaFacebook, label: "Facebook" },
+    instagram: { Icon: FaInstagram, label: "Instagram" },
+    twitter: { Icon: FaXTwitter, label: "Twitter" },
+    youtube: { Icon: FaYoutube, label: "YouTube" },
+    linkedin: { Icon: FaLinkedin, label: "LinkedIn" },
+    snapchat: { Icon: FaSnapchat, label: "Snapchat" },
+    tiktok: { Icon: FaTiktok, label: "TikTok" },
+  };
+  const socialEntries = social
+    ? Object.entries(social).filter(([, url]) => url && typeof url === "string")
+    : [];
 
   const fallbackSlides = useMemo(
     () => [
@@ -220,43 +229,31 @@ const HeroSlider = () => {
           </div>
         ))}
 
-        {/* Social Media Icons - Left Side */}
+        {/* Social Media Icons - جميع روابط data.config.social من API */}
         <div
           className={`absolute top-1/2 transform -translate-y-1/2 z-10 hidden lg:block ${
             document.documentElement.dir === "rtl" ? "left-8" : "right-8"
           }`}
         >
           <div className="flex flex-col space-y-4">
-            {/* Vertical Line */}
             <div className="w-0.5 h-8 bg-white mx-auto"></div>
-
-            {/* Facebook */}
-            <button className="w-10 h-10 bg-white/40 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all duration-300">
-              <div className="relative w-5 h-5 flex items-center justify-center">
-                <FaFacebook />
-              </div>
-            </button>
-
-            {/* Instagram */}
-            <button className="w-10 h-10 bg-white/40  backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all duration-300">
-              <div className="relative w-5 h-5 flex items-center justify-center">
-                <FaInstagram />
-              </div>
-            </button>
-
-            {/* Twitter */}
-            <button className="w-10 h-10 bg-white/40  backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all duration-300">
-              <div className="relative w-5 h-5 flex items-center justify-center">
-                <FaXTwitter />
-              </div>
-            </button>
-
-            {/* YouTube */}
-            <button className="w-10 h-10 bg-white/40  backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all duration-300">
-              <div className="w-5 h-5 flex items-center justify-center">
-                <FaYoutube />
-              </div>
-            </button>
+            {socialEntries.map(([key, url]) => {
+              const meta = SOCIAL_ICONS[key];
+              if (!meta) return null;
+              const { Icon, label } = meta;
+              return (
+                <a
+                  key={key}
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 bg-white/40 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-all duration-300"
+                  aria-label={label}
+                >
+                  <Icon className="w-5 h-5" />
+                </a>
+              );
+            })}
           </div>
         </div>
 

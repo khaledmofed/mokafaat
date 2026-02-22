@@ -20,6 +20,7 @@ export const API_ENDPOINTS = {
   favorites: `${API}/favorites`,
   favoritesToggle: `${API}/favorites/toggle`,
   settings: `${API}/settings`,
+  appConfig: `${API}/app-config`,
   settingsUpdateLanguage: `${API}/settings/update-language`,
   settingsUpdate: `${API}/settings/update`,
 

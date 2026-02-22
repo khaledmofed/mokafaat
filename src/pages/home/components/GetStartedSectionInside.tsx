@@ -2,10 +2,28 @@ import React from "react";
 import { useIsRTL } from "@hooks";
 import { useTranslation } from "react-i18next";
 import { ManGroup, AkaratCircle } from "@assets";
+import { useAppConfig } from "@hooks/api/useMokafaatQueries";
+
+type AppConfigShare = {
+  data?: {
+    config?: {
+      share?: {
+        title?: string;
+        subtitle?: string;
+        message?: string;
+      };
+    };
+  };
+};
 
 const GetStartedSectionInside: React.FC = () => {
   const isRTL = useIsRTL();
   const { t } = useTranslation();
+  const { data: appConfig } = useAppConfig() as { data?: AppConfigShare };
+  const share = appConfig?.data?.config?.share;
+  const shareTitle = share?.title;
+  const shareSubtitle = share?.subtitle;
+  const shareMessage = share?.message;
 
   return (
     <section className="py-0 relative ">
@@ -56,7 +74,7 @@ const GetStartedSectionInside: React.FC = () => {
                       : "Jost, sans-serif",
                   }}
                 >
-                  {t("getStarted.mainTitle")}{" "}
+                  {shareTitle ?? t("getStarted.mainTitle")}{" "}
                   <span
                     className="text-[#fd671a]"
                     style={{
@@ -79,10 +97,10 @@ const GetStartedSectionInside: React.FC = () => {
                     : "Jost, sans-serif",
                 }}
               >
-                {t("getStarted.firstParagraph")}
+                {shareSubtitle ?? t("getStarted.firstParagraph")}
               </p>
 
-              {/* Second Paragraph */}
+              {/* Second Paragraph - من config.share.message */}
               <p
                 className="text-sm text-gray-600 leading-relaxed w-[80%]"
                 style={{
@@ -91,7 +109,7 @@ const GetStartedSectionInside: React.FC = () => {
                     : "Jost, sans-serif",
                 }}
               >
-                {t("getStarted.secondParagraph")}
+                {shareMessage ?? t("getStarted.secondParagraph")}
               </p>
 
               {/* Price Range Buttons */}

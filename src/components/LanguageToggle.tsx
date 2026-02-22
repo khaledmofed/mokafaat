@@ -1,16 +1,10 @@
 import { useLanguage } from "@context/language.context";
 import { useIsRTL } from "@hooks";
-// import { FaChevronUp, FaChevronDown } from "react-icons/fa";
 import { useState, useRef, useEffect } from "react";
-import {
-  EnglishUK,
-  EnglishUS,
-  Spanish,
-  Francais,
-  Nederlands,
-  SaudiRoundFlag,
-} from "@assets";
+import { EnglishUS, SaudiRoundFlag } from "@assets";
 import { IoGlobeOutline } from "react-icons/io5";
+import { useAppConfig } from "@hooks/api/useMokafaatQueries";
+import { API_BASE_URL } from "@config/api";
 
 interface LanguageToggleProps {
   handleCloseNavigation: () => void;
@@ -46,56 +40,17 @@ const LanguageToggle: React.FC<LanguageToggleProps> = ({
     },
   ];
 
-  const countries = [
-    {
-      code: "us",
-      name: "United States",
-      flag: "🇺🇸",
-      language: "English",
-      region: "North America",
-      image: EnglishUS,
-    },
-    {
-      code: "sa",
-      name: "Saudi Arabia",
-      flag: "🇸🇦",
-      language: "العربية",
-      region: "Middle East",
-      image: SaudiRoundFlag,
-    },
-    {
-      code: "uk",
-      name: "United Kingdom",
-      flag: "🇬🇧",
-      language: "English",
-      region: "Europe",
-      image: EnglishUK,
-    },
-    {
-      code: "es",
-      name: "Spain",
-      flag: "🇪🇸",
-      language: "Español",
-      region: "Europe",
-      image: Spanish,
-    },
-    {
-      code: "fr",
-      name: "France",
-      flag: "🇫🇷",
-      language: "Français",
-      region: "Europe",
-      image: Francais,
-    },
-    {
-      code: "nl",
-      name: "Netherlands",
-      flag: "🇳🇱",
-      language: "Nederlands",
-      region: "Europe",
-      image: Nederlands,
-    },
-  ];
+  const { data: appConfig } = useAppConfig() as {
+    data?: { data?: { config?: { countries?: Array<{ id: number; name: string; code: string; flag?: string }> } } };
+  };
+  const apiCountries = appConfig?.data?.config?.countries ?? [];
+  const countries = apiCountries.map((c) => ({
+    code: c.code,
+    name: c.name,
+    image: c.flag
+      ? (c.flag.startsWith("http") ? c.flag : `${API_BASE_URL}/storage/${c.flag}`)
+      : undefined,
+  }));
 
   const currentLang =
     languages.find((lang) => lang.code === currentLanguage) || languages[0];
@@ -244,36 +199,45 @@ const LanguageToggle: React.FC<LanguageToggleProps> = ({
                 </button>
               ))
             ) : (
-              // Countries List - Grid Layout
+              // Countries List من /api/app-config (config.countries)
               <div className="grid grid-cols-2 gap-0">
-                {countries.map((country) => (
-                  <button
-                    key={country.code}
-                    onClick={() => handleCountryChange(country.code)}
-                    className={`w-full flex items-center gap-2 px-3 py-3 ${
-                      isRTL ? "text-right" : "text-left"
-                    } hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0`}
-                  >
-                    {/* Flag Image */}
-                    <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-gray-200 flex items-center justify-center flex-shrink-0">
-                      <img
-                        src={country.image}
-                        alt={country.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-
-                    {/* Country Name */}
-                    <div className="flex-1 min-w-0">
-                      <div className="text-gray-900 font-medium text-xs truncate">
-                        {country.name}
+                {countries.length === 0 ? (
+                  <div className="col-span-2 px-4 py-6 text-gray-500 text-sm text-center">
+                    {isRTL ? "لا توجد دول متاحة" : "No countries available"}
+                  </div>
+                ) : (
+                  countries.map((country) => (
+                    <button
+                      key={country.code}
+                      onClick={() => handleCountryChange(country.code)}
+                      className={`w-full flex items-center gap-2 px-3 py-3 ${
+                        isRTL ? "text-right" : "text-left"
+                      } hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0`}
+                    >
+                      <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-gray-200 flex items-center justify-center flex-shrink-0 bg-gray-100">
+                        {country.image ? (
+                          <img
+                            src={country.image}
+                            alt={country.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-gray-400 text-xs font-medium">
+                            {country.code}
+                          </span>
+                        )}
                       </div>
-                      <div className="text-gray-500 text-xs truncate">
-                        {country.language}
+                      <div className="flex-1 min-w-0">
+                        <div className="text-gray-900 font-medium text-xs truncate">
+                          {country.name}
+                        </div>
+                        <div className="text-gray-500 text-xs truncate">
+                          {country.code}
+                        </div>
                       </div>
-                    </div>
-                  </button>
-                ))}
+                    </button>
+                  ))
+                )}
               </div>
             )}
           </div>

@@ -34,18 +34,6 @@ export const APP_ROUTES = {
 
 export const NavLinks = [
   {
-    path: APP_ROUTES.home,
-    title: "home",
-    scroll: false,
-    newTab: false,
-  },
-  {
-    path: APP_ROUTES.about,
-    title: "about",
-    scroll: false,
-    newTab: false,
-  },
-  {
     path: "/offers",
     title: "offers",
     scroll: false,
@@ -66,18 +54,6 @@ export const NavLinks = [
   {
     path: "/bookings",
     title: "bookings",
-    scroll: false,
-    newTab: false,
-  },
-  {
-    path: "/blogs",
-    title: "blogs",
-    scroll: false,
-    newTab: false,
-  },
-  {
-    path: APP_ROUTES.contact,
-    title: "contact",
     scroll: false,
     newTab: false,
   },

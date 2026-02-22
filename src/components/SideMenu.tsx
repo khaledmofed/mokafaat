@@ -4,25 +4,61 @@ import { useTranslation } from "react-i18next";
 import { Logo, UnderTitle } from "@assets";
 import {
   FaClock,
-  FaCalendarAlt,
   FaMapMarkerAlt,
   FaEnvelope,
   FaPhone,
   FaFacebook,
-  FaTwitter,
   FaInstagram,
   FaLinkedin,
   FaYoutube,
+  FaSnapchat,
+  FaTiktok,
 } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
+import { useAppConfig } from "@hooks/api/useMokafaatQueries";
 
 interface SideMenuProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
+const SOCIAL_ICONS: Record<
+  string,
+  { Icon: React.ComponentType<{ className?: string }>; label: string }
+> = {
+  facebook: { Icon: FaFacebook, label: "Facebook" },
+  instagram: { Icon: FaInstagram, label: "Instagram" },
+  twitter: { Icon: FaXTwitter, label: "Twitter" },
+  youtube: { Icon: FaYoutube, label: "YouTube" },
+  linkedin: { Icon: FaLinkedin, label: "LinkedIn" },
+  snapchat: { Icon: FaSnapchat, label: "Snapchat" },
+  tiktok: { Icon: FaTiktok, label: "TikTok" },
+};
+
 const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose }) => {
   const { t } = useTranslation();
   const isRTL = useIsRTL();
+  const { data: appConfig } = useAppConfig() as {
+    data?: {
+      data?: {
+        config?: {
+          contact?: {
+            address?: string;
+            email?: string;
+            phone?: string;
+            whatsapp?: string;
+            working_hours?: string;
+          };
+          social?: Record<string, string>;
+        };
+      };
+    };
+  };
+  const contact = appConfig?.data?.config?.contact;
+  const social = appConfig?.data?.config?.social;
+  const socialEntries = social
+    ? Object.entries(social).filter(([, url]) => url && typeof url === "string")
+    : [];
 
   return (
     <>
@@ -62,95 +98,89 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose }) => {
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6">
           <div className="space-y-6">
-            {/* Working Hours */}
-            <div>
-              <div className="text-start gap-2 mb-4">
-                <span
-                  className="text-[#400198] text-md font-semibold uppercase tracking-wider"
-                  style={{
-                    fontFamily: isRTL
-                      ? "Readex Pro, sans-serif"
-                      : "Jost, sans-serif",
-                  }}
-                >
-                  {t("home.navbar.side-menu.working-hours")}
-                </span>
-                <img
-                  src={UnderTitle}
-                  alt="underlineDecoration"
-                  className="h-1 mt-2"
-                />
-              </div>
-              <div className="space-y-3">
-                <div className="flex items-center text-sm text-[#141414] font-medium space-x-3 gap-2">
-                  <FaClock className="text-[#fd671a] text-lg" />
-                  <span className="text-gray-600">
-                    {t("home.navbar.side-menu.hours")} :
+            {/* Working Hours - من config.contact */}
+            {(contact?.working_hours ?? t("home.navbar.side-menu.working-hours")) && (
+              <div>
+                <div className="text-start gap-2 mb-4">
+                  <span
+                    className="text-[#400198] text-md font-semibold uppercase tracking-wider"
+                    style={{
+                      fontFamily: isRTL
+                        ? "Readex Pro, sans-serif"
+                        : "Jost, sans-serif",
+                    }}
+                  >
+                    {t("home.navbar.side-menu.working-hours")}
                   </span>
-                  <span className="text-gray-800">
-                    {t("home.navbar.side-menu.hours-value")}
-                  </span>
+                  <img
+                    src={UnderTitle}
+                    alt="underlineDecoration"
+                    className="h-1 mt-2"
+                  />
                 </div>
-                <div className="flex items-center text-sm text-[#141414] font-medium space-x-3 gap-2">
-                  <FaCalendarAlt className="text-[#fd671a] text-lg" />
-                  <span className="text-gray-600">
-                    {t("home.navbar.side-menu.days")} :
-                  </span>
-                  <span className="text-gray-800">
-                    {t("home.navbar.side-menu.days-value")}
-                  </span>
+                <div className="space-y-3">
+                  <div className="flex items-center text-sm text-[#141414] font-medium space-x-3 gap-2">
+                    <FaClock className="text-[#fd671a] text-lg flex-shrink-0" />
+                    <span className="text-gray-800">
+                      {contact?.working_hours ?? t("home.navbar.side-menu.hours-value")}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Divider */}
             <div className="border-t border-gray-200"></div>
 
-            {/* Contact Info */}
-            <div>
-              <div className="text-start gap-2 mb-4">
-                <span
-                  className="text-[#400198] text-md font-semibold uppercase tracking-wider"
-                  style={{
-                    fontFamily: isRTL
-                      ? "Readex Pro, sans-serif"
-                      : "Jost, sans-serif",
-                  }}
-                >
-                  {t("home.navbar.side-menu.contact-info")}
-                </span>
-                <img
-                  src={UnderTitle}
-                  alt="underlineDecoration"
-                  className="h-1 mt-2"
-                />
+            {/* Contact Info - من config.contact */}
+            {(contact?.address ?? contact?.email ?? contact?.phone ?? contact?.whatsapp) && (
+              <div>
+                <div className="text-start gap-2 mb-4">
+                  <span
+                    className="text-[#400198] text-md font-semibold uppercase tracking-wider"
+                    style={{
+                      fontFamily: isRTL
+                        ? "Readex Pro, sans-serif"
+                        : "Jost, sans-serif",
+                    }}
+                  >
+                    {t("home.navbar.side-menu.contact-info")}
+                  </span>
+                  <img
+                    src={UnderTitle}
+                    alt="underlineDecoration"
+                    className="h-1 mt-2"
+                  />
+                </div>
+                <div className="space-y-3">
+                  {contact?.address && (
+                    <div className="flex items-center text-sm text-[#141414] font-medium space-x-3 gap-2">
+                      <FaMapMarkerAlt className="text-[#fd671a] text-lg flex-shrink-0" />
+                      <span className="text-gray-800">{contact.address}</span>
+                    </div>
+                  )}
+                  {contact?.email && (
+                    <div className="flex items-center text-sm text-[#141414] font-medium space-x-3 gap-2">
+                      <FaEnvelope className="text-[#fd671a] text-lg flex-shrink-0" />
+                      <span className="text-gray-800">{contact.email}</span>
+                    </div>
+                  )}
+                  {(contact?.phone ?? contact?.whatsapp) && (
+                    <div className="flex items-center text-sm text-[#141414] font-medium space-x-3 gap-2">
+                      <FaPhone className="text-[#fd671a] text-lg flex-shrink-0" />
+                      <span className="text-gray-800">
+                        {contact.phone ?? contact.whatsapp}
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="space-y-3">
-                <div className="flex items-center text-sm text-[#141414] font-medium space-x-3 gap-2">
-                  <FaMapMarkerAlt className="text-[#fd671a] text-lg" />
-                  <span className="text-gray-800">
-                    {t("home.navbar.side-menu.location")}
-                  </span>
-                </div>
-                <div className="flex items-center text-sm text-[#141414] font-medium space-x-3 gap-2">
-                  <FaEnvelope className="text-[#fd671a] text-lg" />
-                  <span className="text-gray-800">
-                    {t("home.navbar.side-menu.email")}
-                  </span>
-                </div>
-                <div className="flex items-center text-sm text-[#141414] font-medium space-x-3 gap-2  ">
-                  <FaPhone className="text-[#fd671a] text-lg" />
-                  <span className="text-gray-800">
-                    {t("home.navbar.side-menu.phone-value")}
-                  </span>
-                </div>
-              </div>
-            </div>
+            )}
 
             {/* Divider */}
             <div className="border-t border-gray-200"></div>
 
-            {/* Follow Us */}
+            {/* Follow Us - من config.social */}
             <div>
               <div className="text-start gap-2 mb-4">
                 <span
@@ -169,22 +199,24 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose }) => {
                   className="h-1 mt-2"
                 />
               </div>
-              <div className="flex space-x-3">
-                <button className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-gray-200 transition-colors duration-200">
-                  <FaFacebook className="text-gray-700 text-lg" />
-                </button>
-                <button className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-gray-200 transition-colors duration-200">
-                  <FaTwitter className="text-gray-700 text-lg" />
-                </button>
-                <button className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-gray-200 transition-colors duration-200">
-                  <FaInstagram className="text-gray-700 text-lg" />
-                </button>
-                <button className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-gray-200 transition-colors duration-200">
-                  <FaLinkedin className="text-gray-700 text-lg" />
-                </button>
-                <button className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-gray-200 transition-colors duration-200">
-                  <FaYoutube className="text-gray-700 text-lg" />
-                </button>
+              <div className={`flex flex-wrap gap-3 ${isRTL ? "space-x-reverse" : ""}`}>
+                {socialEntries.map(([key, url]) => {
+                  const meta = SOCIAL_ICONS[key];
+                  if (!meta) return null;
+                  const { Icon, label } = meta;
+                  return (
+                    <a
+                      key={key}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-gray-200 transition-colors duration-200"
+                      aria-label={label}
+                    >
+                      <Icon className="text-gray-700 text-lg" />
+                    </a>
+                  );
+                })}
               </div>
             </div>
           </div>

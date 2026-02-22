@@ -65,6 +65,11 @@ export const settingsApi = {
     }),
 };
 
+// ========== App Config (GET - عام) ==========
+export const appConfigApi = {
+  get: () => api.get(API_ENDPOINTS.appConfig),
+};
+
 // ========== Pages (يتطلب توكن اختياري) ==========
 export const pagesApi = {
   list: (platform?: string) =>

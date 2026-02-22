@@ -1,26 +1,69 @@
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { APP_ROUTES } from "@constants";
-import { FaPhone, FaAt, FaMapMarkerAlt, FaClock } from "react-icons/fa";
-import { FaFacebookF, FaTwitter, FaInstagram, FaYoutube } from "react-icons/fa";
+import {
+  FaPhone,
+  FaAt,
+  FaMapMarkerAlt,
+  FaClock,
+  FaFacebook,
+  FaInstagram,
+  FaLinkedin,
+  FaYoutube,
+  FaSnapchat,
+  FaTiktok,
+} from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
 import { LogoLight, MailboxIcon } from "@assets";
 import { useIsRTL } from "@hooks";
+import { useAppConfig } from "@hooks/api/useMokafaatQueries";
 
 interface FooterProps {
   mobileNumber?: string;
   email?: string;
 }
 
+const FOOTER_SOCIAL_ICONS: Record<
+  string,
+  { Icon: React.ComponentType<{ className?: string }>; label: string }
+> = {
+  facebook: { Icon: FaFacebook, label: "Facebook" },
+  instagram: { Icon: FaInstagram, label: "Instagram" },
+  twitter: { Icon: FaXTwitter, label: "Twitter" },
+  youtube: { Icon: FaYoutube, label: "YouTube" },
+  linkedin: { Icon: FaLinkedin, label: "LinkedIn" },
+  snapchat: { Icon: FaSnapchat, label: "Snapchat" },
+  tiktok: { Icon: FaTiktok, label: "TikTok" },
+};
+
+type AppConfigData = {
+  data?: {
+    config?: {
+      contact?: {
+        address?: string;
+        email?: string;
+        phone?: string;
+        whatsapp?: string;
+        working_hours?: string;
+      };
+      countries?: Array<{ id: number; name: string; code: string; flag?: string }>;
+      site?: { name?: string; description?: string; logo?: string; favicon?: string };
+      social?: Record<string, string>;
+    };
+  };
+};
+
 const Footer: React.FC<FooterProps> = () => {
   const { t } = useTranslation();
   const isRTL = useIsRTL();
-
-  const socialMediaLinks = [
-    { icon: FaFacebookF, href: "#", label: "Facebook" },
-    { icon: FaInstagram, href: "#", label: "Instagram" },
-    { icon: FaTwitter, href: "#", label: "Twitter" },
-    { icon: FaYoutube, href: "#", label: "YouTube" },
-  ];
+  const { data: appConfig } = useAppConfig() as { data?: AppConfigData };
+  const contact = appConfig?.data?.config?.contact;
+  const countries = appConfig?.data?.config?.countries ?? [];
+  const site = appConfig?.data?.config?.site;
+  const social = appConfig?.data?.config?.social ?? {};
+  const socialEntries = Object.entries(social).filter(
+    ([, url]) => url && typeof url === "string"
+  );
 
   const handleSubscribe = () => {
     console.log("Subscribe clicked");
@@ -119,28 +162,34 @@ const Footer: React.FC<FooterProps> = () => {
                 </div>
                 <p
                   className="text-[#EBEBEB] leading-relaxed text-start"
-                  style={{
-                    fontSize: "13px",
-                  }}
+                  style={{ fontSize: "13px" }}
                 >
-                  {isRTL
-                    ? "لوريم إبسوم هو نص وهمي يستخدم في الطباعة والتنضيد. الغرض منه هو السماح بتصميم تخطيط الصفحة بشكل مستقل عن المحتوى الذي سيتم ملؤه لاحقاً."
-                    : t("footer.companyDescription")}
+                  {site?.description ??
+                    (isRTL
+                      ? "لوريم إبسوم هو نص وهمي يستخدم في الطباعة والتنضيد. الغرض منه هو السماح بتصميم تخطيط الصفحة بشكل مستقل عن المحتوى الذي سيتم ملؤه لاحقاً."
+                      : t("footer.companyDescription"))}
                 </p>
               </div>
 
-              {/* Social Media Icons */}
-              <div className="flex justify-start space-x-3">
-                {socialMediaLinks.map((social, index) => (
-                  <a
-                    key={index}
-                    href={social.href}
-                    className="rounded-full flex items-center justify-center text-[#EBEBEB] hover:bg-opacity-20 transition-all duration-300"
-                    aria-label={social.label}
-                  >
-                    <social.icon className="w-4 h-4" />
-                  </a>
-                ))}
+              {/* Social Media Icons - من config.social */}
+              <div className={`flex justify-start ${isRTL ? "space-x-reverse space-x-3" : "space-x-3"}`}>
+                {socialEntries.map(([key, url]) => {
+                  const meta = FOOTER_SOCIAL_ICONS[key];
+                  if (!meta) return null;
+                  const { Icon, label } = meta;
+                  return (
+                    <a
+                      key={key}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded-full flex items-center justify-center text-[#EBEBEB] hover:bg-opacity-20 transition-all duration-300"
+                      aria-label={label}
+                    >
+                      <Icon className="w-4 h-4" />
+                    </a>
+                  );
+                })}
               </div>
             </div>
 
@@ -340,32 +389,38 @@ const Footer: React.FC<FooterProps> = () => {
                   className={`text-[#EBEBEB] leading-relaxed ${
                     isRTL ? "text-right" : "text-left"
                   }`}
-                  style={{
-                    fontSize: "13px",
-                  }}
+                  style={{ fontSize: "13px" }}
                 >
-                  {isRTL
-                    ? "لوريم إبسوم هو نص وهمي يستخدم في الطباعة والتنضيد. الغرض منه هو السماح بتصميم تخطيط الصفحة بشكل مستقل عن المحتوى الذي سيتم ملؤه لاحقاً."
-                    : "Lorem ipsum is a dummy text used in printing and typesetting. Its purpose is to allow page layout design independently of the content that will be filled later."}
+                  {site?.description ??
+                    (isRTL
+                      ? "لوريم إبسوم هو نص وهمي يستخدم في الطباعة والتنضيد. الغرض منه هو السماح بتصميم تخطيط الصفحة بشكل مستقل عن المحتوى الذي سيتم ملؤه لاحقاً."
+                      : "Lorem ipsum is a dummy text used in printing and typesetting. Its purpose is to allow page layout design independently of the content that will be filled later.")}
                 </p>
               </div>
 
-              {/* Social Media Icons */}
+              {/* Social Media Icons - من config.social */}
               <div
                 className={`flex ${isRTL ? "justify-start" : "justify-start"} ${
                   isRTL ? "space-x-reverse space-x-3" : "space-x-3"
                 }`}
               >
-                {socialMediaLinks.map((social, index) => (
-                  <a
-                    key={index}
-                    href={social.href}
-                    className="rounded-full flex items-center justify-center text-[#EBEBEB] hover:bg-opacity-20 transition-all duration-300"
-                    aria-label={social.label}
-                  >
-                    <social.icon className="w-4 h-4" />
-                  </a>
-                ))}
+                {socialEntries.map(([key, url]) => {
+                  const meta = FOOTER_SOCIAL_ICONS[key];
+                  if (!meta) return null;
+                  const { Icon, label } = meta;
+                  return (
+                    <a
+                      key={key}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="rounded-full flex items-center justify-center text-[#EBEBEB] hover:bg-opacity-20 transition-all duration-300"
+                      aria-label={label}
+                    >
+                      <Icon className="w-4 h-4" />
+                    </a>
+                  );
+                })}
               </div>
             </div>
 
@@ -504,7 +559,7 @@ const Footer: React.FC<FooterProps> = () => {
               </ul>
             </div>
 
-            {/* Column 5 - Our Locations */}
+            {/* Column 5 - Our Locations من config.countries */}
             <div className="w-1/6 space-y-4">
               <h3
                 className={`font-bold text-[#fd671a] text-base ${
@@ -514,75 +569,59 @@ const Footer: React.FC<FooterProps> = () => {
                 {isRTL ? "مواقعنا" : "Our Locations"}
               </h3>
               <ul className={`space-y-2 ${isRTL ? "text-right" : "text-left"}`}>
-                <li>
-                  <span className="text-[#EBEBEB] text-sm">
-                    {isRTL ? "دبي" : "Dubai"}
-                  </span>
-                </li>
-                <li>
-                  <span className="text-[#EBEBEB] text-sm">
-                    {isRTL ? "ابو ظبي" : "Abu Dhabi"}
-                  </span>
-                </li>
-                <li>
-                  <span className="text-[#EBEBEB] text-sm">
-                    {isRTL ? "البحرين" : "Bahrain"}
-                  </span>
-                </li>
-                <li>
-                  <span className="text-[#EBEBEB] text-sm">
-                    {isRTL ? "جدة" : "Jeddah"}
-                  </span>
-                </li>
+                {countries.length === 0 ? (
+                  <li>
+                    <span className="text-[#EBEBEB] text-sm">
+                      —
+                    </span>
+                  </li>
+                ) : (
+                  countries.map((country) => (
+                    <li key={country.id}>
+                      <span className="text-[#EBEBEB] text-sm">
+                        {country.name}
+                      </span>
+                    </li>
+                  ))
+                )}
               </ul>
             </div>
 
-            {/* Column 6 - Contact Info */}
+            {/* Column 6 - Contact Info من /api/app-config (config.contact) */}
             <div className="w-1/6 space-y-4">
               <div className="space-y-3">
-                <div
-                  className={`flex items-center justify-start text-sm ${
-                    isRTL ? "space-x-reverse space-x-3" : "space-x-3"
-                  }`}
-                >
-                  <FaMapMarkerAlt className="text-white w-4 h-4" />
-                  <span className="text-[#EBEBEB]">
-                    {isRTL
-                      ? "جدة، المملكة العربية السعودية"
-                      : "Jeddah, Kingdom of Saudi Arabia"}
-                  </span>
-                </div>
-                <div
-                  className={`flex items-center justify-start text-sm ${
-                    isRTL ? "space-x-reverse space-x-3" : "space-x-3"
-                  }`}
-                >
-                  <FaClock className="text-white w-4 h-4" />
-                  <div className="text-[#EBEBEB]">
-                    <div>
-                      {isRTL
-                        ? "ساعات العمل: 9:00 صباحاً - 6:00 مساءً"
-                        : "Working hours: 9:00 AM - 6:00 PM"}
-                    </div>
-                    <div className="text-xs">
-                      {isRTL
-                        ? "من الأحد إلى الخميس"
-                        : "From Sunday to Thursday"}
-                    </div>
+                {contact?.address && (
+                  <div
+                    className={`flex items-center justify-start text-sm ${
+                      isRTL ? "space-x-reverse space-x-3" : "space-x-3"
+                    }`}
+                  >
+                    <FaMapMarkerAlt className="text-white w-4 h-4 flex-shrink-0" />
+                    <span className="text-[#EBEBEB]">{contact.address}</span>
                   </div>
-                </div>
-                <div
-                  className={`flex items-center justify-start text-sm ${
-                    isRTL ? "space-x-reverse space-x-3" : "space-x-3"
-                  }`}
-                >
-                  <FaPhone className="text-white w-4 h-4" />
-                  <span className="text-[#EBEBEB]">
-                    {isRTL
-                      ? "تحتاج مساعدة؟ اتصل بنا 0123456789"
-                      : "Need help? Call us 0123456789"}
-                  </span>
-                </div>
+                )}
+                {contact?.working_hours && (
+                  <div
+                    className={`flex items-center justify-start text-sm ${
+                      isRTL ? "space-x-reverse space-x-3" : "space-x-3"
+                    }`}
+                  >
+                    <FaClock className="text-white w-4 h-4 flex-shrink-0" />
+                    <div className="text-[#EBEBEB]">{contact.working_hours}</div>
+                  </div>
+                )}
+                {(contact?.phone ?? contact?.whatsapp) && (
+                  <div
+                    className={`flex items-center justify-start text-sm ${
+                      isRTL ? "space-x-reverse space-x-3" : "space-x-3"
+                    }`}
+                  >
+                    <FaPhone className="text-white w-4 h-4 flex-shrink-0" />
+                    <span className="text-[#EBEBEB]">
+                      {contact.phone ?? contact.whatsapp}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           </div>

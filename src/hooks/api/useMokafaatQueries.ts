@@ -17,6 +17,7 @@ import {
   locationsApi,
   settingsApi,
   pagesApi,
+  appConfigApi,
 } from "@network/services/mokafaatService";
 
 /** لغة حالية للـ query key (يعيد طلب البيانات عند تغيير اللغة) */
@@ -50,6 +51,7 @@ export const mokafaatKeys = {
     ["mokafaat", "web", "coupons", params] as const,
   webNews: ["mokafaat", "web", "news"] as const,
   webHome: ["mokafaat", "web", "home"] as const,
+  appConfig: ["mokafaat", "appConfig"] as const,
   countries: ["mokafaat", "locations", "countries"] as const,
   regions: (id: string | number) =>
     ["mokafaat", "locations", "regions", id] as const,
@@ -237,6 +239,14 @@ export function useWebNews() {
   return useQuery({
     queryKey: [...mokafaatKeys.webNews, lang],
     queryFn: () => webApi.news().then((r) => r.data),
+  });
+}
+
+// ========== App Config (GET /api/app-config) ==========
+export function useAppConfig() {
+  return useQuery({
+    queryKey: mokafaatKeys.appConfig,
+    queryFn: () => appConfigApi.get().then((r) => r.data),
   });
 }
 
