@@ -10,7 +10,6 @@ import {
   type MenuItem,
   type Restaurant,
 } from "@data/offers";
-import OfferModal from "./components/OfferModal";
 import OfferCard from "./components/OfferCard";
 import MenuItemCard from "../../components/MenuItemCard";
 import { Pro1, Pro2, Pro3, Pro4, Pro5, Pro6, Pro7, Pro8 } from "@assets";
@@ -27,8 +26,6 @@ const RestaurantDetailsPage = () => {
   }>();
   const navigate = useNavigate();
   const isRTL = useIsRTL();
-  const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"offers" | "menu">("offers");
   const { data: webHomeResponse } = useWebHome();
 
@@ -154,39 +151,11 @@ const RestaurantDetailsPage = () => {
   };
 
   const handleOfferClick = (offer: Offer) => {
-    setSelectedOffer(offer);
-    setIsModalOpen(true);
+    navigate(`/offers/${category}/${restaurantId}/offer/${offer.id}`);
   };
 
   const handleMenuItemClick = (menuItem: MenuItem) => {
-    // Convert MenuItem to Offer format for the modal
-    const offerFromMenuItem: Offer = {
-      id: menuItem.id,
-      title: menuItem.title,
-      description: menuItem.description,
-      image: menuItem.image,
-      originalPrice: menuItem.originalPrice || menuItem.price,
-      discountPrice: menuItem.price,
-      discountPercentage: menuItem.discountPercentage || 0,
-      validity: { ar: "متاح دائماً", en: "Always available" },
-      features: menuItem.features,
-      rating: menuItem.rating,
-      reviewsCount: menuItem.reviewsCount,
-      views: menuItem.views,
-      downloads: 0,
-      purchases: menuItem.purchases,
-      bookmarks: menuItem.bookmarks,
-      isPopular: menuItem.isPopular,
-      isNew: menuItem.isNew,
-      isBestSeller: menuItem.isBestSeller,
-      category: menuItem.category,
-      companyId: menuItem.companyId,
-      availableUntil: "2024-12-31",
-      maxQuantity: menuItem.maxQuantity,
-      terms: { ar: "متاح للطلب", en: "Available for order" },
-    };
-    setSelectedOffer(offerFromMenuItem);
-    setIsModalOpen(true);
+    navigate(`/offers/${category}/${restaurantId}/offer/${menuItem.id}`);
   };
 
   return (
@@ -460,19 +429,6 @@ const RestaurantDetailsPage = () => {
           </div>
         )}
       </section>
-
-      {/* Offer Modal */}
-      {selectedOffer && (
-        <OfferModal
-          offer={selectedOffer}
-          restaurant={restaurant}
-          isOpen={isModalOpen}
-          onClose={() => {
-            setIsModalOpen(false);
-            setSelectedOffer(null);
-          }}
-        />
-      )}
 
       <GetStartedSection className="mt-16 mb-28" />
     </>

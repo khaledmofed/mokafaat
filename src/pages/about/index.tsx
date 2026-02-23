@@ -102,7 +102,7 @@ const AboutPage = () => {
                 </h1>
                 <p className="text-gray-600 text-sm">
                   {isRTL
-                    ? "اكتشف منصة مكافئات الرائدة في المملكة العربية السعودية لتوفير المال والاستفادة من أفضل العروض والخصومات على البطاقات الائتمانية والكوبونات والحجوزات."
+                    ? "اكتشف منصة مكافئات الرائدة في المملكة العربية السعودية لتوفير المال والاستفادة من أفضل العروض والخصومات على البطاقات الائتمانية والكوبونز والحجوزات."
                     : "Discover Mukafaat, the leading platform in Saudi Arabia for saving money and benefiting from the best offers and discounts on credit cards, coupons, and bookings."}
                 </p>
               </div>

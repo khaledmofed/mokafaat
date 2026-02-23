@@ -15,7 +15,7 @@ const CouponsHero = () => {
         <h1
           className={`${titleFontType} mb-4 tracking-tight leading-none text-white`}
         >
-          {isRTL ? "الكوبونات" : "Coupons"}
+          {isRTL ? "الكوبونز" : "Couponz"}
         </h1>
 
         <div className="flex items-center justify-center  text-sm md:text-base">
@@ -27,7 +27,7 @@ const CouponsHero = () => {
           </Link>
           <span className="text-white text-xs mx-2">|</span>
           <span className="text-[#fd671a] font-medium text-xs">
-            {isRTL ? "الكوبونات" : "Coupons"}
+            {isRTL ? "الكوبونز" : "Couponz"}
           </span>
         </div>
       </div>

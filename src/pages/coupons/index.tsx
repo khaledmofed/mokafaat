@@ -3,10 +3,12 @@ import { useTranslation } from "react-i18next";
 import { Helmet } from "react-helmet-async";
 import { IoCalendarOutline, IoFlashOutline } from "react-icons/io5";
 import { BsHeart, BsShare } from "react-icons/bs";
+import { FaTag, FaPercent, FaUtensils } from "react-icons/fa";
 import { FiGrid, FiList } from "react-icons/fi";
 import { copon1, copon2, copon3, copon4, cutCopon } from "@assets";
 import CouponsHero from "./components/CouponsHero";
 import GetStartedSection from "@pages/home/components/GetStartedSection";
+import CouponModal, { type CouponWithIcon } from "@pages/home/components/CouponModal";
 import { useWebHome } from "@hooks/api/useMokafaatQueries";
 import { mapApiCouponsToModels } from "@network/mappers/couponsMapper";
 import { stripHtml } from "@utils/stripHtml";
@@ -34,19 +36,42 @@ const CouponsPage = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [selectedFilter, setSelectedFilter] = useState<string>("nearby");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [selectedCoupon, setSelectedCoupon] = useState<CouponWithIcon | null>(null);
   const perPage = 9;
 
   const { data: webHomeResponse } = useWebHome();
 
-  const apiCouponsAsDisplay = useMemo((): CouponDisplay[] => {
+  const allCouponsRaw = useMemo(() => {
     if (!webHomeResponse) return [];
     const res = webHomeResponse as Record<string, unknown>;
     const data = res?.data as Record<string, unknown> | undefined;
     const coupons = data?.coupons as Record<string, unknown> | undefined;
-    const all = Array.isArray(coupons?.all) ? coupons.all : [];
-    const models = mapApiCouponsToModels(all as Array<Record<string, unknown>>);
+    return Array.isArray(coupons?.all) ? coupons.all : [];
+  }, [webHomeResponse]);
+
+  const couponModels = useMemo(
+    () => mapApiCouponsToModels(allCouponsRaw as Array<Record<string, unknown>>),
+    [allCouponsRaw]
+  );
+
+  const couponsWithIcons = useMemo((): CouponWithIcon[] => {
+    return couponModels.map((coupon) => {
+      let icon = <FaTag className="text-2xl" />;
+      if (coupon.discountPercentage) {
+        icon = <FaPercent className="text-2xl" />;
+      } else if (
+        coupon.category?.includes("مطاعم") ||
+        coupon.title.includes("وجبة")
+      ) {
+        icon = <FaUtensils className="text-2xl" />;
+      }
+      return { ...coupon, icon };
+    });
+  }, [couponModels]);
+
+  const apiCouponsAsDisplay = useMemo((): CouponDisplay[] => {
     const logos = ["copon1", "copon2", "copon3", "copon4"];
-    return models.map((c, i) => ({
+    return couponModels.map((c, i) => ({
       id: String(c.id),
       storeName: c.title,
       storeCategory: c.category ?? "",
@@ -63,7 +88,7 @@ const CouponsPage = () => {
       isNearby: i % 2 === 0,
       visits: 0,
     }));
-  }, [webHomeResponse]);
+  }, [couponModels]);
 
   const getCouponImage = (logoName: string) => {
     if (logoName.startsWith("http")) return logoName;
@@ -114,6 +139,20 @@ const CouponsPage = () => {
   const totalPages = Math.ceil(filteredCoupons.length / perPage) || 1;
   const startIdx = (currentPage - 1) * perPage;
   const paginated = filteredCoupons.slice(startIdx, startIdx + perPage);
+
+  const openCouponModal = (displayCoupon: CouponDisplay) => {
+    const withIcon = couponsWithIcons.find(
+      (c) => String(c.id) === String(displayCoupon.id)
+    );
+    if (withIcon) setSelectedCoupon(withIcon);
+  };
+
+  const getLogoUrlForModal = (coupon: { id: number }) => {
+    const d = apiCouponsAsDisplay.find(
+      (x) => String(x.id) === String(coupon.id)
+    );
+    return d ? getCouponImage(d.logo) : "";
+  };
 
   return (
     <>
@@ -222,7 +261,16 @@ const CouponsPage = () => {
             {paginated.map((coupon) => (
               <div
                 key={coupon.id}
-                className={`bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden ${
+                role="button"
+                tabIndex={0}
+                onClick={() => openCouponModal(coupon)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    openCouponModal(coupon);
+                  }
+                }}
+                className={`bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer ${
                   viewMode === "list" ? "flex items-center p-4" : ""
                 }`}
               >
@@ -489,6 +537,14 @@ const CouponsPage = () => {
       </section>
 
       <GetStartedSection className="mt-16 mb-28" />
+
+      {selectedCoupon && (
+        <CouponModal
+          coupon={selectedCoupon}
+          onClose={() => setSelectedCoupon(null)}
+          getLogoUrl={getLogoUrlForModal}
+        />
+      )}
     </>
   );
 };

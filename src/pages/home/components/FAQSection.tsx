@@ -18,8 +18,8 @@ const FAQSection: React.FC = () => {
       id: 1,
       question: isRTL ? "ما هي منصة مكافئات؟" : "What is Mukafaat platform?",
       answer: isRTL
-        ? "مكافئات هي المنصة الرائدة في المملكة العربية السعودية لتوفير المال والاستفادة من أفضل العروض والخصومات على البطاقات الائتمانية والكوبونات والحجوزات السياحية."
-        : "Mukafaat is the leading platform in Saudi Arabia for saving money and benefiting from the best offers and discounts on credit cards, coupons, and travel bookings.",
+        ? "مكافئات هي المنصة الرائدة في المملكة العربية السعودية لتوفير المال والاستفادة من أفضل العروض والخصومات على البطاقات الائتمانية والكوبونز والحجوزات السياحية."
+        : "Mukafaat is the leading platform in Saudi Arabia for saving money and benefiting from the best offers and discounts on credit cards, couponz, and travel bookings.",
     },
     {
       id: 2,
@@ -27,8 +27,8 @@ const FAQSection: React.FC = () => {
         ? "كيف يمكنني الاستفادة من عروض مكافئات؟"
         : "How can I benefit from Mukafaat offers?",
       answer: isRTL
-        ? "يمكنك الاستفادة من عروض مكافئات من خلال تصفح العروض المتاحة، اختيار البطاقة الائتمانية المناسبة، استخدام الكوبونات المتاحة، أو حجز رحلاتك بأسعار مميزة."
-        : "You can benefit from Mukafaat offers by browsing available offers, choosing the right credit card, using available coupons, or booking your trips at competitive prices.",
+        ? "يمكنك الاستفادة من عروض مكافئات من خلال تصفح العروض المتاحة، اختيار البطاقة الائتمانية المناسبة، استخدام الكوبونز المتاحة، أو حجز رحلاتك بأسعار مميزة."
+        : "You can benefit from Mukafaat offers by browsing available offers, choosing the right credit card, using available couponz, or booking your trips at competitive prices.",
     },
     {
       id: 3,

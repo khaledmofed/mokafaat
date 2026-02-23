@@ -16,7 +16,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
 }) => {
   const cardContent = (
     <div
-      className="bg-white rounded-xl p-6 flex flex-col items-center hover:scale-105 transition-all duration-300 cursor-pointer group border border-gray-100"
+      className="bg-white rounded-xl py-6 px-2 flex flex-col items-center hover:scale-105 transition-all duration-300 cursor-pointer group border border-gray-100"
       style={{
         boxShadow:
           "0 10px 15px -3px rgba(68, 7, 152, 0.1), 0 4px 6px -2px rgba(68, 7, 152, 0.05)",

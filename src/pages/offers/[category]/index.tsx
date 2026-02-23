@@ -25,6 +25,25 @@ import FilterSidebar from "../components/FilterSidebar";
 import RestaurantListView from "../components/RestaurantListView";
 import { useWebHome } from "@hooks/api/useMokafaatQueries";
 import { mapApiOffersToModels } from "@network/mappers/offersMapper";
+import { API_BASE_URL } from "@config/api";
+
+function buildCategoryIconUrl(
+  icon: string | undefined,
+  fallback: string
+): string {
+  if (!icon || typeof icon !== "string") return fallback;
+  let url = icon.trim();
+  if (url.includes("/storage/https://")) {
+    const i = url.indexOf("/storage/https://");
+    url =
+      url.substring(0, i + "/storage".length) +
+      url.substring(i + "/storage/https://".length);
+  }
+  if (url && !url.startsWith("http")) {
+    url = url.startsWith("/") ? `${API_BASE_URL}${url}` : `${API_BASE_URL}/storage/${url}`;
+  }
+  return url || fallback;
+}
 
 const CategoryOffersPage = () => {
   const { category } = useParams<{ category: string }>();
@@ -58,12 +77,16 @@ const CategoryOffersPage = () => {
       : undefined;
     if (!apiCat) return fallback ?? null;
     const name = String(apiCat.name ?? apiCat.title ?? "");
-    const icon = apiCat.image ?? apiCat.image_url;
+    const iconRaw = apiCat.image ?? apiCat.image_url;
+    const icon = buildCategoryIconUrl(
+      typeof iconRaw === "string" ? iconRaw : undefined,
+      fallback?.icon ?? ""
+    );
     return {
       key: category!,
       ar: name,
       en: name,
-      icon: typeof icon === "string" ? icon : fallback?.icon ?? "",
+      icon,
       color: fallback?.color ?? "#400198",
     };
   }, [category, webHomeResponse]);

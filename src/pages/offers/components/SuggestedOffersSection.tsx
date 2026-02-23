@@ -1,9 +1,9 @@
 import React, { useState, useMemo, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { useIsRTL } from "@hooks";
 import OwlCarousel from "react-owl-carousel";
 import { type Offer } from "@data/offers";
 import OfferCard from "./OfferCard";
-import OfferModal from "./OfferModal";
 import { FiEye, FiStar } from "react-icons/fi";
 import { IoLocationOutline } from "react-icons/io5";
 import { useWebHome } from "@hooks/api/useMokafaatQueries";
@@ -11,11 +11,10 @@ import { mapApiOffersToModels } from "@network/mappers/offersMapper";
 
 const SuggestedOffersSection: React.FC = () => {
   const isRTL = useIsRTL();
+  const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState<
     "nearby" | "most-viewed" | "highest-rated"
   >("most-viewed");
-  const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [carouselKey, setCarouselKey] = useState(0);
   const owlCarouselRef = useRef<OwlCarousel | null>(null);
@@ -137,13 +136,7 @@ const SuggestedOffersSection: React.FC = () => {
   };
 
   const handleOfferClick = (offer: Offer) => {
-    setSelectedOffer(offer);
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedOffer(null);
+    navigate(`/offers/${offer.category}/${offer.companyId}/offer/${offer.id}`);
   };
 
   // Skeleton component
@@ -276,14 +269,6 @@ const SuggestedOffersSection: React.FC = () => {
         )}
       </div>
 
-      {/* Offer Modal */}
-      {selectedOffer && (
-        <OfferModal
-          offer={selectedOffer}
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-        />
-      )}
     </section>
   );
 };

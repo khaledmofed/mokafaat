@@ -14,7 +14,7 @@
       "contact": "Contact Us",
       "request-service": "Request Service",
       "cards": "Cards",
-      "coupons": "Coupons",
+      "coupons": "Couponz",
       "bookings": "Bookings",
       "offers": "Offers",
       "blogs": "Blogs",
@@ -156,16 +156,16 @@
         "description": "Get diverse recharge cards for all networks with exclusive discounts"
       },
       "coupons": {
-        "title": "Coupons",
-        "description": "Exclusive discount coupons for the best restaurants, stores and services"
+        "title": "Couponz",
+        "description": "Exclusive discount couponz for the best restaurants, stores and services"
       },
       "bookings": {
         "title": "Bookings",
         "description": "Easily book at the best hotels, restaurants and entertainment services"
       },
       "discounts": {
-        "title": "Discounts",
-        "description": "Enjoy amazing discounts up to 70% on a wide range of products"
+        "title": "Offers",
+        "description": "Enjoy amazing offers up to 70% on a wide range of products"
       }
     },
     "bookings": {
@@ -185,9 +185,9 @@
       "viewAll": "View All Cards"
     },
     "coupons": {
-      "title": "Exclusive Discount Coupons",
-      "description": "Enjoy amazing discount coupons for the best restaurants, stores and services",
-      "viewAll": "View All Coupons",
+      "title": "Exclusive Discount Couponz",
+      "description": "Enjoy amazing discount couponz for the best restaurants, stores and services",
+      "viewAll": "View All Couponz",
       "filters": {
         "all": "All",
         "discounts": "Discounts",
@@ -261,12 +261,12 @@
     "getStarted": {
       "title": "Download Mukafaat App Now",
       "button": "Download App",
-      "description": "Get thousands of exclusive offers and discounts with the Mukafaat app. Discount coupons, recharge cards, and bookings at amazing prices.",
+      "description": "Get thousands of exclusive offers and discounts with the Mukafaat app. Discount couponz, recharge cards, and bookings at amazing prices.",
       "subtitle": "Mukafaat App",
       "mainTitle": "All offers in one app",
       "consultation": "Would you like to benefit from exclusive deals that make your shopping smarter and more economical?",
-      "firstParagraph": "Download our app now and enjoy discounts, cards, and coupons anytime, anywhere.",
-      "secondParagraph": "The Mukafaat app provides you with a unique shopping experience with thousands of exclusive offers and discounts. Get discount coupons, recharge cards, and bookings at amazing prices.",
+      "firstParagraph": "Download our app now and enjoy discounts, cards, and couponz anytime, anywhere.",
+      "secondParagraph": "The Mukafaat app provides you with a unique shopping experience with thousands of exclusive offers and discounts. Get discount couponz, recharge cards, and bookings at amazing prices.",
       "video": {
         "subtitle": "About",
         "title": "Mukafaat App",
@@ -1160,22 +1160,22 @@
     "points": "points"
   },
   "coupons": {
-    "title": "Coupons",
+    "title": "Couponz",
     "hero": {
-      "title": "Best Coupons & Offers",
-      "subtitle": "Save money with thousands of exclusive coupons"
+      "title": "Best Couponz & Offers",
+      "subtitle": "Save money with thousands of exclusive couponz"
     },
     "filters": {
       "nearby": "Near You",
       "most_visited": "Most Visited",
       "highest_rated": "Highest Rated"
     },
-    "search_placeholder": "Search coupons...",
+    "search_placeholder": "Search couponz...",
     "show_coupon": "Show Coupon",
     "usage": "Usage",
     "uses_for_code": "uses for code",
     "expires": "Expires",
-    "no_results": "No coupons found for \"{{search}}\"",
-    "no_coupons": "No coupons available"
+    "no_results": "No couponz found for \"{{search}}\"",
+    "no_coupons": "No couponz available"
   }
 }

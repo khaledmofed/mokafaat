@@ -21,7 +21,13 @@ import {
 } from "@assets";
 import { MdOutlineFlight } from "react-icons/md";
 import { RiHotelLine } from "react-icons/ri";
-import { FaCar } from "react-icons/fa";
+import {
+  FaCar,
+  FaCalendarAlt,
+  FaPercent,
+  FaCreditCard,
+  FaTicketAlt,
+} from "react-icons/fa";
 import { useWebHome } from "@hooks/api/useMokafaatQueries";
 
 const NavigationLinks: React.FC<NavigationLinksProps> = ({
@@ -240,7 +246,7 @@ const NavigationLinks: React.FC<NavigationLinksProps> = ({
   //     id: 1,
   //     icon: BsTicketPerforated,
   //     title: "Discount Coupons",
-  //     titleAr: "كوبونات الخصم",
+  //     titleAr: "كوبونز الخصم",
   //     description: "Find the best discount offers",
   //     descriptionAr: "اعثر على أفضل عروض الخصم",
   //     slug: "discount-coupons",
@@ -277,21 +283,21 @@ const NavigationLinks: React.FC<NavigationLinksProps> = ({
             </ScrollLink>
           ) : item.title === "cards" ? (
             <div className="relative">
-              <div className="flex items-center gap-2 cursor-pointer">
-                <NavLink
-                  to="/cards"
-                  className={({ isActive }) =>
-                    `block py-2 pl-3 pr-4 lg:p-0 text-base transition duration-500 ease-in-out ${
-                      isActive
-                        ? `${mobileActiveColorClass} font-semibold`
-                        : `${mobileTextColorClass} ${mobileHoverColorClass} font-medium`
-                    }`
-                  }
-                >
-                  {t(`home.navbar.${item.title}`)}
-                </NavLink>
-                {/* <BsChevronDown className="text-gray-400 text-xs" /> */}
-              </div>
+              <NavLink
+                to="/cards"
+                className={({ isActive }) =>
+                  `flex items-center gap-2 py-2 pl-3 pr-4 lg:p-0 text-base transition duration-500 ease-in-out ${
+                    isActive
+                      ? `${mobileActiveColorClass} font-semibold`
+                      : `${mobileTextColorClass} ${mobileHoverColorClass} font-medium`
+                  }`
+                }
+              >
+                <div className="w-8 h-8 lg:w-9 lg:h-9 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center flex-shrink-0">
+                  <FaCreditCard className="text-blue-600 text-lg lg:text-xl" />
+                </div>
+                <span>{t(`home.navbar.${item.title}`)}</span>
+              </NavLink>
               {/* Cards Dropdown */}
               {/* <div className="invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 absolute left-0 mt-2 w-80 bg-white rounded-xl shadow-xl py-4 z-50">
                 <div className="space-y-0">
@@ -322,21 +328,21 @@ const NavigationLinks: React.FC<NavigationLinksProps> = ({
             </div>
           ) : item.title === "coupons" ? (
             <div className="relative">
-              <div className="flex items-center gap-2 cursor-pointer">
-                <NavLink
-                  to="/coupons"
-                  className={({ isActive }) =>
-                    `block py-2 pl-3 pr-4 lg:p-0 text-base transition duration-500 ease-in-out ${
-                      isActive
-                        ? `${mobileActiveColorClass} font-semibold`
-                        : `${mobileTextColorClass} ${mobileHoverColorClass} font-medium`
-                    }`
-                  }
-                >
-                  {t(`home.navbar.${item.title}`)}
-                </NavLink>
-                {/* <BsChevronDown className="text-gray-400 text-xs" /> */}
-              </div>
+              <NavLink
+                to="/coupons"
+                className={({ isActive }) =>
+                  `flex items-center gap-2 py-2 pl-3 pr-4 lg:p-0 text-base transition duration-500 ease-in-out ${
+                    isActive
+                      ? `${mobileActiveColorClass} font-semibold`
+                      : `${mobileTextColorClass} ${mobileHoverColorClass} font-medium`
+                  }`
+                }
+              >
+                <div className="w-8 h-8 lg:w-9 lg:h-9 rounded-full bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center flex-shrink-0">
+                  <FaTicketAlt className="text-green-600 text-lg lg:text-xl" />
+                </div>
+                <span>{t(`home.navbar.${item.title}`)}</span>
+              </NavLink>
               {/* Coupons Dropdown */}
               {/* <div className="invisible opacity-0 group-hover:visible group-hover:opacity-100 transition-all duration-200 absolute left-0 mt-2 w-80 bg-white rounded-xl shadow-xl py-4 z-50">
                 <div className="space-y-0">
@@ -371,14 +377,17 @@ const NavigationLinks: React.FC<NavigationLinksProps> = ({
                 <NavLink
                   to="/bookings"
                   className={({ isActive }) =>
-                    `block py-2 pl-3 pr-4 lg:p-0 text-sm transition duration-500 ease-in-out ${
+                    `flex items-center gap-2 py-2 pl-3 pr-4 lg:p-0 text-sm transition duration-500 ease-in-out ${
                       isActive
                         ? `${mobileActiveColorClass} font-semibold`
                         : `${mobileTextColorClass} ${mobileHoverColorClass} font-medium`
                     }`
                   }
                 >
-                  {t(`home.navbar.${item.title}`)}
+                  <div className="w-8 h-8 lg:w-9 lg:h-9 rounded-full bg-gradient-to-br from-purple-100 to-purple-200 flex items-center justify-center flex-shrink-0">
+                    <FaCalendarAlt className="text-purple-600 text-lg lg:text-xl" />
+                  </div>
+                  <span>{t(`home.navbar.${item.title}`)}</span>
                 </NavLink>
                 <BsChevronDown className="text-gray-400 text-xs no-hide-this-on-mobile" />
               </div>
@@ -477,14 +486,17 @@ const NavigationLinks: React.FC<NavigationLinksProps> = ({
                 <NavLink
                   to="/offers"
                   className={({ isActive }) =>
-                    `block py-2 pl-3 pr-4 lg:p-0 text-sm transition duration-500 ease-in-out ${
+                    `flex items-center gap-2 py-2 pl-3 pr-4 lg:p-0 text-sm transition duration-500 ease-in-out ${
                       isActive
                         ? `${mobileActiveColorClass} font-semibold`
                         : `${mobileTextColorClass} ${mobileHoverColorClass} font-medium`
                     }`
                   }
                 >
-                  {t(`home.navbar.${item.title}`)}
+                  <div className="w-8 h-8 lg:w-9 lg:h-9 rounded-full bg-gradient-to-br from-orange-100 to-orange-200 flex items-center justify-center flex-shrink-0">
+                    <FaPercent className="text-orange-600 text-lg lg:text-xl" />
+                  </div>
+                  <span>{t(`home.navbar.${item.title}`)}</span>
                 </NavLink>
                 <BsChevronDown className="text-gray-400 text-xs no-hide-this-on-mobile" />
               </div>

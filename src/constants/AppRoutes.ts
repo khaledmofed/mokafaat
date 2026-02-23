@@ -11,10 +11,12 @@ import {
   OffersPage,
   CategoryOffersPage,
   RestaurantDetailsPage,
+  OfferDetailPage,
   OffersPaymentPage,
   OffersSuccessPage,
   CardsPage,
   CompanyDetailsPage,
+  CardOfferDetailPage,
   PaymentPage,
   SuccessPage,
   CouponsPage,
@@ -218,6 +220,11 @@ export const routes: AppRouter[] = [
     inLayout: true,
   },
   {
+    path: "/cards/:companyId/offer/:offerId",
+    element: CardOfferDetailPage,
+    inLayout: true,
+  },
+  {
     path: "/cards/:companyId/payment",
     element: PaymentPage,
     inLayout: true,
@@ -240,6 +247,11 @@ export const routes: AppRouter[] = [
   {
     path: "/offers/:category/:restaurantId",
     element: RestaurantDetailsPage,
+    inLayout: true,
+  },
+  {
+    path: "/offers/:category/:restaurantId/offer/:offerId",
+    element: OfferDetailPage,
     inLayout: true,
   },
   {

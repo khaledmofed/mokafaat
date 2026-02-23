@@ -5,7 +5,6 @@ import OwlCarousel from "react-owl-carousel";
 import { FaMapMarkerAlt, FaStar, FaEye, FaCheck } from "react-icons/fa";
 import { BsHeart, BsShare } from "react-icons/bs";
 import { getOfferImage, getRestaurantById, Offer } from "@data/offers";
-import OfferModal from "./OfferModal";
 import { useWebHome } from "@hooks/api/useMokafaatQueries";
 import { mapApiOffersToModels } from "@network/mappers/offersMapper";
 
@@ -14,8 +13,6 @@ const DEFAULT_TOP_COLOR = "bg-[#400198]";
 const WeeklyDiscountsSection: React.FC = () => {
   const isRTL = useIsRTL();
   const navigate = useNavigate();
-  const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data: webHomeResponse } = useWebHome();
 
@@ -31,13 +28,7 @@ const WeeklyDiscountsSection: React.FC = () => {
   }, [webHomeResponse]);
 
   const handleOfferClick = (offer: Offer) => {
-    setSelectedOffer(offer);
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setSelectedOffer(null);
-    setIsModalOpen(false);
+    navigate(`/offers/${offer.category}/${offer.companyId}/offer/${offer.id}`);
   };
 
   const handleRestaurantClick = (
@@ -248,15 +239,6 @@ const WeeklyDiscountsSection: React.FC = () => {
           )}
         </OwlCarousel>
       </div>
-
-      {/* Offer Modal */}
-      {selectedOffer && (
-        <OfferModal
-          offer={selectedOffer}
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-        />
-      )}
     </section>
   );
 };

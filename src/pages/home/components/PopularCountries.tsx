@@ -137,7 +137,7 @@ const PopularCountries: React.FC = () => {
               {t("popularCountries.description")}
             </p>
 
-            {/* البطاقات الأربع (الحجوزات، الخصومات، البطاقات، الكوبونات) */}
+            {/* البطاقات الأربع (الحجوزات، العروض، البطاقات، الكوبونز) */}
             <div className="grid grid-cols-2 lg:flex lg:gap-6 gap-4 overflow-x-auto lg:overflow-visible py-8 relative z-10">
               {newCards.map((card) => (
                 <div

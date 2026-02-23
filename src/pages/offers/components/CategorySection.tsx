@@ -1,5 +1,6 @@
 import React, { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import OwlCarousel from "react-owl-carousel";
 import {
   CarIcon,
   CoffeeIcon,
@@ -10,10 +11,12 @@ import {
   ShopIcon,
 } from "@assets";
 import CategoryCard from "@components/CategoryCard";
+import { useIsRTL } from "@hooks";
 import { useWebHome } from "@hooks/api/useMokafaatQueries";
 
 const CategorySection: React.FC = () => {
   const { t } = useTranslation();
+  const isRTL = useIsRTL();
   const { data: webHomeResponse, isLoading, error } = useWebHome();
 
   // Debug: طباعة الـ response للتأكد من الشكل
@@ -79,7 +82,7 @@ const CategorySection: React.FC = () => {
         key: "services",
       },
     ],
-    [t]
+    [t],
   );
 
   // استخراج categories من الـ API response
@@ -141,6 +144,44 @@ const CategorySection: React.FC = () => {
   const categories =
     apiCategories.length > 0 ? apiCategories : fallbackCategories;
 
+  const owlCarouselOptions = useMemo(
+    () => ({
+      loop: categories.length > 4,
+      margin: 0,
+      nav: true,
+      dots: false,
+      autoplay: true,
+      autoplayTimeout: 4000,
+      autoplayHoverPause: true,
+      rtl: isRTL.toString(),
+      responsive: {
+        0: { items: 2 },
+        640: { items: 3 },
+        1024: { items: 7 },
+      },
+    }),
+    [isRTL, categories.length],
+  );
+
+  const loadingCarouselOptions = useMemo(
+    () => ({
+      loop: true,
+      margin: 0,
+      nav: true,
+      dots: false,
+      autoplay: true,
+      autoplayTimeout: 4000,
+      autoplayHoverPause: true,
+      rtl: isRTL.toString(),
+      responsive: {
+        0: { items: 2 },
+        640: { items: 3 },
+        1024: { items: 7 },
+      },
+    }),
+    [isRTL],
+  );
+
   // عرض loading state إذا كان الـ API ما زال يحمل
   if (isLoading) {
     return (
@@ -151,20 +192,22 @@ const CategorySection: React.FC = () => {
             marginTop: "-80px",
           }}
         >
-          <div className="flex flex-wrap justify-center gap-4">
-            {fallbackCategories.map((category) => (
-              <div
-                key={category.id}
-                className="w-1/2 sm:w-1/3 lg:w-[14.285714%] min-w-0"
-              >
-                <CategoryCard
-                  icon={category.icon}
-                  title={category.title}
-                  alt={category.alt}
-                  categoryKey={category.key}
-                />
-              </div>
-            ))}
+          <div
+            className="relative OffersCarousel PropertiesCarousel CategoryCarousel"
+            style={{ direction: "ltr" }}
+          >
+            <OwlCarousel className="owl-theme" {...loadingCarouselOptions}>
+              {fallbackCategories.map((category) => (
+                <div key={category.id} className="item">
+                  <CategoryCard
+                    icon={category.icon}
+                    title={category.title}
+                    alt={category.alt}
+                    categoryKey={category.key}
+                  />
+                </div>
+              ))}
+            </OwlCarousel>
           </div>
         </div>
       </section>
@@ -184,20 +227,26 @@ const CategorySection: React.FC = () => {
             خطأ في تحميل التصنيفات. يتم عرض البيانات الافتراضية.
           </div>
         )}
-        <div className="flex flex-wrap justify-center gap-4">
-          {categories.map((category) => (
-            <div
-              key={category.id}
-              className="w-1/2 sm:w-1/3 lg:w-[14.285714%] min-w-0"
-            >
-              <CategoryCard
-                icon={category.icon}
-                title={category.title}
-                alt={category.alt}
-                categoryKey={category.key}
-              />
-            </div>
-          ))}
+        <div
+          className="relative OffersCarousel PropertiesCarousel CategoryCarousel"
+          style={{ direction: "ltr" }}
+        >
+          <OwlCarousel
+            key={`categories-${categories.length}`}
+            className="owl-theme"
+            {...owlCarouselOptions}
+          >
+            {categories.map((category) => (
+              <div key={category.id} className="item">
+                <CategoryCard
+                  icon={category.icon}
+                  title={category.title}
+                  alt={category.alt}
+                  categoryKey={category.key}
+                />
+              </div>
+            ))}
+          </OwlCarousel>
         </div>
       </div>
     </section>

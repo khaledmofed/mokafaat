@@ -234,8 +234,8 @@ const BlogArticlePage: React.FC = () => {
                   <div className="prose max-w-none text-sm mt-4">
                     <p className="text-gray-700 leading-relaxed mb-4">
                       {isRTL
-                        ? "منصة مكافئات توفر لك أفضل العروض والخصومات على البطاقات الائتمانية والكوبونات والحجوزات في المملكة العربية السعودية. اكتشف آلاف الفرص لتوفير المال والاستمتاع بأفضل الخدمات."
-                        : "Mukafaat platform provides you with the best offers and discounts on credit cards, coupons, and bookings in Saudi Arabia. Discover thousands of opportunities to save money and enjoy the best services."}
+                        ? "منصة مكافئات توفر لك أفضل العروض والخصومات على البطاقات الائتمانية والكوبونز والحجوزات في المملكة العربية السعودية. اكتشف آلاف الفرص لتوفير المال والاستمتاع بأفضل الخدمات."
+                        : "Mukafaat platform provides you with the best offers and discounts on credit cards, couponz, and bookings in Saudi Arabia. Discover thousands of opportunities to save money and enjoy the best services."}
                     </p>
 
                     <p className="text-gray-700 leading-relaxed mb-4">
@@ -246,8 +246,8 @@ const BlogArticlePage: React.FC = () => {
 
                     <p className="text-gray-700 leading-relaxed mb-4">
                       {isRTL
-                        ? "تقدم مكافئات مجموعة شاملة من الخدمات المالية والسياحية، بما في ذلك بطاقات الائتمان من أفضل البنوك، كوبونات خصم حصرية، وحجوزات فندقية وطيران بأسعار مميزة. انضم إلى آلاف المستخدمين الذين يوفرون المال يومياً."
-                        : "Mukafaat offers a comprehensive range of financial and tourism services, including credit cards from top banks, exclusive discount coupons, and hotel and flight bookings at competitive prices. Join thousands of users who save money daily."}
+                        ? "تقدم مكافئات مجموعة شاملة من الخدمات المالية والسياحية، بما في ذلك بطاقات الائتمان من أفضل البنوك، كوبونز خصم حصرية، وحجوزات فندقية وطيران بأسعار مميزة. انضم إلى آلاف المستخدمين الذين يوفرون المال يومياً."
+                        : "Mukafaat offers a comprehensive range of financial and tourism services, including credit cards from top banks, exclusive discount couponz, and hotel and flight bookings at competitive prices. Join thousands of users who save money daily."}
                     </p>
 
                     <p className="text-gray-700 leading-relaxed mb-4">
@@ -293,8 +293,8 @@ const BlogArticlePage: React.FC = () => {
 
                     <p className="text-gray-700 leading-relaxed mb-4">
                       {isRTL
-                        ? "نحن نعمل مع أفضل الشركاء في السوق السعودي لتقديم عروض حصرية ومميزة. سواء كنت تبحث عن بطاقة ائتمان مناسبة، كوبونات خصم، أو حجوزات سفر، مكافئات يوفر لك كل ما تحتاجه في مكان واحد."
-                        : "We work with the best partners in the Saudi market to provide exclusive and special offers. Whether you're looking for a suitable credit card, discount coupons, or travel bookings, Mukafaat provides you with everything you need in one place."}
+                        ? "نحن نعمل مع أفضل الشركاء في السوق السعودي لتقديم عروض حصرية ومميزة. سواء كنت تبحث عن بطاقة ائتمان مناسبة، كوبونز خصم، أو حجوزات سفر، مكافئات يوفر لك كل ما تحتاجه في مكان واحد."
+                        : "We work with the best partners in the Saudi market to provide exclusive and special offers. Whether you're looking for a suitable credit card, discount couponz, or travel bookings, Mukafaat provides you with everything you need in one place."}
                     </p>
 
                     <p className="text-gray-700 leading-relaxed mb-4">

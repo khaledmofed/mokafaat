@@ -7,6 +7,7 @@ export interface HeroSlideItem {
   description: string;
   background: string;
   gradient?: string;
+  linkUrl?: string;
 }
 
 const DEFAULT_GRADIENT =
@@ -52,11 +53,13 @@ function mapOne(raw: unknown): HeroSlideItem | null {
   );
   if (!title && !description && !background) return null;
   const gradient = getStr(o, "gradient", "overlay") || DEFAULT_GRADIENT;
+  const linkUrl = getStr(o, "link_url", "linkUrl", "link", "url", "button_url");
   return {
     title: title || "—",
     description: description || "",
     background: background || "",
     gradient,
+    ...(linkUrl ? { linkUrl } : {}),
   };
 }
 

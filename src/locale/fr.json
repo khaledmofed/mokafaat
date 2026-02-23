@@ -92,8 +92,8 @@
         "description": "Obtenez des cartes de recharge diverses pour tous les réseaux avec des remises exclusives"
       },
       "coupons": {
-        "title": "Coupons",
-        "description": "Coupons de réduction exclusifs pour les meilleurs restaurants, magasins et services"
+        "title": "Couponz",
+        "description": "Couponz de réduction exclusifs pour les meilleurs restaurants, magasins et services"
       },
       "bookings": {
         "title": "Réservations",
@@ -123,7 +123,7 @@
     "coupons": {
       "title": "Coupons de Remise Exclusifs",
       "description": "Profitez de coupons de remise incroyables pour les meilleurs restaurants, magasins et services",
-      "viewAll": "Voir Tous les Coupons",
+      "viewAll": "Voir Tous les Couponz",
       "filters": {
         "all": "Tout",
         "discounts": "Remises",
@@ -161,12 +161,12 @@
     "getStarted": {
       "title": "Téléchargez l'application Mukafaat maintenant",
       "button": "Télécharger l'application",
-      "description": "Obtenez des milliers d'offres et de remises exclusives avec l'application Mukafaat. Coupons de remise, cartes de recharge et réservations à des prix incroyables.",
+      "description": "Obtenez des milliers d'offres et de remises exclusives avec l'application Mukafaat. Couponz de remise, cartes de recharge et réservations à des prix incroyables.",
       "subtitle": "Application Mukafaat",
       "mainTitle": "Toutes les offres dans une seule application",
       "consultation": "Souhaitez-vous bénéficier d'offres exclusives qui rendent vos achats plus intelligents et plus économiques ?",
-      "firstParagraph": "Téléchargez notre application maintenant et profitez des remises, cartes et coupons à tout moment, n'importe où.",
-      "secondParagraph": "L'application Mukafaat vous offre une expérience d'achat unique avec des milliers d'offres et de remises exclusives. Obtenez des coupons de remise, des cartes de recharge et des réservations à des prix incroyables.",
+      "firstParagraph": "Téléchargez notre application maintenant et profitez des remises, cartes et couponz à tout moment, n'importe où.",
+      "secondParagraph": "L'application Mukafaat vous offre une expérience d'achat unique avec des milliers d'offres et de remises exclusives. Obtenez des couponz de remise, des cartes de recharge et des réservations à des prix incroyables.",
       "video": {
         "subtitle": "À propos",
         "title": "Application Mukafaat",

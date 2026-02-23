@@ -73,8 +73,8 @@ const AboutComponent: React.FC = () => {
                 }}
               >
                 {isRTL
-                  ? "منصة مكافئات هي المنصة الرائدة في المملكة العربية السعودية لتوفير المال والاستفادة من أفضل العروض والخصومات. نحن نقدم مجموعة شاملة من الخدمات المالية والسياحية، بما في ذلك بطاقات الائتمان من أفضل البنوك، كوبونات خصم حصرية، وحجوزات فندقية وطيران بأسعار مميزة. نعمل مع أفضل الشركاء في السوق السعودي لتقديم عروض حصرية ومميزة، ونساعد عملائنا على توفير المال في كل عملية شراء أو حجز."
-                  : "Mukafaat is the leading platform in Saudi Arabia for saving money and benefiting from the best offers and discounts. We provide a comprehensive range of financial and tourism services, including credit cards from top banks, exclusive discount coupons, and hotel and flight bookings at competitive prices. We work with the best partners in the Saudi market to provide exclusive and special offers, helping our clients save money on every purchase or booking."}
+                  ? "منصة مكافئات هي المنصة الرائدة في المملكة العربية السعودية لتوفير المال والاستفادة من أفضل العروض والخصومات. نحن نقدم مجموعة شاملة من الخدمات المالية والسياحية، بما في ذلك بطاقات الائتمان من أفضل البنوك، كوبونز خصم حصرية، وحجوزات فندقية وطيران بأسعار مميزة. نعمل مع أفضل الشركاء في السوق السعودي لتقديم عروض حصرية ومميزة، ونساعد عملائنا على توفير المال في كل عملية شراء أو حجز."
+                  : "Mukafaat is the leading platform in Saudi Arabia for saving money and benefiting from the best offers and discounts. We provide a comprehensive range of financial and tourism services, including credit cards from top banks, exclusive discount couponz, and hotel and flight bookings at competitive prices. We work with the best partners in the Saudi market to provide exclusive and special offers, helping our clients save money on every purchase or booking."}
               </p>
 
               {/* Our Vision Section */}
@@ -224,7 +224,7 @@ const AboutComponent: React.FC = () => {
                 }}
               >
                 {isRTL
-                  ? "منصة مكافئات توفر لك أفضل العروض والخصومات على البطاقات الائتمانية والكوبونات والحجوزات في المملكة العربية السعودية. اكتشف آلاف الفرص لتوفير المال والاستمتاع بأفضل الخدمات المالية والسياحية المتاحة."
+                  ? "منصة مكافئات توفر لك أفضل العروض والخصومات على البطاقات الائتمانية والكوبونز والحجوزات في المملكة العربية السعودية. اكتشف آلاف الفرص لتوفير المال والاستمتاع بأفضل الخدمات المالية والسياحية المتاحة."
                   : "Mukafaat platform provides you with the best offers and discounts on credit cards, coupons, and bookings in Saudi Arabia. Discover thousands of opportunities to save money and enjoy the best financial and tourism services available."}
               </p>
 
@@ -248,7 +248,7 @@ const AboutComponent: React.FC = () => {
                 }}
               >
                 {isRTL
-                  ? "تقدم منصة مكافئات مجموعة شاملة من الخدمات المالية والسياحية، من بطاقات الائتمان من أفضل البنوك إلى كوبونات الخصم الحصرية وحجوزات السفر. نحن نعمل مع أفضل الشركاء في السوق السعودي ونقدم استشارات متخصصة لتوفير المال."
+                  ? "تقدم منصة مكافئات مجموعة شاملة من الخدمات المالية والسياحية، من بطاقات الائتمان من أفضل البنوك إلى كوبونز الخصم الحصرية وحجوزات السفر. نحن نعمل مع أفضل الشركاء في السوق السعودي ونقدم استشارات متخصصة لتوفير المال."
                   : "Mukafaat platform offers a comprehensive range of financial and tourism services, from credit cards from top banks to exclusive discount coupons and travel bookings. We work with the best partners in the Saudi market and provide specialized consulting for saving money."}
               </p>
 

@@ -67,6 +67,20 @@ export const offerCategories = [
     icon: DeliveryIcon,
     color: "#06b6d4",
   },
+  {
+    key: "libraries",
+    ar: "المكتبات",
+    en: "Libraries",
+    icon: ShopIcon,
+    color: "#6366f1",
+  },
+  {
+    key: "restaurants-cafes",
+    ar: "مطاعم وكافيهات",
+    en: "Restaurants & Cafes",
+    icon: RestaurantIcon,
+    color: "#f59e0b",
+  },
 ];
 
 // Restaurant/Company interface

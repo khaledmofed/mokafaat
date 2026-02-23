@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import OfferCard from "../../offers/components/OfferCard";
-import OfferModal from "../../offers/components/OfferModal";
 import { Pattern, PatternNewProperty } from "../../../assets";
 import OwlCarousel from "react-owl-carousel";
 import { useIsRTL } from "../../../hooks";
@@ -12,10 +12,9 @@ import { mapApiOffersToModels } from "@network/mappers/offersMapper";
 const OffersSection: React.FC = () => {
   const { t, i18n } = useTranslation();
   const isRTL = useIsRTL();
+  const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState("all");
   const [carouselKey, setCarouselKey] = useState(0);
-  const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const owlCarouselRef = useRef<OwlCarousel | null>(null);
 
   // Fetch offers from API
@@ -138,14 +137,7 @@ const OffersSection: React.FC = () => {
   };
 
   const handleOfferClick = (offer: Offer) => {
-    console.log("Offer clicked:", offer);
-    setSelectedOffer(offer);
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedOffer(null);
+    navigate(`/offers/${offer.category}/${offer.companyId}/offer/${offer.id}`);
   };
   // Skeleton component
   const SkeletonCard = () => (
@@ -271,14 +263,6 @@ const OffersSection: React.FC = () => {
         />
       </div>
 
-      {/* Offer Modal */}
-      {selectedOffer && (
-        <OfferModal
-          offer={selectedOffer}
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-        />
-      )}
     </section>
   );
 };

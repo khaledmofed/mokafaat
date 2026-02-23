@@ -4,7 +4,6 @@ import { useIsRTL } from "@hooks";
 import { useState, useMemo } from "react";
 import { FiArrowLeft } from "react-icons/fi";
 import { getCompanyById, type CardCompany, type CardOffer } from "@data/cards";
-import OfferModal from "./components/OfferModal";
 import OfferCard from "./components/OfferCard";
 import {
   Cards1,
@@ -28,8 +27,6 @@ const CompanyDetailsPage = () => {
   const { companyId } = useParams<{ companyId: string }>();
   const navigate = useNavigate();
   const isRTL = useIsRTL();
-  const [selectedOffer, setSelectedOffer] = useState<CardOffer | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data: webHomeResponse } = useWebHome();
 
@@ -131,8 +128,7 @@ const CompanyDetailsPage = () => {
   };
 
   const handleOfferClick = (offer: CardOffer) => {
-    setSelectedOffer(offer);
-    setIsModalOpen(true);
+    navigate(`/cards/${companyId}/offer/${offer.id}`);
   };
 
   return (
@@ -249,19 +245,6 @@ const CompanyDetailsPage = () => {
           ))}
         </div>
       </section>
-
-      {/* Offer Modal */}
-      {selectedOffer && (
-        <OfferModal
-          offer={selectedOffer}
-          company={company}
-          isOpen={isModalOpen}
-          onClose={() => {
-            setIsModalOpen(false);
-            setSelectedOffer(null);
-          }}
-        />
-      )}
 
       <GetStartedSection className="mt-20 mb-28 " />
     </>

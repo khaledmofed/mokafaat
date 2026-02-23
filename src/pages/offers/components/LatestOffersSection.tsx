@@ -1,8 +1,8 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useIsRTL } from "@hooks";
 import { type Offer } from "@data/offers";
 import OfferCard from "./OfferCard";
-import OfferModal from "./OfferModal";
 import OwlCarousel from "react-owl-carousel";
 import { Pattern } from "@assets";
 import { useWebHome } from "@hooks/api/useMokafaatQueries";
@@ -10,8 +10,7 @@ import { mapApiOffersToModels } from "@network/mappers/offersMapper";
 
 const LatestOffersSection: React.FC = () => {
   const isRTL = useIsRTL();
-  const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate();
   const [carouselKey, setCarouselKey] = useState(0);
   const owlCarouselRef = useRef<OwlCarousel | null>(null);
 
@@ -68,13 +67,7 @@ const LatestOffersSection: React.FC = () => {
   );
 
   const handleOfferClick = (offer: Offer) => {
-    setSelectedOffer(offer);
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedOffer(null);
+    navigate(`/offers/${offer.category}/${offer.companyId}/offer/${offer.id}`);
   };
 
   // Skeleton component
@@ -157,14 +150,6 @@ const LatestOffersSection: React.FC = () => {
         )}
       </div>
 
-      {/* Offer Modal */}
-      {selectedOffer && (
-        <OfferModal
-          offer={selectedOffer}
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-        />
-      )}
     </section>
   );
 };

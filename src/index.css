@@ -987,6 +987,25 @@ html[lang="ar"] .PropertiesCarousel .owl-theme .owl-nav button.owl-next {
   right: auto !important;
   left: 47px !important;
 }
+
+/* سلايدر التصنيفات (CategorySection) فقط: الناف على الجهة الأخرى */
+.CategoryCarousel.PropertiesCarousel .owl-theme .owl-nav button.owl-prev {
+  left: 0 !important;
+  right: auto !important;
+}
+.CategoryCarousel.PropertiesCarousel .owl-theme .owl-nav button.owl-next {
+  left: 47px !important;
+  right: auto !important;
+}
+html[lang="ar"] .CategoryCarousel.PropertiesCarousel .owl-theme .owl-nav button.owl-prev {
+  left: auto !important;
+  right: 47px !important;
+}
+html[lang="ar"] .CategoryCarousel.PropertiesCarousel .owl-theme .owl-nav button.owl-next {
+  left: auto !important;
+  right: 0 !important;
+}
+
 .PropertiesCarousel .owl-theme .owl-nav button.owl-next span,
 .PropertiesCarousel .owl-theme .owl-nav button.owl-prev span {
   font-family: "montserrat" !important;

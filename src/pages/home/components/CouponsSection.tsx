@@ -6,16 +6,15 @@ import OwlCarousel from "react-owl-carousel";
 import { IoIosArrowRoundForward } from "react-icons/io";
 import { FaTag, FaPercent, FaUtensils } from "react-icons/fa";
 import { useWebHome } from "@hooks/api/useMokafaatQueries";
-import {
-  mapApiCouponsToModels,
-  type CouponModel,
-} from "@network/mappers/couponsMapper";
+import { mapApiCouponsToModels } from "@network/mappers/couponsMapper";
+import CouponModal, { type CouponWithIcon } from "./CouponModal";
 
 const CouponsSection: React.FC = () => {
   const isRTL = useIsRTL();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState<string>("all");
+  const [selectedCoupon, setSelectedCoupon] = useState<CouponWithIcon | null>(null);
 
   // Fetch coupons from API
   const { data: webHomeResponse } = useWebHome();
@@ -147,10 +146,12 @@ const CouponsSection: React.FC = () => {
   const CouponCard = ({
     coupon,
   }: {
-    coupon: CouponModel & { icon: React.ReactNode };
+    coupon: CouponWithIcon;
   }) => (
-    <div
-      className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden"
+    <button
+      type="button"
+      onClick={() => setSelectedCoupon(coupon)}
+      className="w-full text-start bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer"
       style={{ direction: "rtl" }}
     >
       <div className="flex h-36">
@@ -218,8 +219,13 @@ const CouponsSection: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
+    </button>
   );
+
+  const relatedForModal = useMemo(() => {
+    if (!selectedCoupon) return [];
+    return filteredCoupons.filter((c) => c.id !== selectedCoupon.id);
+  }, [selectedCoupon, filteredCoupons]);
 
   return (
     <section className="py-16 bg-white">
@@ -296,6 +302,15 @@ const CouponsSection: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {selectedCoupon && (
+        <CouponModal
+          coupon={selectedCoupon}
+          onClose={() => setSelectedCoupon(null)}
+          relatedCoupons={relatedForModal}
+          onRelatedClick={(c) => setSelectedCoupon(c)}
+        />
+      )}
     </section>
   );
 };

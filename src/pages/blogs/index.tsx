@@ -109,8 +109,8 @@ const BlogsPage: React.FC = () => {
           name="description"
           content={
             isRTL
-              ? "اقرأ أحدث المقالات والأخبار حول العروض والخصومات والبطاقات والكوبونات والحجوزات في المملكة العربية السعودية"
-              : "Read our latest blogs and news about offers, discounts, cards, coupons, and bookings in Saudi Arabia."
+              ? "اقرأ أحدث المقالات والأخبار حول العروض والخصومات والبطاقات والكوبونز والحجوزات في المملكة العربية السعودية"
+              : "Read our latest blogs and news about offers, discounts, cards, couponz, and bookings in Saudi Arabia."
           }
         />
       </Helmet>
@@ -155,8 +155,8 @@ const BlogsPage: React.FC = () => {
                 </h1>
                 <p className="text-gray-600 text-sm">
                   {isRTL
-                    ? "اكتشف أفضل المقالات والنصائح حول العروض والخصومات والبطاقات والكوبونات والحجوزات في المملكة العربية السعودية. وفر المال واستمتع بأفضل الخدمات"
-                    : "Discover the best articles and tips about offers, discounts, cards, coupons, and bookings in Saudi Arabia. Save money and enjoy the best services"}
+                    ? "اكتشف أفضل المقالات والنصائح حول العروض والخصومات والبطاقات والكوبونز والحجوزات في المملكة العربية السعودية. وفر المال واستمتع بأفضل الخدمات"
+                    : "Discover the best articles and tips about offers, discounts, cards, couponz, and bookings in Saudi Arabia. Save money and enjoy the best services"}
                 </p>
               </div>
             </div>

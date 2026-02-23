@@ -142,8 +142,8 @@ function NotFoundPage() {
                         </li>
                         <li>
                           {isRTL
-                            ? "تصفح فئات العروض والبطاقات والكوبونات"
-                            : "Browse our offers, cards, and coupons categories"}
+                            ? "تصفح فئات العروض والبطاقات والكوبونز"
+                            : "Browse our offers, cards, and couponz categories"}
                         </li>
                         <li>
                           {isRTL
@@ -204,7 +204,7 @@ function NotFoundPage() {
                       onClick={() => navigate("/coupons")}
                       className="w-full text-right hover:text-[#400198] transition-colors text-sm"
                     >
-                      {isRTL ? "الكوبونات" : "Coupons"}
+                      {isRTL ? "الكوبونز" : "Couponz"}
                     </button>
                     <button
                       onClick={() => navigate("/bookings")}

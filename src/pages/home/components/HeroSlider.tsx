@@ -87,6 +87,7 @@ const HeroSlider = () => {
       background:
         s.background || DEFAULT_SLIDE_IMAGES[i % DEFAULT_SLIDE_IMAGES.length],
       gradient: s.gradient || DEFAULT_GRADIENTS[i % DEFAULT_GRADIENTS.length],
+      linkUrl: s.linkUrl,
     }));
   }, [isSuccess, webHomeResponse]);
 
@@ -304,15 +305,54 @@ const HeroSlider = () => {
                   : "opacity-100 transform translate-y-0 blur-0"
               }`}
             >
-              <button
-                onClick={() => navigate("/offers")}
-                className="hover:scale-105 transition-transform duration-300 text-md sm:text-md px-8 sm:px-8 lg:px-8 py-4 sm:py-4 font-semibold rounded-full text-white flex items-center gap-2"
-                style={{ backgroundColor: "#fd671a" }}
-                aria-label="View offers"
-              >
-                {t("home.hero.viewMore")}
-                <IoIosArrowRoundForward className="text-3xl transform -rotate-45" />
-              </button>
+              {(() => {
+                const linkUrl =
+                  (currentSlideData as { linkUrl?: string }).linkUrl ?? "";
+                const isExternal =
+                  linkUrl.startsWith("http://") ||
+                  linkUrl.startsWith("https://");
+                if (linkUrl && isExternal) {
+                  return (
+                    <a
+                      href={linkUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:scale-105 transition-transform duration-300 text-md sm:text-md px-8 sm:px-8 lg:px-8 py-4 sm:py-4 font-semibold rounded-full text-white flex items-center gap-2 inline-flex"
+                      style={{ backgroundColor: "#fd671a" }}
+                      aria-label="View more"
+                    >
+                      {t("home.hero.viewMore")}
+                      <IoIosArrowRoundForward className="text-3xl transform -rotate-45" />
+                    </a>
+                  );
+                }
+                if (linkUrl && !isExternal) {
+                  return (
+                    <button
+                      type="button"
+                      onClick={() => navigate(linkUrl)}
+                      className="hover:scale-105 transition-transform duration-300 text-md sm:text-md px-8 sm:px-8 lg:px-8 py-4 sm:py-4 font-semibold rounded-full text-white flex items-center gap-2"
+                      style={{ backgroundColor: "#fd671a" }}
+                      aria-label="View more"
+                    >
+                      {t("home.hero.viewMore")}
+                      <IoIosArrowRoundForward className="text-3xl transform -rotate-45" />
+                    </button>
+                  );
+                }
+                return (
+                  <button
+                    type="button"
+                    onClick={() => navigate("/offers")}
+                    className="hover:scale-105 transition-transform duration-300 text-md sm:text-md px-8 sm:px-8 lg:px-8 py-4 sm:py-4 font-semibold rounded-full text-white flex items-center gap-2"
+                    style={{ backgroundColor: "#fd671a" }}
+                    aria-label="View offers"
+                  >
+                    {t("home.hero.viewMore")}
+                    <IoIosArrowRoundForward className="text-3xl transform -rotate-45" />
+                  </button>
+                );
+              })()}
             </div>
           </div>
         </div>
