@@ -20,8 +20,6 @@ interface CouponModalProps {
 const CouponModal: React.FC<CouponModalProps> = ({
   coupon,
   onClose,
-  relatedCoupons = [],
-  onRelatedClick,
   getLogoUrl,
 }) => {
   const isRTL = useIsRTL();

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useIsRTL } from "@hooks";
 import OwlCarousel from "react-owl-carousel";

@@ -1,7 +1,7 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useIsRTL } from "@hooks";
-import { useState, useMemo } from "react";
+import { useMemo } from "react";
 import { FiArrowLeft } from "react-icons/fi";
 import { getCompanyById, type CardCompany, type CardOffer } from "@data/cards";
 import OfferCard from "./components/OfferCard";
