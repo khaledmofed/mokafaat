@@ -1,11 +1,16 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useIsRTL } from "@hooks";
 import { IoMdClose } from "react-icons/io";
 import { FiCheck, FiBookmark, FiShare2, FiExternalLink, FiEye } from "react-icons/fi";
 import { FaRegCopy } from "react-icons/fa";
+import { BsHeart, BsHeartFill } from "react-icons/bs";
 import type { CouponModel } from "@network/mappers/couponsMapper";
 import { stripHtml } from "@utils/stripHtml";
+import { useUserStore } from "@stores/userStore";
+import { useFavorites, useFavoriteToggle } from "@hooks/api/useMokafaatQueries";
+import { normalizeFavoritesList } from "@utils/favorites";
+import { toast } from "react-toastify";
 
 export type CouponWithIcon = CouponModel & { icon: React.ReactNode };
 
@@ -25,6 +30,31 @@ const CouponModal: React.FC<CouponModalProps> = ({
   const isRTL = useIsRTL();
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
+  const isAuthenticated = useUserStore((s) => !!s.token);
+  const { data: favoritesData } = useFavorites();
+  const toggleFavorite = useFavoriteToggle();
+  const favoritesList = useMemo(() => normalizeFavoritesList(favoritesData ?? null), [favoritesData]);
+  const isFavorite = useMemo(
+    () => favoritesList.some((f) => f.favorable_type === "coupon" && String(f.favorable_id) === String(coupon.id)),
+    [favoritesList, coupon.id]
+  );
+
+  const handleFavoriteClick = useCallback(() => {
+    if (!isAuthenticated) {
+      navigate(`/login?returnUrl=${encodeURIComponent(window.location.pathname)}`);
+      onClose();
+      return;
+    }
+    toggleFavorite.mutate(
+      { favorable_type: "coupon", favorable_id: coupon.id },
+      {
+        onSuccess: () => {
+          toast.success(isFavorite ? (isRTL ? "تمت إزالته من المحفوظات" : "Removed from favorites") : (isRTL ? "تمت الإضافة إلى المحفوظات" : "Added to favorites"));
+        },
+        onError: () => toast.error(isRTL ? "حدث خطأ" : "Something went wrong"),
+      }
+    );
+  }, [isAuthenticated, navigate, onClose, toggleFavorite, coupon.id, isFavorite, isRTL]);
 
   const code = `CPN${String(coupon.id).padStart(4, "0")}`;
 
@@ -133,13 +163,15 @@ const CouponModal: React.FC<CouponModalProps> = ({
             </div>
             <button
               type="button"
-              className="flex flex-col items-center gap-1 text-gray-500 hover:text-gray-700"
+              onClick={handleFavoriteClick}
+              disabled={toggleFavorite.isPending}
+              className="flex flex-col items-center gap-1 text-gray-500 hover:text-gray-700 disabled:opacity-50"
             >
-              <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
-                <FiBookmark className="w-5 h-5" />
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${isFavorite ? "bg-red-100 text-red-600" : "bg-gray-100"}`}>
+                {isFavorite ? <BsHeartFill className="w-5 h-5" /> : <BsHeart className="w-5 h-5" />}
               </div>
               <span className="text-xs font-medium">
-                {isRTL ? "أضف للمفضلة" : "Add to favorites"}
+                {isRTL ? (isFavorite ? "إزالة من المحفوظات" : "أضف للمفضلة") : (isFavorite ? "Remove from favorites" : "Add to favorites")}
               </span>
             </button>
             <button

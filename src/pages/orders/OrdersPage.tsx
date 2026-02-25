@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+import { Link } from "react-router-dom";
 import { useUserStore } from "@stores/userStore";
 import { useTranslation } from "react-i18next";
+import { useIsRTL } from "@hooks";
 import {
   IoReceiptOutline,
   IoCheckmarkCircleOutline,
@@ -10,12 +12,17 @@ import {
   IoDownloadOutline,
 } from "react-icons/io5";
 import CurrencyIcon from "@components/CurrencyIcon";
+import { useOrders } from "@hooks/api/useMokafaatQueries";
+import { normalizeOrdersList } from "@utils/orders";
+import { LoadingSpinner } from "@components/LoadingSpinner";
+
 const OrdersPage: React.FC = () => {
   const { t } = useTranslation();
-  const {
-    orders,
-    //  resetStore
-  } = useUserStore();
+  const isRTL = useIsRTL();
+  const token = useUserStore((s) => s.token);
+  const { data: ordersData, isLoading, isError, error } = useOrders(undefined, { enabled: !!token });
+  const orders = useMemo(() => normalizeOrdersList(ordersData ?? null), [ordersData]);
+
   const [filter, setFilter] = useState<
     "all" | "pending" | "confirmed" | "completed" | "cancelled"
   >("all");
@@ -82,6 +89,48 @@ const OrdersPage: React.FC = () => {
         return <IoReceiptOutline className="w-4 h-4" />;
     }
   };
+
+  if (!token) {
+    return (
+      <div className="min-h-screen bg-gray-50 pt-24 pb-28 flex items-center justify-center" style={{ marginTop: "77px" }}>
+        <div className="text-center bg-white rounded-xl p-8 shadow-sm max-w-md">
+          <IoReceiptOutline className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-gray-900 mb-2">{isRTL ? "تسجيل الدخول مطلوب" : "Login required"}</h2>
+          <p className="text-gray-600 mb-6">{isRTL ? "سجّل دخولك لعرض طلباتك" : "Sign in to view your orders"}</p>
+          <Link to="/login?returnUrl=/orders" className="bg-[#440798] text-white px-6 py-3 rounded-lg hover:bg-[#440798c9] transition-colors inline-block">
+            {isRTL ? "تسجيل الدخول" : "Login"}
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 pt-8 pb-28 flex justify-center items-center" style={{ marginTop: "77px" }}>
+        <LoadingSpinner />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="min-h-screen bg-gray-50 pt-8 pb-28 flex items-center justify-center" style={{ marginTop: "77px" }}>
+        <div className="text-center bg-white rounded-xl p-8 shadow-sm max-w-md">
+          <IoCloseCircleOutline className="w-16 h-16 text-red-400 mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-gray-900 mb-2">{isRTL ? "حدث خطأ" : "Something went wrong"}</h2>
+          <p className="text-gray-600 mb-6">{String(error?.message || (isRTL ? "تعذر تحميل الطلبات" : "Failed to load orders"))}</p>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="bg-[#440798] text-white px-6 py-3 rounded-lg hover:bg-[#440798c9] transition-colors"
+          >
+            {isRTL ? "إعادة المحاولة" : "Retry"}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -205,7 +254,7 @@ const OrdersPage: React.FC = () => {
                       <tr key={order.id} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-gray-900">
-                            #{order.id.slice(-8)}
+                            #{String(order.id).slice(-8)}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -226,18 +275,24 @@ const OrdersPage: React.FC = () => {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center space-x-3 space-x-reverse">
-                            <img
-                              src={order.items[0]?.image}
-                              alt={order.items[0]?.title.ar}
-                              className="w-10 h-10 rounded-lg object-cover"
-                            />
+                            {(order.items[0]?.image) ? (
+                              <img
+                                src={order.items[0].image}
+                                alt={order.items[0]?.title?.[isRTL ? "ar" : "en"] ?? ""}
+                                className="w-10 h-10 rounded-lg object-cover"
+                              />
+                            ) : (
+                              <div className="w-10 h-10 rounded-lg bg-gray-200 flex items-center justify-center text-gray-500 text-xs">
+                                #
+                              </div>
+                            )}
                             <div>
                               <div className="text-sm font-medium text-gray-900">
-                                {order.items[0]?.title.ar}
+                                {order.items[0]?.title?.[isRTL ? "ar" : "en"] ?? "—"}
                               </div>
                               <div className="text-sm text-gray-500">
                                 {order.items.length > 1 &&
-                                  `+${order.items.length - 1} عناصر أخرى`}
+                                  (isRTL ? `+${order.items.length - 1} عناصر أخرى` : `+${order.items.length - 1} more items`)}
                               </div>
                             </div>
                           </div>

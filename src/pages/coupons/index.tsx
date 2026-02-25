@@ -1,8 +1,9 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Helmet } from "react-helmet-async";
 import { IoCalendarOutline, IoFlashOutline } from "react-icons/io5";
-import { BsHeart, BsShare } from "react-icons/bs";
+import { BsHeart, BsHeartFill } from "react-icons/bs";
 import { FaTag, FaPercent, FaUtensils } from "react-icons/fa";
 import { FiGrid, FiList } from "react-icons/fi";
 import { copon1, copon2, copon3, copon4, cutCopon } from "@assets";
@@ -12,6 +13,11 @@ import CouponModal, { type CouponWithIcon } from "@pages/home/components/CouponM
 import { useWebHome } from "@hooks/api/useMokafaatQueries";
 import { mapApiCouponsToModels } from "@network/mappers/couponsMapper";
 import { stripHtml } from "@utils/stripHtml";
+import { useIsRTL } from "@hooks";
+import { useUserStore } from "@stores/userStore";
+import { useFavorites, useFavoriteToggle } from "@hooks/api/useMokafaatQueries";
+import { normalizeFavoritesList } from "@utils/favorites";
+import { toast } from "react-toastify";
 
 type CouponDisplay = {
   id: string;
@@ -31,6 +37,33 @@ type CouponDisplay = {
 
 const CouponsPage = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const isRTL = useIsRTL();
+  const isAuthenticated = useUserStore((s) => !!s.token);
+  const { data: favoritesData } = useFavorites();
+  const toggleFavorite = useFavoriteToggle();
+  const favoritesList = useMemo(() => normalizeFavoritesList(favoritesData ?? null), [favoritesData]);
+
+  const isCouponFavorite = (couponId: string) =>
+    favoritesList.some((f) => f.favorable_type === "coupon" && String(f.favorable_id) === String(couponId));
+
+  const handleFavoriteClick = (e: React.MouseEvent, couponId: string) => {
+    e.stopPropagation();
+    if (!isAuthenticated) {
+      navigate(`/login?returnUrl=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
+    const isFavorite = isCouponFavorite(couponId);
+    toggleFavorite.mutate(
+      { favorable_type: "coupon", favorable_id: couponId },
+      {
+        onSuccess: () => {
+          toast.success(isFavorite ? (isRTL ? "تمت إزالته من المحفوظات" : "Removed from favorites") : (isRTL ? "تمت الإضافة إلى المحفوظات" : "Added to favorites"));
+        },
+        onError: () => toast.error(isRTL ? "حدث خطأ" : "Something went wrong"),
+      }
+    );
+  };
 
   const [search, setSearch] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -372,11 +405,13 @@ const CouponsPage = () => {
                           </div>
                         </button>
                         <div className="flex gap-2">
-                          <button className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-all duration-200">
-                            <BsShare className="text-sm" />
-                          </button>
-                          <button className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-all duration-200">
-                            <BsHeart className="text-sm" />
+                          <button
+                            type="button"
+                            onClick={(e) => handleFavoriteClick(e, coupon.id)}
+                            className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-all duration-200 disabled:opacity-50"
+                            disabled={toggleFavorite.isPending}
+                          >
+                            {isCouponFavorite(coupon.id) ? <BsHeartFill className="text-sm text-red-500" /> : <BsHeart className="text-sm" />}
                           </button>
                         </div>
                       </div>
@@ -448,11 +483,13 @@ const CouponsPage = () => {
                         </div>
 
                         <div className="flex gap-2">
-                          <button className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-all duration-200">
-                            <BsShare className="text-sm" />
-                          </button>
-                          <button className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-all duration-200">
-                            <BsHeart className="text-sm" />
+                          <button
+                            type="button"
+                            onClick={(e) => handleFavoriteClick(e, coupon.id)}
+                            className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-all duration-200 disabled:opacity-50"
+                            disabled={toggleFavorite.isPending}
+                          >
+                            {isCouponFavorite(coupon.id) ? <BsHeartFill className="text-sm text-red-500" /> : <BsHeart className="text-sm" />}
                           </button>
                         </div>
                       </div>

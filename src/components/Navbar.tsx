@@ -20,6 +20,8 @@ import { useTranslation } from "react-i18next";
 import LanguageToggle from "./LanguageToggle";
 import SideMenu from "./SideMenu";
 import { useUserStore } from "@stores/userStore";
+import { useProfile, useFavorites } from "@hooks/api/useMokafaatQueries";
+import { normalizeFavoritesList } from "@utils/favorites";
 
 const Navbar: React.FC = () => {
   const { t } = useTranslation();
@@ -28,8 +30,36 @@ const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
 
-  // استخدام UserStore
-  const { user, isAuthenticated, logout, savedItems } = useUserStore();
+  const { user, isAuthenticated, logout } = useUserStore();
+  const { data: profileData } = useProfile(!!isAuthenticated);
+  const { data: favoritesData } = useFavorites();
+  const favoritesCount = normalizeFavoritesList(favoritesData ?? null).length;
+
+  const displayName = (() => {
+    const raw = profileData as Record<string, unknown> | undefined;
+    const data = raw?.data as Record<string, unknown> | undefined;
+    const u = (data?.user ?? data) as Record<string, unknown> | undefined;
+    if (u) {
+      const first = (u.first_name ?? u.name) as string | undefined;
+      const last = u.last_name as string | undefined;
+      const full = [first, last].filter(Boolean).join(" ").trim();
+      if (full) return full;
+      if (u.name) return String(u.name);
+    }
+    return user?.name ?? "";
+  })();
+  const displayEmail = (() => {
+    const raw = profileData as Record<string, unknown> | undefined;
+    const data = raw?.data as Record<string, unknown> | undefined;
+    const u = (data?.user ?? data) as Record<string, unknown> | undefined;
+    return (u?.email as string) ?? user?.email ?? "";
+  })();
+  const displayAvatar = (() => {
+    const raw = profileData as Record<string, unknown> | undefined;
+    const data = raw?.data as Record<string, unknown> | undefined;
+    const u = (data?.user ?? data) as Record<string, unknown> | undefined;
+    return (u?.avatar as string) ?? user?.avatar ?? null;
+  })();
 
   // Handle scroll effect
   useEffect(() => {
@@ -155,9 +185,9 @@ const Navbar: React.FC = () => {
                   className="relative flex items-center justify-center w-9 h-9 bg-[#fff] border-2 border border-[#440798] rounded-full transition-all duration-300 hover:bg-[#eee]"
                 >
                   <IoHeartOutline className="text-[#440798] text-md" />
-                  {savedItems.length > 0 && (
+                  {isAuthenticated && favoritesCount > 0 && (
                     <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                      {savedItems.length}
+                      {favoritesCount}
                     </span>
                   )}
                 </Link>
@@ -168,10 +198,10 @@ const Navbar: React.FC = () => {
                     onClick={() => setShowUserMenu(!showUserMenu)}
                     className="flex items-center justify-center w-9 h-9 bg-[#fff] border-2 border border-[#440798] rounded-full transition-all duration-300 hover:bg-[#eee]"
                   >
-                    {user?.avatar ? (
+                    {displayAvatar ? (
                       <img
-                        src={user.avatar}
-                        alt={user.name}
+                        src={displayAvatar}
+                        alt={displayName}
                         className="w-7 h-7 rounded-full object-cover"
                       />
                     ) : (
@@ -185,18 +215,25 @@ const Navbar: React.FC = () => {
                       {/* User Info Header */}
                       <div className="px-4 py-3 border-b border-gray-100 mb-4">
                         <div className="flex items-center gap-3">
-                          {/* User Avatar */}
-                          <div className="w-10 h-10 rounded-full bg-[#400198] flex items-center justify-center">
-                            <span className="text-white font-semibold text-sm">
-                              {user?.name?.charAt(0) || "U"}
-                            </span>
-                          </div>
+                          {displayAvatar ? (
+                            <img
+                              src={displayAvatar}
+                              alt={displayName}
+                              className="w-10 h-10 rounded-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 rounded-full bg-[#400198] flex items-center justify-center">
+                              <span className="text-white font-semibold text-sm">
+                                {displayName?.charAt(0) || "U"}
+                              </span>
+                            </div>
+                          )}
                           <div className="flex-1">
                             <p className="text-sm font-medium text-gray-900">
-                              {user?.name}
+                              {displayName || user?.name}
                             </p>
                             <p className="text-xs text-gray-500">
-                              {user?.email}
+                              {displayEmail || user?.email}
                             </p>
                           </div>
                         </div>

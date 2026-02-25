@@ -1,4 +1,5 @@
 import React, { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { IoIosArrowRoundForward } from "react-icons/io";
 import {
   FiStar,
@@ -8,11 +9,15 @@ import {
   FiClock,
   FiGift,
 } from "react-icons/fi";
+import { BsHeart, BsHeartFill } from "react-icons/bs";
 import { useIsRTL } from "@hooks";
-// import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { type CardOffer } from "@data/cards";
 import CurrencyIcon from "@components/CurrencyIcon";
+import { useUserStore } from "@stores/userStore";
+import { useFavorites, useFavoriteToggle } from "@hooks/api/useMokafaatQueries";
+import { normalizeFavoritesList } from "@utils/favorites";
+import { toast } from "react-toastify";
 import {
   Cards1,
   Cards12,
@@ -36,12 +41,37 @@ interface OfferCardProps {
 
 const OfferCard: React.FC<OfferCardProps> = ({
   offer,
-  // companyId,
+  companyId,
   onOfferClick,
 }) => {
   const isRTL = useIsRTL();
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
   const { i18n } = useTranslation();
+  const isAuthenticated = useUserStore((s) => !!s.token);
+  const { data: favoritesData } = useFavorites();
+  const toggleFavorite = useFavoriteToggle();
+  const favoritesList = useMemo(() => normalizeFavoritesList(favoritesData ?? null), [favoritesData]);
+  const isFavorite = useMemo(
+    () => favoritesList.some((f) => f.favorable_type === "card" && String(f.favorable_id) === String(offer.id)),
+    [favoritesList, offer.id]
+  );
+
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!isAuthenticated) {
+      navigate(`/login?returnUrl=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
+    toggleFavorite.mutate(
+      { favorable_type: "card", favorable_id: offer.id },
+      {
+        onSuccess: () => {
+          toast.success(isFavorite ? (isRTL ? "تمت إزالته من المحفوظات" : "Removed from favorites") : (isRTL ? "تمت الإضافة إلى المحفوظات" : "Added to favorites"));
+        },
+        onError: () => toast.error(isRTL ? "حدث خطأ" : "Something went wrong"),
+      }
+    );
+  };
 
   // Function to get card image
   const getCardImage = (logoName: string) => {
@@ -151,7 +181,19 @@ const OfferCard: React.FC<OfferCardProps> = ({
         {/* Image Overlays */}
         <div className="absolute top-3 right-3 flex gap-2">
           <button
-            onClick={() => onOfferClick?.(offer)}
+            type="button"
+            onClick={handleFavoriteClick}
+            className="w-8 h-8 bg-white bg-opacity-90 rounded-full flex items-center justify-center text-gray-700 hover:bg-opacity-100 transition-all disabled:opacity-50"
+            disabled={toggleFavorite.isPending}
+          >
+            {isFavorite ? <BsHeartFill className="text-sm text-red-500" /> : <BsHeart className="text-sm" />}
+          </button>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onOfferClick?.(offer);
+            }}
             className="w-8 h-8 bg-white bg-opacity-90 rounded-full flex items-center justify-center text-gray-700 hover:bg-opacity-100 transition-all duration-200"
           >
             <FiBookmark className="text-sm" />

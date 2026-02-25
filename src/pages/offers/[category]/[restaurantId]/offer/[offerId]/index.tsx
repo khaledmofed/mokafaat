@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useIsRTL } from "@hooks";
 import { FiArrowLeft, FiStar, FiEye } from "react-icons/fi";
@@ -15,8 +15,12 @@ import SubscribersOnlyModal from "@components/SubscribersOnlyModal";
 import { stripHtml } from "@utils/stripHtml";
 import { Pro1, Pro2, Pro3, Pro4, Pro5, Pro6, Pro7, Pro8, AboutPattern } from "@assets";
 import { useUserStore } from "@stores/userStore";
-import { useWebHome, useSubscriptionStatus } from "@hooks/api/useMokafaatQueries";
+import { useWebHome, useSubscriptionStatus, useFavorites, useFavoriteToggle } from "@hooks/api/useMokafaatQueries";
 import { mapApiOffersToModels } from "@network/mappers/offersMapper";
+import { isUserSubscribed } from "@utils/subscription";
+import { normalizeFavoritesList } from "@utils/favorites";
+import { BsHeart, BsHeartFill } from "react-icons/bs";
+import { toast } from "react-toastify";
 
 const getOfferImageSrc = (imageName: string) => {
   if (imageName.startsWith("http")) return imageName;
@@ -40,6 +44,7 @@ const OfferDetailPage = () => {
     offerId: string;
   }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const isRTL = useIsRTL();
   const [quantity, setQuantity] = useState(1);
   const [subscribersOnlyModalOpen, setSubscribersOnlyModalOpen] = useState(false);
@@ -48,8 +53,10 @@ const OfferDetailPage = () => {
   const token = useUserStore((s) => s.token);
   const { data: webHomeResponse } = useWebHome();
   const { data: subscriptionStatusData } = useSubscriptionStatus(!!token);
-  const subscriptionData = (subscriptionStatusData as Record<string, unknown> | undefined)?.data as Record<string, unknown> | undefined;
-  const isSubscribed = subscriptionData?.is_active === true;
+  const isSubscribed = isUserSubscribed(subscriptionStatusData);
+  const { data: favoritesData } = useFavorites();
+  const toggleFavorite = useFavoriteToggle();
+  const favoritesList = useMemo(() => normalizeFavoritesList(favoritesData ?? null), [favoritesData]);
 
   const staticRestaurant = restaurantId ? getRestaurantById(restaurantId) : null;
 
@@ -130,6 +137,11 @@ const OfferDetailPage = () => {
     return fromMenu;
   }, [restaurant, offerId]);
 
+  const isOfferFavorite = useMemo(
+    () => offer && favoritesList.some((f) => f.favorable_type === "offer" && String(f.favorable_id) === String(offer.id)),
+    [offer, favoritesList]
+  );
+
   const maxQty = offer ? Math.max(99, offer.maxQuantity ?? 99) : 99;
 
   const categoryInfo = offerCategories.find((c) => c.key === category);
@@ -139,11 +151,17 @@ const OfferDetailPage = () => {
 
   const handlePurchase = () => {
     if (!category || !restaurantId || !offerId) return;
+    if (!token) {
+      navigate(`/login?returnUrl=${encodeURIComponent(location.pathname)}`);
+      return;
+    }
     if (!isSubscribed) {
       setSubscribersOnlyModalOpen(true);
       return;
     }
-    navigate(`/offers/${category}/${restaurantId}/payment?offer=${offerId}&quantity=${quantity}`);
+    navigate(`/offers/${category}/${restaurantId}/payment?offer=${offerId}&quantity=${quantity}`, {
+      state: { offer, restaurant },
+    });
   };
 
   if (!restaurant || !offer) {
@@ -302,9 +320,36 @@ const OfferDetailPage = () => {
                   </div>
                 </div>
               </div>
-              <div className="text-3xl font-bold text-gray-800 flex items-center gap-1" data-total-price={totalPrice}>
-                {totalPrice}
-                <CurrencyIcon className="text-gray-800" size={28} />
+              <div className="flex items-center gap-3">
+                {offer && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (!token) {
+                        navigate(`/login?returnUrl=${encodeURIComponent(location.pathname)}`);
+                        return;
+                      }
+                      toggleFavorite.mutate(
+                        { favorable_type: "offer", favorable_id: offer.id },
+                        {
+                          onSuccess: () => {
+                            toast.success(isOfferFavorite ? (isRTL ? "تمت إزالته من المحفوظات" : "Removed from favorites") : (isRTL ? "تمت الإضافة إلى المحفوظات" : "Added to favorites"));
+                          },
+                          onError: () => toast.error(isRTL ? "حدث خطأ" : "Something went wrong"),
+                        }
+                      );
+                    }}
+                    className="w-10 h-10 rounded-full border-2 border-[#440798] flex items-center justify-center text-[#440798] hover:bg-[#440798] hover:text-white transition-colors disabled:opacity-50"
+                    disabled={toggleFavorite.isPending}
+                  >
+                    {isOfferFavorite ? <BsHeartFill className="text-lg" /> : <BsHeart className="text-lg" />}
+                  </button>
+                )}
+                <div className="text-3xl font-bold text-gray-800 flex items-center gap-1" data-total-price={totalPrice}>
+                  {totalPrice}
+                  <CurrencyIcon className="text-gray-800" size={28} />
+                </div>
               </div>
             </div>
 

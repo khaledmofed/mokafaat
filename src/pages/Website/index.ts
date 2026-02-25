@@ -30,6 +30,7 @@ import RegisterPage from "../auth/RegisterPage";
 import NotFoundPage from "../not_found";
 import {
   SubscriptionPlansPage,
+  SubscriptionPaymentPage,
   SubscriptionSuccessPage,
   SubscriptionFailedPage,
 } from "../subscription";
@@ -61,6 +62,7 @@ export {
   RegisterPage,
   NotFoundPage,
   SubscriptionPlansPage,
+  SubscriptionPaymentPage,
   SubscriptionSuccessPage,
   SubscriptionFailedPage,
 };

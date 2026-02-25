@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useIsRTL } from "@hooks";
 import { FiArrowLeft, FiStar, FiEye, FiBookmark } from "react-icons/fi";
@@ -23,12 +23,17 @@ import {
   AboutPattern,
 } from "@assets";
 import { useUserStore } from "@stores/userStore";
-import { useWebHome, useSubscriptionStatus } from "@hooks/api/useMokafaatQueries";
+import { useWebHome, useSubscriptionStatus, useFavorites, useFavoriteToggle } from "@hooks/api/useMokafaatQueries";
 import { mapApiCardsToModels } from "@network/mappers/cardsMapper";
+import { isUserSubscribed } from "@utils/subscription";
+import { normalizeFavoritesList } from "@utils/favorites";
+import { BsHeart, BsHeartFill } from "react-icons/bs";
+import { toast } from "react-toastify";
 
 const CardOfferDetailPage = () => {
   const { companyId, offerId } = useParams<{ companyId: string; offerId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const isRTL = useIsRTL();
   const [quantity, setQuantity] = useState(1);
   const [subscribersOnlyModalOpen, setSubscribersOnlyModalOpen] = useState(false);
@@ -37,8 +42,10 @@ const CardOfferDetailPage = () => {
   const token = useUserStore((s) => s.token);
   const { data: webHomeResponse } = useWebHome();
   const { data: subscriptionStatusData } = useSubscriptionStatus(!!token);
-  const subscriptionData = (subscriptionStatusData as Record<string, unknown> | undefined)?.data as Record<string, unknown> | undefined;
-  const isSubscribed = subscriptionData?.is_active === true;
+  const isSubscribed = isUserSubscribed(subscriptionStatusData);
+  const { data: favoritesData } = useFavorites();
+  const toggleFavorite = useFavoriteToggle();
+  const favoritesList = useMemo(() => normalizeFavoritesList(favoritesData ?? null), [favoritesData]);
 
   const apiCompany = useMemo((): CardCompany | null => {
     if (!webHomeResponse || !companyId) return null;
@@ -92,6 +99,11 @@ const CardOfferDetailPage = () => {
     return company.offers.find((o) => String(o.id) === String(offerId)) ?? null;
   }, [company, offerId]);
 
+  const isCardFavorite = useMemo(
+    () => offer && favoritesList.some((f) => f.favorable_type === "card" && String(f.favorable_id) === String(offer.id)),
+    [offer, favoritesList]
+  );
+
   const getCardImage = (logoName: string) => {
     if (logoName.startsWith("http")) return logoName;
     switch (logoName) {
@@ -112,6 +124,10 @@ const CardOfferDetailPage = () => {
 
   const handlePurchase = () => {
     if (!companyId || !offerId) return;
+    if (!token) {
+      navigate(`/login?returnUrl=${encodeURIComponent(location.pathname)}`);
+      return;
+    }
     if (!isSubscribed) {
       setSubscribersOnlyModalOpen(true);
       return;
@@ -275,9 +291,36 @@ const CardOfferDetailPage = () => {
                   </div>
                 </div>
               </div>
-              <div className="text-3xl font-bold text-gray-800 flex items-center gap-1" data-total-price={totalPrice}>
-                {totalPrice}
-                <CurrencyIcon className="text-gray-800" size={28} />
+              <div className="flex items-center gap-3">
+                {offer && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (!token) {
+                        navigate(`/login?returnUrl=${encodeURIComponent(location.pathname)}`);
+                        return;
+                      }
+                      toggleFavorite.mutate(
+                        { favorable_type: "card", favorable_id: offer.id },
+                        {
+                          onSuccess: () => {
+                            toast.success(isCardFavorite ? (isRTL ? "تمت إزالته من المحفوظات" : "Removed from favorites") : (isRTL ? "تمت الإضافة إلى المحفوظات" : "Added to favorites"));
+                          },
+                          onError: () => toast.error(isRTL ? "حدث خطأ" : "Something went wrong"),
+                        }
+                      );
+                    }}
+                    className="w-10 h-10 rounded-full border-2 border-[#440798] flex items-center justify-center text-[#440798] hover:bg-[#440798] hover:text-white transition-colors disabled:opacity-50"
+                    disabled={toggleFavorite.isPending}
+                  >
+                    {isCardFavorite ? <BsHeartFill className="text-lg" /> : <BsHeart className="text-lg" />}
+                  </button>
+                )}
+                <div className="text-3xl font-bold text-gray-800 flex items-center gap-1" data-total-price={totalPrice}>
+                  {totalPrice}
+                  <CurrencyIcon className="text-gray-800" size={28} />
+                </div>
               </div>
             </div>
 

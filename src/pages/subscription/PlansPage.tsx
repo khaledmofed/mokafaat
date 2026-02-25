@@ -3,10 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useTranslation } from "react-i18next";
 import { useIsRTL } from "@hooks";
-import {
-  useSubscriptionPlans,
-  useSubscribe,
-} from "@hooks/api/useMokafaatQueries";
+import { useSubscriptionPlans } from "@hooks/api/useMokafaatQueries";
 import { IoClose } from "react-icons/io5";
 import { AxiosError } from "axios";
 import CurrencyIcon from "@components/CurrencyIcon";
@@ -53,11 +50,9 @@ const SubscriptionPlansPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const isRTL = useIsRTL();
-  const [selectedPlanId, setSelectedPlanId] = useState<string | number | null>(null);
   const [subscribeErrorMsg, setSubscribeErrorMsg] = useState<string | null>(null);
 
   const { data: plansData, isLoading, isError, error, refetch } = useSubscriptionPlans();
-  const subscribeMutation = useSubscribe();
 
   const isUnauthorized = isError && error instanceof AxiosError && error.response?.status === 401;
 
@@ -69,39 +64,9 @@ const SubscriptionPlansPage: React.FC = () => {
     return Array.isArray(list) ? (list as PlanItem[]) : [];
   })();
 
-  const handleBuy = (planId: string | number) => {
+  const handleBuy = (plan: PlanItem) => {
     setSubscribeErrorMsg(null);
-    setSelectedPlanId(planId);
-    subscribeMutation.mutate(
-      { planId, paymentMethod: "online" },
-      {
-        onSuccess: (res: { data?: Record<string, unknown> }) => {
-          setSelectedPlanId(null);
-          const data = (res?.data ?? res) as Record<string, unknown> | undefined;
-          if (data?.status === false) {
-            const msg = (data.msg as string) || t("home.subscription.alreadyHaveActiveSubscription");
-            const errNum = data.errNum as string | undefined;
-            if (errNum === "E006" || (msg && String(msg).includes("اشتراك فعال"))) {
-              setSubscribeErrorMsg(t("home.subscription.alreadyHaveActiveSubscription"));
-              return;
-            }
-            setSubscribeErrorMsg(msg);
-            return;
-          }
-          const inner = data?.data as Record<string, unknown> | undefined;
-          const paymentUrl = (data?.payment_url ?? data?.redirect_url ?? inner?.payment_url ?? inner?.redirect_url) as string | undefined;
-          if (paymentUrl && typeof paymentUrl === "string") {
-            window.location.href = paymentUrl;
-            return;
-          }
-          navigate("/subscription/success", { replace: true });
-        },
-        onError: () => {
-          setSelectedPlanId(null);
-          navigate("/subscription/failed", { replace: true });
-        },
-      }
-    );
+    navigate("/subscription/payment", { state: { plan } });
   };
 
   return (
@@ -186,8 +151,6 @@ const SubscriptionPlansPage: React.FC = () => {
                 const price = Number(plan.price) ?? 0;
                 const durationMonths = getDurationMonths(plan);
                 const features = getPlanFeatures(plan, !!isRTL);
-                const isSubmitting = selectedPlanId === id && subscribeMutation.isPending;
-
                 return (
                   <div
                     key={String(id)}
@@ -215,11 +178,10 @@ const SubscriptionPlansPage: React.FC = () => {
                     )}
                     <button
                       type="button"
-                      disabled={isSubmitting}
-                      onClick={() => handleBuy(id)}
-                      className="w-full py-3 rounded-full bg-[#fd671a] text-white font-medium hover:bg-[#e55c18] disabled:opacity-70 transition-colors"
+                      onClick={() => handleBuy(plan)}
+                      className="w-full py-3 rounded-full bg-[#fd671a] text-white font-medium hover:bg-[#e55c18] transition-colors"
                     >
-                      {isSubmitting ? t("home.subscription.loading") : t("home.subscription.buy")}
+                      {t("home.subscription.buy")}
                     </button>
                   </div>
                 );

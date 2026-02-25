@@ -49,6 +49,22 @@ export const API_ENDPOINTS = {
   merchantFollow: (id: string | number) => `${API}/merchants/${id}/follow`,
   merchantReview: `${API}/merchants/review`,
 
+  // ========== Points ==========
+  points: {
+    balance: `${API}/points/balance`,
+    history: `${API}/points/history`,
+    redeem: `${API}/points/redeem`,
+  },
+
+  // ========== Wallet ==========
+  wallet: `${API}/wallet`,
+  walletBalance: `${API}/wallet/balance`,
+  walletHistory: `${API}/wallet/history`,
+
+  // ========== Profile ==========
+  profile: `${API}/profile`,
+  profileUpdate: `${API}/profile/update`,
+
   // ========== Subscription ==========
   subscription: {
     plans: `${API}/subscription/plans`,

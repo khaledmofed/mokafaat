@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useIsRTL } from "@hooks";
 import {
@@ -9,7 +9,11 @@ import {
 } from "@data/offers";
 import CurrencyIcon from "@components/CurrencyIcon";
 import { FiEye } from "react-icons/fi";
-import { BsHeart, BsShare } from "react-icons/bs";
+import { BsHeart, BsHeartFill, BsShare } from "react-icons/bs";
+import { useUserStore } from "@stores/userStore";
+import { useFavorites, useFavoriteToggle } from "@hooks/api/useMokafaatQueries";
+import { normalizeFavoritesList } from "@utils/favorites";
+import { toast } from "react-toastify";
 
 interface OfferCardProps {
   offer: Offer;
@@ -19,6 +23,31 @@ interface OfferCardProps {
 const OfferCard: React.FC<OfferCardProps> = ({ offer, onOfferClick }) => {
   const isRTL = useIsRTL();
   const navigate = useNavigate();
+  const isAuthenticated = useUserStore((s) => !!s.token);
+  const { data: favoritesData } = useFavorites();
+  const toggleFavorite = useFavoriteToggle();
+  const favoritesList = useMemo(() => normalizeFavoritesList(favoritesData ?? null), [favoritesData]);
+  const isFavorite = useMemo(
+    () => favoritesList.some((f) => f.favorable_type === "offer" && String(f.favorable_id) === String(offer.id)),
+    [favoritesList, offer.id]
+  );
+
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!isAuthenticated) {
+      navigate(`/login?returnUrl=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
+    toggleFavorite.mutate(
+      { favorable_type: "offer", favorable_id: offer.id },
+      {
+        onSuccess: () => {
+          toast.success(isFavorite ? (isRTL ? "تمت إزالته من المحفوظات" : "Removed from favorites") : (isRTL ? "تمت الإضافة إلى المحفوظات" : "Added to favorites"));
+        },
+        onError: () => toast.error(isRTL ? "حدث خطأ" : "Something went wrong"),
+      }
+    );
+  };
 
   // Remove HTML tags from text
   const stripHtml = (html: string): string => {
@@ -69,10 +98,12 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer, onOfferClick }) => {
             <BsShare className="text-sm" />
           </button>
           <button
-            // onClick={() => onFavoriteClick?.(offer.id)}
-            className="w-8 h-8 bg-white bg-opacity-90 rounded-full flex items-center justify-center text-gray-700 hover:bg-opacity-100 transition-all duration-200"
+            type="button"
+            onClick={handleFavoriteClick}
+            className="w-8 h-8 bg-white bg-opacity-90 rounded-full flex items-center justify-center text-gray-700 hover:bg-opacity-100 transition-all duration-200 disabled:opacity-50"
+            disabled={toggleFavorite.isPending}
           >
-            <BsHeart className="text-sm" />
+            {isFavorite ? <BsHeartFill className="text-sm text-red-500" /> : <BsHeart className="text-sm" />}
           </button>
         </div>
         {/* Discount Badge */}

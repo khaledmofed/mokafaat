@@ -1,10 +1,16 @@
-import React from "react";
+import React, { useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { useIsRTL } from "@hooks";
 import { type Offer } from "@data/offers";
 import { Pro1, Pro2, Pro3, Pro4, Pro5, Pro6, Pro7, Pro8 } from "@assets";
 import CurrencyIcon from "@components/CurrencyIcon";
 import { FiDownload, FiEye } from "react-icons/fi";
+import { BsHeart, BsHeartFill } from "react-icons/bs";
 import { stripHtml } from "@utils/stripHtml";
+import { useUserStore } from "@stores/userStore";
+import { useFavorites, useFavoriteToggle } from "@hooks/api/useMokafaatQueries";
+import { normalizeFavoritesList } from "@utils/favorites";
+import { toast } from "react-toastify";
 
 interface OfferCardProps {
   offer: Offer;
@@ -13,6 +19,32 @@ interface OfferCardProps {
 
 const OfferCard: React.FC<OfferCardProps> = ({ offer, onOfferClick }) => {
   const isRTL = useIsRTL();
+  const navigate = useNavigate();
+  const isAuthenticated = useUserStore((s) => !!s.token);
+  const { data: favoritesData } = useFavorites();
+  const toggleFavorite = useFavoriteToggle();
+  const favoritesList = useMemo(() => normalizeFavoritesList(favoritesData ?? null), [favoritesData]);
+  const isFavorite = useMemo(
+    () => favoritesList.some((f) => f.favorable_type === "offer" && String(f.favorable_id) === String(offer.id)),
+    [favoritesList, offer.id]
+  );
+
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!isAuthenticated) {
+      navigate(`/login?returnUrl=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
+    toggleFavorite.mutate(
+      { favorable_type: "offer", favorable_id: offer.id },
+      {
+        onSuccess: () => {
+          toast.success(isFavorite ? (isRTL ? "تمت إزالته من المحفوظات" : "Removed from favorites") : (isRTL ? "تمت الإضافة إلى المحفوظات" : "Added to favorites"));
+        },
+        onError: () => toast.error(isRTL ? "حدث خطأ" : "Something went wrong"),
+      }
+    );
+  };
 
   const getOfferImage = (imageName: string) => {
     // If it's already a URL, return it directly
@@ -56,9 +88,16 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer, onOfferClick }) => {
           className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
         />
 
-        {/* Discount Badge */}
-        <div className="absolute top-3 right-3">
-          <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+        <div className="absolute top-3 right-3 flex gap-2">
+          <button
+            type="button"
+            onClick={handleFavoriteClick}
+            className="w-8 h-8 bg-white bg-opacity-90 rounded-full flex items-center justify-center text-gray-700 hover:bg-opacity-100 transition-all disabled:opacity-50"
+            disabled={toggleFavorite.isPending}
+          >
+            {isFavorite ? <BsHeartFill className="text-sm text-red-500" /> : <BsHeart className="text-sm" />}
+          </button>
+          <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold self-center">
             {offer.discountPercentage}% {isRTL ? "خصم" : "OFF"}
           </span>
         </div>

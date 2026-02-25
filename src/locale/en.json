@@ -83,8 +83,16 @@
       "year": "year",
       "buy": "Buy",
       "thankYouForSubscribing": "Thank you for subscribing",
-      "thankYouDesc": "Sample text for a brief overview of subscriptions. Write here introductory overview text.",
+      "thankYouDesc": "Your subscription has been activated successfully. You can now benefit from offers and exclusives for subscribers.",
       "ok": "OK",
+      "paymentTitle": "Complete subscription payment",
+      "paymentDesc": "Choose your payment method then confirm payment.",
+      "choosePaymentMethod": "Choose payment method",
+      "paymentOnline": "Online payment (card)",
+      "paymentCash": "Cash",
+      "paymentBank": "Bank transfer",
+      "paymentWallet": "Pay from wallet",
+      "confirmPayment": "Confirm payment",
       "paymentFailed": "Payment failed",
       "paymentFailedDesc": "We couldn't complete the payment. Please try again or choose another payment method.",
       "tryAgain": "Try again",
@@ -1151,6 +1159,7 @@
     "types": {
       "offer": "Offer",
       "card": "Card",
+      "coupon": "Coupon",
       "booking": "Booking",
       "item": "Item"
     },
@@ -1183,11 +1192,28 @@
   "wallet": {
     "title": "My Wallet",
     "points_balance": "Points Balance",
+    "points_value": "Points Value",
     "account_balance": "Account Balance",
     "points_log": "Points Log",
     "financial_transactions": "Financial Transactions",
     "transaction_log": "Transaction Log",
-    "points": "points"
+    "points": "points",
+    "redeem": "Redeem to Wallet",
+    "redeem_to_wallet": "Redeem points → Wallet",
+    "redeem_success": "Points redeemed successfully",
+    "redeem_error": "Failed to redeem points",
+    "loading": "Loading...",
+    "no_transactions": "No transactions"
+  },
+  "profile": {
+    "subscription_active": "Active subscription",
+    "subscription_inactive": "Not subscribed",
+    "subscription_plan": "Subscription plan",
+    "subscription_expires": "Expires on",
+    "subscribe_now": "Subscribe now",
+    "profile_info": "Profile info",
+    "preferences": "Preferences",
+    "quick_stats": "Quick stats"
   },
   "coupons": {
     "title": "Couponz",

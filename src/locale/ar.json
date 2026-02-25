@@ -83,8 +83,16 @@
       "year": "سنة",
       "buy": "شراء",
       "thankYouForSubscribing": "شكراً لك للاشتراك",
-      "thankYouDesc": "نص تجريبي لنبذة مختصرة عن الاشتراكات. تكتب هنا نص تجريبي لنبذة تعريفية.",
+      "thankYouDesc": "تم تفعيل اشتراكك بنجاح. يمكنك الآن الاستفادة من العروض والحصريات المخصصة للمشتركين.",
       "ok": "موافق",
+      "paymentTitle": "إتمام الدفع للاشتراك",
+      "paymentDesc": "اختر طريقة الدفع ثم اضغط إتمام الدفع.",
+      "choosePaymentMethod": "اختر طريقة الدفع",
+      "paymentOnline": "دفع إلكتروني (بطاقة)",
+      "paymentCash": "دفع كاش",
+      "paymentBank": "تحويل بنكي",
+      "paymentWallet": "الدفع من المحفظة",
+      "confirmPayment": "إتمام الدفع",
       "paymentFailed": "فشل الدفع",
       "paymentFailedDesc": "لم نتمكن من إتمام عملية الدفع. يرجى المحاولة مرة أخرى أو اختيار طريقة دفع أخرى.",
       "tryAgain": "إعادة المحاولة",
@@ -1180,6 +1188,7 @@
     "types": {
       "offer": "عرض",
       "card": "بطاقة",
+      "coupon": "كوبون",
       "booking": "حجز",
       "item": "عنصر"
     },
@@ -1212,11 +1221,28 @@
   "wallet": {
     "title": "محفظتي",
     "points_balance": "رصيد نقاطي",
+    "points_value": "قيمة النقاط",
     "account_balance": "رصيد حسابي",
     "points_log": "سجل النقاط",
     "financial_transactions": "الحركات المالية",
     "transaction_log": "سجل العمليات",
-    "points": "نقطة"
+    "points": "نقطة",
+    "redeem": "تحويل إلى المحفظة",
+    "redeem_to_wallet": "تحويل نقاط → محفظة",
+    "redeem_success": "تم تحويل النقاط بنجاح",
+    "redeem_error": "فشل تحويل النقاط",
+    "loading": "جاري التحميل...",
+    "no_transactions": "لا توجد عمليات"
+  },
+  "profile": {
+    "subscription_active": "اشتراك فعّال",
+    "subscription_inactive": "غير مشترك",
+    "subscription_plan": "خطة الاشتراك",
+    "subscription_expires": "ينتهي في",
+    "subscribe_now": "اشترك الآن",
+    "profile_info": "معلومات البروفايل",
+    "preferences": "التفضيلات",
+    "quick_stats": "إحصائيات سريعة"
   },
   "coupons": {
     "title": "الكوبونز",

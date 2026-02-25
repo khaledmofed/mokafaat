@@ -565,7 +565,7 @@ export const useUserStore = create<UserState>()(
       },
 
       // التحقق من OTP عبر API مكافآت (POST مع query: phone, country_code, otp_code)
-      // الاستجابة: { status, msg, data: { user: { id, name, phone, email, token, is_profile_completed, ... } } }
+      // يدعم أشكال استجابة متعددة: data.data.user + token، أو data.user + data.token، أو data كائن user مع data.token
       verifyOtp: async (phone: string, otp: string, countryCode = "966") => {
         set({ loading: true, error: null });
         try {
@@ -574,34 +574,41 @@ export const useUserStore = create<UserState>()(
             country_code: countryCode,
             otp_code: otp,
           });
-          const data = res.data as {
+          const data = res.data as Record<string, unknown> & {
             status?: boolean;
             msg?: string;
             message?: string;
-            data?: {
-              user?: Record<string, unknown> & {
-                token?: string;
-                is_profile_completed?: boolean;
-              };
+            data?: Record<string, unknown> & {
+              user?: Record<string, unknown>;
+              token?: string;
+              is_profile_completed?: boolean;
             };
+            user_meta?: Record<string, unknown>;
           };
           if (data?.status === false) {
             const errorMsg =
-              data?.message ?? data?.msg ?? "Invalid verification code";
+              (data?.message as string) ?? (data?.msg as string) ?? "Invalid verification code";
             set({ loading: false, error: errorMsg });
             return { status: false, msg: errorMsg };
           }
-          // الـ token و الـ user داخل data.user
-          const apiUser = data?.data?.user;
-          const token =
-            apiUser?.token ??
-            (data?.data as { user?: { token?: string } })?.user?.token;
+          const inner = data?.data as Record<string, unknown> | undefined;
+          // استخراج user: data.data.user أو data.data (إذا كان الكائن نفسه المستخدم) أو data.user
+          const apiUser =
+            (inner?.user as Record<string, unknown>) ??
+            (inner && typeof inner === "object" && (inner.id != null || inner.token != null) ? inner : null) ??
+            (data?.user as Record<string, unknown>);
+          // استخراج token: من user أو من data.data.token أو data.token
+          const token: string | undefined =
+            (apiUser?.token as string) ??
+            (inner?.token as string) ??
+            (data?.token as string);
           if (!apiUser || !token || typeof token !== "string") {
             set({ loading: false, error: "Invalid response from server" });
             return { status: false, msg: "Invalid response from server" };
           }
-          const isProfileCompleted = Boolean(apiUser.is_profile_completed);
-          // name قد يكون null من الـ API
+          const isProfileCompleted = Boolean(
+            apiUser.is_profile_completed ?? inner?.is_profile_completed ?? true
+          );
           const rawName = apiUser.name;
           const userName =
             rawName != null && rawName !== ""
@@ -633,7 +640,7 @@ export const useUserStore = create<UserState>()(
             loading: false,
             error: null,
           });
-          const msg = data?.message ?? data?.msg ?? "Login successful";
+          const msg = (data?.message ?? data?.msg ?? "Login successful") as string;
           return {
             status: true,
             msg,

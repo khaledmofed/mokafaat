@@ -87,17 +87,74 @@ export const merchantsApi = {
     }),
 };
 
+// ========== Points (يتطلب توكن) ==========
+export const pointsApi = {
+  balance: () => api.get(API_ENDPOINTS.points.balance),
+  history: () => api.get(API_ENDPOINTS.points.history),
+  redeem: (params?: { amount?: number }) =>
+    api.post(API_ENDPOINTS.points.redeem, null, { params }),
+};
+
+// ========== Wallet (يتطلب توكن) ==========
+export const walletApi = {
+  get: () => api.get(API_ENDPOINTS.wallet),
+  balance: () => api.get(API_ENDPOINTS.walletBalance),
+  history: () => api.get(API_ENDPOINTS.walletHistory),
+};
+
+// ========== Profile (يتطلب توكن) ==========
+export const profileApi = {
+  get: () => api.get(API_ENDPOINTS.profile),
+  /** POST /api/profile/update - إرسال body كـ JSON (أو FormData عند رفع صورة) */
+  update: (params: {
+    first_name?: string;
+    last_name?: string;
+    name?: string;
+    email?: string;
+    phone?: string;
+    id_number?: string;
+    gender?: string;
+    city_id?: string | number;
+    region_id?: string | number;
+    country_id?: string | number;
+    bank_name?: string;
+    bank_account?: string;
+    avatar?: File | null;
+  }) => {
+    const keys = [
+      "first_name", "last_name", "name", "email", "phone", "id_number", "gender",
+      "city_id", "region_id", "country_id", "bank_name", "bank_account",
+    ] as const;
+    const body: Record<string, string | number> = {};
+    keys.forEach((key) => {
+      const v = params[key];
+      if (v !== undefined && v !== null && v !== "") body[key] = v as string | number;
+    });
+    if (params.avatar && params.avatar instanceof File) {
+      const formData = new FormData();
+      formData.append("avatar", params.avatar);
+      Object.entries(body).forEach(([k, v]) => formData.append(k, String(v)));
+      return api.post(API_ENDPOINTS.profileUpdate, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+    }
+    return api.post(API_ENDPOINTS.profileUpdate, body);
+  },
+};
+
 // ========== Subscription (يتطلب توكن) - مطابق لـ Postman: Subscriptions ==========
 export const subscriptionApi = {
   plans: () => api.get(API_ENDPOINTS.subscription.plans),
   subscribe: (
     planId: string | number,
-    paymentMethod?: "online" | "cash" | "bank"
+    paymentMethod?: "online" | "cash" | "bank",
+    useWallet?: boolean
   ) =>
     api.post(API_ENDPOINTS.subscription.subscribe, null, {
       params: {
         plan_id: planId,
         ...(paymentMethod && { payment_method: paymentMethod }),
+        ...(useWallet && { use_wallet: true }),
       },
     }),
   status: () => api.get(API_ENDPOINTS.subscription.status),
@@ -118,6 +175,13 @@ export const ordersApi = {
       params: orderType ? { order_type: orderType } : {},
     }),
   detail: (id: string | number) => api.get(API_ENDPOINTS.orderDetail(id)),
+  create: (params: {
+    order_type: string;
+    item_id: string | number;
+    quantity?: number;
+    branch_id?: string | number;
+    use_wallet?: boolean;
+  }) => api.post(API_ENDPOINTS.orders, null, { params }),
 };
 
 // ========== Coupons (app - يتطلب توكن للبعض) ==========

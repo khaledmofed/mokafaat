@@ -27,6 +27,7 @@ import {
   RegisterPage,
   NotFoundPage,
   SubscriptionPlansPage,
+  SubscriptionPaymentPage,
   SubscriptionSuccessPage,
   SubscriptionFailedPage,
 } from "@pages/Website";
@@ -280,6 +281,11 @@ export const routes: AppRouter[] = [
   {
     path: "/subscription/plans",
     element: SubscriptionPlansPage,
+    inLayout: false,
+  },
+  {
+    path: "/subscription/payment",
+    element: SubscriptionPaymentPage,
     inLayout: false,
   },
   {

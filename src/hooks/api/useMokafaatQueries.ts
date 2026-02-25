@@ -20,6 +20,9 @@ import {
   appConfigApi,
   subscriptionApi,
   paymentApi,
+  pointsApi,
+  walletApi,
+  profileApi,
 } from "@network/services/mokafaatService";
 
 /** لغة حالية للـ query key (يعيد طلب البيانات عند تغيير اللغة) */
@@ -62,6 +65,12 @@ export const mokafaatKeys = {
   subscriptionPlans: ["mokafaat", "subscription", "plans"] as const,
   subscriptionStatus: ["mokafaat", "subscription", "status"] as const,
   subscriptionHistory: ["mokafaat", "subscription", "history"] as const,
+  pointsBalance: ["mokafaat", "points", "balance"] as const,
+  pointsHistory: ["mokafaat", "points", "history"] as const,
+  wallet: ["mokafaat", "wallet"] as const,
+  walletBalance: ["mokafaat", "wallet", "balance"] as const,
+  walletHistory: ["mokafaat", "wallet", "history"] as const,
+  profile: ["mokafaat", "profile"] as const,
 };
 
 // ========== Home ==========
@@ -176,7 +185,7 @@ export function usePageDetail(slug: string) {
 }
 
 // ========== Orders ==========
-export function useOrders(orderType?: string) {
+export function useOrders(orderType?: string, options?: { enabled?: boolean }) {
   const lang = useQueryLang();
   return useQuery({
     queryKey: [...mokafaatKeys.orders(orderType), lang],
@@ -184,6 +193,7 @@ export function useOrders(orderType?: string) {
       ordersApi
         .list(orderType as "offer" | "card" | "coupon")
         .then((r) => r.data),
+    enabled: options?.enabled !== false,
   });
 }
 
@@ -313,10 +323,12 @@ export function useSubscribe() {
     mutationFn: ({
       planId,
       paymentMethod,
+      useWallet,
     }: {
       planId: string | number;
       paymentMethod?: "online" | "cash" | "bank";
-    }) => subscriptionApi.subscribe(planId, paymentMethod),
+      useWallet?: boolean;
+    }) => subscriptionApi.subscribe(planId, paymentMethod, useWallet),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: mokafaatKeys.subscriptionStatus });
       queryClient.invalidateQueries({ queryKey: mokafaatKeys.subscriptionHistory });
@@ -329,5 +341,79 @@ export function usePaymentCallback() {
   return useMutation({
     mutationFn: (params: { id: string; status: string }) =>
       paymentApi.callback(params).then((r) => r.data),
+  });
+}
+
+// ========== Points ==========
+export function usePointsBalance() {
+  return useQuery({
+    queryKey: mokafaatKeys.pointsBalance,
+    queryFn: () => pointsApi.balance().then((r) => r.data),
+  });
+}
+
+export function usePointsHistory() {
+  const lang = useQueryLang();
+  return useQuery({
+    queryKey: [...mokafaatKeys.pointsHistory, lang],
+    queryFn: () => pointsApi.history().then((r) => r.data),
+  });
+}
+
+export function usePointsRedeem() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (params?: { amount?: number }) => pointsApi.redeem(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: mokafaatKeys.pointsBalance });
+      queryClient.invalidateQueries({ queryKey: mokafaatKeys.pointsHistory });
+      queryClient.invalidateQueries({ queryKey: mokafaatKeys.wallet });
+      queryClient.invalidateQueries({ queryKey: mokafaatKeys.walletBalance });
+      queryClient.invalidateQueries({ queryKey: mokafaatKeys.walletHistory });
+    },
+  });
+}
+
+// ========== Wallet ==========
+export function useWallet() {
+  return useQuery({
+    queryKey: mokafaatKeys.wallet,
+    queryFn: () => walletApi.get().then((r) => r.data),
+  });
+}
+
+export function useWalletBalance() {
+  return useQuery({
+    queryKey: mokafaatKeys.walletBalance,
+    queryFn: () => walletApi.balance().then((r) => r.data),
+  });
+}
+
+export function useWalletHistory() {
+  const lang = useQueryLang();
+  return useQuery({
+    queryKey: [...mokafaatKeys.walletHistory, lang],
+    queryFn: () => walletApi.history().then((r) => r.data),
+  });
+}
+
+// ========== Profile ==========
+export function useProfile(enabled = true) {
+  const lang = useQueryLang();
+  return useQuery({
+    queryKey: [...mokafaatKeys.profile, lang],
+    queryFn: () => profileApi.get().then((r) => r.data),
+    enabled,
+  });
+}
+
+export function useProfileUpdate() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (params: Parameters<typeof profileApi.update>[0]) =>
+      profileApi.update(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: mokafaatKeys.profile });
+    },
   });
 }

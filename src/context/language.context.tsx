@@ -6,6 +6,8 @@ import React, {
   useEffect,
 } from "react";
 import { useTranslation } from "react-i18next";
+import { useUserStore } from "@stores/userStore";
+import { settingsApi } from "@network/services/mokafaatService";
 
 interface LanguageContextType {
   currentLanguage: string;
@@ -24,6 +26,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({
   children,
 }) => {
   const { i18n } = useTranslation();
+  const token = useUserStore((s) => s.token);
 
   // Try to get the saved language from localStorage or fallback to 'ar' (Arabic is now default)
   const savedLanguage = localStorage.getItem("language") || "ar";
@@ -85,6 +88,9 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({
   const setLanguage = (lng: string) => {
     console.log("LanguageProvider: Setting language to:", lng);
     setCurrentLanguage(lng);
+    if (token) {
+      settingsApi.updateLanguage(lng).catch(() => {});
+    }
   };
 
   return (

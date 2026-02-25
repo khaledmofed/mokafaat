@@ -3,6 +3,7 @@ import {
   useParams,
   useSearchParams,
   useNavigate,
+  useLocation,
   Link,
 } from "react-router-dom";
 import { useIsRTL } from "@hooks";
@@ -34,6 +35,7 @@ const PaymentPage: React.FC = () => {
   }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const isRTL = useIsRTL();
 
   const [selectedPaymentMethod, setSelectedPaymentMethod] =
@@ -44,10 +46,10 @@ const PaymentPage: React.FC = () => {
   const offerId = searchParams.get("offer");
   const quantity = parseInt(searchParams.get("quantity") || "1");
 
-  // Get data from unified data
-  const company = restaurantId ? getRestaurantById(restaurantId) : null;
-  const offer =
-    offerId && restaurantId ? getOfferById(restaurantId, offerId) : null;
+  // Prefer offer/restaurant from navigation state (from offer detail page), then static data
+  const state = location.state as { restaurant?: unknown; offer?: unknown } | null | undefined;
+  const company = (state?.restaurant ?? (restaurantId ? getRestaurantById(restaurantId) : null)) as ReturnType<typeof getRestaurantById>;
+  const offer = (state?.offer ?? (offerId && restaurantId ? getOfferById(restaurantId, offerId) : null)) as ReturnType<typeof getOfferById>;
   const categoryInfo = category
     ? offerCategories.find((cat) => cat.key === category)
     : null;

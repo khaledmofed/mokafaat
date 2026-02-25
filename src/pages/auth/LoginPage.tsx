@@ -90,12 +90,8 @@ const LoginPage: React.FC = () => {
         const res = await verifyOtp(phone, otp, countryCode);
         if (res.status) {
           setToast({ type: "success", message: res.msg });
-          // إذا البروفايل غير مكتمل → إكمال التسجيل، وإلا → الرئيسية
-          if (res.data?.is_profile_completed === false) {
-            navigate("/register");
-          } else {
-            navigate(safeReturnUrl);
-          }
+          // بعد التحقق الناجح → دخول الموقع مباشرة (إكمال البروفايل لاحقاً من صفحة البروفايل)
+          navigate(safeReturnUrl);
         } else {
           setToast({ type: "error", message: res.msg });
         }
