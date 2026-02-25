@@ -1,10 +1,12 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useIsRTL } from "@hooks";
-import { FiArrowLeft, FiMinus, FiPlus, FiStar, FiEye, FiBookmark } from "react-icons/fi";
+import { FiArrowLeft, FiStar, FiEye, FiBookmark } from "react-icons/fi";
 import { getCompanyById, type CardCompany, type CardOffer } from "@data/cards";
 import CurrencyIcon from "@components/CurrencyIcon";
+import QuantitySelector from "@components/QuantitySelector";
+import SubscribersOnlyModal from "@components/SubscribersOnlyModal";
 import { stripHtml } from "@utils/stripHtml";
 import {
   Cards1,
@@ -20,7 +22,8 @@ import {
   Cards14,
   AboutPattern,
 } from "@assets";
-import { useWebHome } from "@hooks/api/useMokafaatQueries";
+import { useUserStore } from "@stores/userStore";
+import { useWebHome, useSubscriptionStatus } from "@hooks/api/useMokafaatQueries";
 import { mapApiCardsToModels } from "@network/mappers/cardsMapper";
 
 const CardOfferDetailPage = () => {
@@ -28,8 +31,14 @@ const CardOfferDetailPage = () => {
   const navigate = useNavigate();
   const isRTL = useIsRTL();
   const [quantity, setQuantity] = useState(1);
+  const [subscribersOnlyModalOpen, setSubscribersOnlyModalOpen] = useState(false);
+  const handleQuantityChange = useCallback((q: number) => setQuantity(q), []);
 
+  const token = useUserStore((s) => s.token);
   const { data: webHomeResponse } = useWebHome();
+  const { data: subscriptionStatusData } = useSubscriptionStatus(!!token);
+  const subscriptionData = (subscriptionStatusData as Record<string, unknown> | undefined)?.data as Record<string, unknown> | undefined;
+  const isSubscribed = subscriptionData?.is_active === true;
 
   const apiCompany = useMemo((): CardCompany | null => {
     if (!webHomeResponse || !companyId) return null;
@@ -103,6 +112,10 @@ const CardOfferDetailPage = () => {
 
   const handlePurchase = () => {
     if (!companyId || !offerId) return;
+    if (!isSubscribed) {
+      setSubscribersOnlyModalOpen(true);
+      return;
+    }
     window.location.href = `/cards/${companyId}/payment?offer=${offerId}&quantity=${quantity}`;
   };
 
@@ -124,7 +137,8 @@ const CardOfferDetailPage = () => {
     );
   }
 
-  const totalPrice = offer.price * quantity;
+  const unitPrice = Number(offer.price) || 0;
+  const totalPrice = unitPrice * quantity;
   const companyName = company.name[isRTL ? "ar" : "en"];
   const offerTitle = offer.title[isRTL ? "ar" : "en"];
 
@@ -132,6 +146,12 @@ const CardOfferDetailPage = () => {
 
   return (
     <>
+      <SubscribersOnlyModal
+        isOpen={subscribersOnlyModalOpen}
+        onClose={() => setSubscribersOnlyModalOpen(false)}
+        onSubscribe={() => navigate("/subscription/plans")}
+        onBackToOffer={() => setSubscribersOnlyModalOpen(false)}
+      />
       <Helmet>
         <title>{offerTitle} - {companyName} | {isRTL ? "البطاقات" : "Cards"}</title>
         <link rel="canonical" href={`https://mukafaat.com/cards/${companyId}/offer/${offerId}`} />
@@ -255,7 +275,7 @@ const CardOfferDetailPage = () => {
                   </div>
                 </div>
               </div>
-              <div className="text-3xl font-bold text-gray-800 flex items-center gap-1">
+              <div className="text-3xl font-bold text-gray-800 flex items-center gap-1" data-total-price={totalPrice}>
                 {totalPrice}
                 <CurrencyIcon className="text-gray-800" size={28} />
               </div>
@@ -314,22 +334,11 @@ const CardOfferDetailPage = () => {
                 </section>
               )}
 
-              {/* Quantity */}
-              <div className="flex items-center justify-center gap-4 my-8">
-                <button
-                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center hover:bg-gray-400 transition-colors"
-                >
-                  <FiMinus className="text-white" />
-                </button>
-                <span className="w-12 text-center font-medium">{quantity}</span>
-                <button
-                  onClick={() => setQuantity((q) => q + 1)}
-                  className="w-10 h-10 rounded-full bg-orange-500 text-white flex items-center justify-center hover:bg-orange-600 transition-colors"
-                >
-                  <FiPlus />
-                </button>
-              </div>
+              <QuantitySelector
+                maxQty={99}
+                isRTL={!!isRTL}
+                onQuantityChange={handleQuantityChange}
+              />
 
               {/* Actions */}
               <div className="flex flex-wrap gap-4 justify-center">

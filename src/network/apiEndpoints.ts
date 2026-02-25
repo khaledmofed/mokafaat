@@ -56,6 +56,8 @@ export const API_ENDPOINTS = {
     status: `${API}/subscription/status`,
     history: `${API}/subscription/history`,
   },
+  // ========== Payment (callback after gateway redirect) ==========
+  paymentCallback: `${API}/payment/callback`,
 
   // ========== Orders ==========
   orders: `${API}/orders`,

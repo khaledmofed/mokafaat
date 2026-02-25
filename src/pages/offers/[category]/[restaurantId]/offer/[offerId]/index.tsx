@@ -1,8 +1,8 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useIsRTL } from "@hooks";
-import { FiArrowLeft, FiMinus, FiPlus, FiStar, FiEye } from "react-icons/fi";
+import { FiArrowLeft, FiStar, FiEye } from "react-icons/fi";
 import {
   getRestaurantById,
   offerCategories,
@@ -10,9 +10,12 @@ import {
   type Restaurant,
 } from "@data/offers";
 import CurrencyIcon from "@components/CurrencyIcon";
+import QuantitySelector from "@components/QuantitySelector";
+import SubscribersOnlyModal from "@components/SubscribersOnlyModal";
 import { stripHtml } from "@utils/stripHtml";
 import { Pro1, Pro2, Pro3, Pro4, Pro5, Pro6, Pro7, Pro8, AboutPattern } from "@assets";
-import { useWebHome } from "@hooks/api/useMokafaatQueries";
+import { useUserStore } from "@stores/userStore";
+import { useWebHome, useSubscriptionStatus } from "@hooks/api/useMokafaatQueries";
 import { mapApiOffersToModels } from "@network/mappers/offersMapper";
 
 const getOfferImageSrc = (imageName: string) => {
@@ -39,8 +42,14 @@ const OfferDetailPage = () => {
   const navigate = useNavigate();
   const isRTL = useIsRTL();
   const [quantity, setQuantity] = useState(1);
+  const [subscribersOnlyModalOpen, setSubscribersOnlyModalOpen] = useState(false);
+  const handleQuantityChange = useCallback((q: number) => setQuantity(q), []);
 
+  const token = useUserStore((s) => s.token);
   const { data: webHomeResponse } = useWebHome();
+  const { data: subscriptionStatusData } = useSubscriptionStatus(!!token);
+  const subscriptionData = (subscriptionStatusData as Record<string, unknown> | undefined)?.data as Record<string, unknown> | undefined;
+  const isSubscribed = subscriptionData?.is_active === true;
 
   const staticRestaurant = restaurantId ? getRestaurantById(restaurantId) : null;
 
@@ -121,6 +130,8 @@ const OfferDetailPage = () => {
     return fromMenu;
   }, [restaurant, offerId]);
 
+  const maxQty = offer ? Math.max(99, offer.maxQuantity ?? 99) : 99;
+
   const categoryInfo = offerCategories.find((c) => c.key === category);
   const categoryName = categoryInfo ? (isRTL ? categoryInfo.ar : categoryInfo.en) : category;
   const restaurantName = restaurant?.name[isRTL ? "ar" : "en"] ?? "";
@@ -128,6 +139,10 @@ const OfferDetailPage = () => {
 
   const handlePurchase = () => {
     if (!category || !restaurantId || !offerId) return;
+    if (!isSubscribed) {
+      setSubscribersOnlyModalOpen(true);
+      return;
+    }
     navigate(`/offers/${category}/${restaurantId}/payment?offer=${offerId}&quantity=${quantity}`);
   };
 
@@ -149,10 +164,17 @@ const OfferDetailPage = () => {
     );
   }
 
-  const totalPrice = offer.discountPrice * quantity;
+  const unitPrice = Number(offer.discountPrice) || 0;
+  const totalPrice = unitPrice * quantity;
 
   return (
     <>
+      <SubscribersOnlyModal
+        isOpen={subscribersOnlyModalOpen}
+        onClose={() => setSubscribersOnlyModalOpen(false)}
+        onSubscribe={() => navigate("/subscription/plans")}
+        onBackToOffer={() => setSubscribersOnlyModalOpen(false)}
+      />
       <Helmet>
         <title>{offerTitle} - {restaurantName} | {isRTL ? "العروض" : "Offers"}</title>
         <link rel="canonical" href={`https://mukafaat.com/offers/${category}/${restaurantId}/offer/${offerId}`} />
@@ -280,7 +302,7 @@ const OfferDetailPage = () => {
                   </div>
                 </div>
               </div>
-              <div className="text-3xl font-bold text-gray-800 flex items-center gap-1">
+              <div className="text-3xl font-bold text-gray-800 flex items-center gap-1" data-total-price={totalPrice}>
                 {totalPrice}
                 <CurrencyIcon className="text-gray-800" size={28} />
               </div>
@@ -332,21 +354,11 @@ const OfferDetailPage = () => {
                 <p className="text-gray-600 text-sm">{stripHtml(offer.terms[isRTL ? "ar" : "en"])}</p>
               </section>
 
-              <div className="flex items-center justify-center gap-4 my-8">
-                <button
-                  onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                  className="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center hover:bg-gray-400 transition-colors"
-                >
-                  <FiMinus className="text-white" />
-                </button>
-                <span className="w-12 text-center font-medium">{quantity}</span>
-                <button
-                  onClick={() => setQuantity((q) => Math.min(offer.maxQuantity || 99, q + 1))}
-                  className="w-10 h-10 rounded-full bg-orange-500 text-white flex items-center justify-center hover:bg-orange-600 transition-colors"
-                >
-                  <FiPlus />
-                </button>
-              </div>
+              <QuantitySelector
+                maxQty={maxQty}
+                isRTL={!!isRTL}
+                onQuantityChange={handleQuantityChange}
+              />
 
               <div className="flex flex-wrap gap-4 justify-center">
                 <button

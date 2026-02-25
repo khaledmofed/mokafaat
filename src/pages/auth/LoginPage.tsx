@@ -1,11 +1,14 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useUserStore } from "@stores/userStore";
 import { useTranslation } from "react-i18next";
 import { AkaratCircle, Splash, LogoLight, Soudi } from "@assets";
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const returnUrl = searchParams.get("returnUrl") ?? "";
+  const safeReturnUrl = returnUrl && returnUrl.startsWith("/") && !returnUrl.startsWith("//") ? returnUrl : "/";
   const { t } = useTranslation();
   const { sendOtp, verifyOtp, loading, error, otpSent } = useUserStore();
 
@@ -91,7 +94,7 @@ const LoginPage: React.FC = () => {
           if (res.data?.is_profile_completed === false) {
             navigate("/register");
           } else {
-            navigate("/");
+            navigate(safeReturnUrl);
           }
         } else {
           setToast({ type: "error", message: res.msg });

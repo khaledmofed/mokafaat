@@ -71,6 +71,36 @@
       "success": "Success",
       "error": "Error"
     },
+    "subscription": {
+      "offerForSubscribersOnly": "Offer for subscribers only",
+      "offerForSubscribersOnlyDesc": "This offer is only available to app subscribers. We're happy to have you join to benefit from many offers and discounts.",
+      "subscribe": "Subscribe",
+      "backToOffer": "Back to offer",
+      "choosePlan": "Choose the right subscription for you",
+      "choosePlanDesc": "Sample text for a brief overview of subscriptions. Write here introductory overview text.",
+      "subscriptionDuration": "Subscription duration",
+      "months": "months",
+      "year": "year",
+      "buy": "Buy",
+      "thankYouForSubscribing": "Thank you for subscribing",
+      "thankYouDesc": "Sample text for a brief overview of subscriptions. Write here introductory overview text.",
+      "ok": "OK",
+      "paymentFailed": "Payment failed",
+      "paymentFailedDesc": "We couldn't complete the payment. Please try again or choose another payment method.",
+      "tryAgain": "Try again",
+      "backToPlans": "Back to plans",
+      "backToHome": "Back to home",
+      "planFeatures": "Plan features",
+      "featurePlaceholder": "Plan features placeholder text",
+      "loading": "Loading...",
+      "errorLoadingPlans": "Error loading plans. Please try again later.",
+      "loginRequiredToViewPlans": "Please log in to view subscription plans.",
+      "goToLogin": "Log in",
+      "noPlansAvailable": "No subscription plans available at the moment.",
+      "alreadyHaveActiveSubscription": "You already have an active subscription.",
+      "alreadySubscribedDesc": "You cannot subscribe again while you have an active subscription.",
+      "subscriptionRequired": "Subscription required"
+    },
     "hero": {
       "slides": {
         "slide1": {

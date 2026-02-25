@@ -28,6 +28,11 @@ import BookingsSuccessPage from "../bookings/success";
 import LoginPage from "../auth/LoginPage";
 import RegisterPage from "../auth/RegisterPage";
 import NotFoundPage from "../not_found";
+import {
+  SubscriptionPlansPage,
+  SubscriptionSuccessPage,
+  SubscriptionFailedPage,
+} from "../subscription";
 
 export {
   HomePage,
@@ -55,4 +60,7 @@ export {
   LoginPage,
   RegisterPage,
   NotFoundPage,
+  SubscriptionPlansPage,
+  SubscriptionSuccessPage,
+  SubscriptionFailedPage,
 };

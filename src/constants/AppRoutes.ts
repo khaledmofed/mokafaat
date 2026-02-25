@@ -26,6 +26,9 @@ import {
   LoginPage,
   RegisterPage,
   NotFoundPage,
+  SubscriptionPlansPage,
+  SubscriptionSuccessPage,
+  SubscriptionFailedPage,
 } from "@pages/Website";
 // لوحة المستخدم (App / الموبايل)
 import {
@@ -273,6 +276,21 @@ export const routes: AppRouter[] = [
     path: "/bookings/:type/success",
     element: BookingsSuccessPage,
     inLayout: true,
+  },
+  {
+    path: "/subscription/plans",
+    element: SubscriptionPlansPage,
+    inLayout: false,
+  },
+  {
+    path: "/subscription/success",
+    element: SubscriptionSuccessPage,
+    inLayout: false,
+  },
+  {
+    path: "/subscription/failed",
+    element: SubscriptionFailedPage,
+    inLayout: false,
   },
   {
     path: "/login",

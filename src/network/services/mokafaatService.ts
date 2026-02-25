@@ -87,15 +87,28 @@ export const merchantsApi = {
     }),
 };
 
-// ========== Subscription (يتطلب توكن) ==========
+// ========== Subscription (يتطلب توكن) - مطابق لـ Postman: Subscriptions ==========
 export const subscriptionApi = {
   plans: () => api.get(API_ENDPOINTS.subscription.plans),
-  subscribe: (planId: string | number) =>
+  subscribe: (
+    planId: string | number,
+    paymentMethod?: "online" | "cash" | "bank"
+  ) =>
     api.post(API_ENDPOINTS.subscription.subscribe, null, {
-      params: { plan_id: planId },
+      params: {
+        plan_id: planId,
+        ...(paymentMethod && { payment_method: paymentMethod }),
+      },
     }),
   status: () => api.get(API_ENDPOINTS.subscription.status),
   history: () => api.get(API_ENDPOINTS.subscription.history),
+};
+
+// ========== Payment callback (بعد العودة من بوابة الدفع) ==========
+// مطابق لـ Postman: Subscriptions → "Subscribe Copy" → GET {{url}}/api/payment/callback?id=MOYASAR_PAYMENT_UUID&status=paid
+export const paymentApi = {
+  callback: (params: { id: string; status: string }) =>
+    api.get(API_ENDPOINTS.paymentCallback, { params }),
 };
 
 // ========== Orders (يتطلب توكن) ==========

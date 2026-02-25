@@ -36,6 +36,7 @@ import SignContractButton from "./SignContractButton";
 import FileUploader from "./FileUploader";
 import InquiryModal from "./InquiryModal";
 import CurrencyIcon from "./CurrencyIcon";
+import SubscribersOnlyModal from "./SubscribersOnlyModal";
 
 export {
   Layout,
@@ -76,4 +77,5 @@ export {
   FileUploader,
   InquiryModal,
   CurrencyIcon,
+  SubscribersOnlyModal,
 };

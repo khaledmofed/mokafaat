@@ -18,6 +18,8 @@ import {
   settingsApi,
   pagesApi,
   appConfigApi,
+  subscriptionApi,
+  paymentApi,
 } from "@network/services/mokafaatService";
 
 /** لغة حالية للـ query key (يعيد طلب البيانات عند تغيير اللغة) */
@@ -57,6 +59,9 @@ export const mokafaatKeys = {
     ["mokafaat", "locations", "regions", id] as const,
   cities: (id: string | number) =>
     ["mokafaat", "locations", "cities", id] as const,
+  subscriptionPlans: ["mokafaat", "subscription", "plans"] as const,
+  subscriptionStatus: ["mokafaat", "subscription", "status"] as const,
+  subscriptionHistory: ["mokafaat", "subscription", "history"] as const,
 };
 
 // ========== Home ==========
@@ -274,5 +279,55 @@ export function useCities(id: string | number) {
     queryKey: [...mokafaatKeys.cities(id), lang],
     queryFn: () => locationsApi.cities(id).then((r) => r.data),
     enabled: !!id,
+  });
+}
+
+// ========== Subscription ==========
+export function useSubscriptionPlans() {
+  const lang = useQueryLang();
+  return useQuery({
+    queryKey: [...mokafaatKeys.subscriptionPlans, lang],
+    queryFn: () => subscriptionApi.plans().then((r) => r.data),
+  });
+}
+
+export function useSubscriptionStatus(enabled = true) {
+  return useQuery({
+    queryKey: mokafaatKeys.subscriptionStatus,
+    queryFn: () => subscriptionApi.status().then((r) => r.data),
+    enabled,
+  });
+}
+
+export function useSubscriptionHistory() {
+  const lang = useQueryLang();
+  return useQuery({
+    queryKey: [...mokafaatKeys.subscriptionHistory, lang],
+    queryFn: () => subscriptionApi.history().then((r) => r.data),
+  });
+}
+
+export function useSubscribe() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      planId,
+      paymentMethod,
+    }: {
+      planId: string | number;
+      paymentMethod?: "online" | "cash" | "bank";
+    }) => subscriptionApi.subscribe(planId, paymentMethod),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: mokafaatKeys.subscriptionStatus });
+      queryClient.invalidateQueries({ queryKey: mokafaatKeys.subscriptionHistory });
+    },
+  });
+}
+
+// ========== Payment callback (after gateway redirect) ==========
+export function usePaymentCallback() {
+  return useMutation({
+    mutationFn: (params: { id: string; status: string }) =>
+      paymentApi.callback(params).then((r) => r.data),
   });
 }
