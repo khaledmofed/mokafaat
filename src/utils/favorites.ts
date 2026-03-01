@@ -41,17 +41,19 @@ function normalizeFavoriteItem(row: unknown): NormalizedFavorite | null {
   const price = favorable?.price ?? favorable?.discount_price ?? r.price;
   const originalPrice = favorable?.original_price ?? favorable?.price ?? r.originalPrice;
   const savedAt = (r.created_at ?? r.saved_at ?? r.createdAt ?? new Date().toISOString()) as string;
+  const categoryVal = favorable?.category ?? r.category;
+  const companyIdVal = favorable?.company_id ?? favorable?.merchant_id ?? r.company_id;
   return {
     id: String(r.id ?? `fav_${favorableType}_${favorableId}`),
     type: favorableType as NormalizedFavorite["type"],
     favorable_type: favorableType,
-    favorable_id: favorableId,
+    favorable_id: favorableId as string | number,
     image: img && typeof img === "string" ? img : "",
-    title: { ar: nameAr && String(nameAr) || "—", en: nameEn && String(nameEn) || "—" },
+    title: { ar: (nameAr && String(nameAr)) || "—", en: (nameEn && String(nameEn)) || "—" },
     price: typeof price === "number" ? price : typeof price === "string" ? parseFloat(price) : undefined,
-    originalPrice: typeof originalPrice === "number" ? originalPrice : typeof originalPrice === "string" ? parseFloat(originalPrice) : undefined,
+    originalPrice: typeof originalPrice === "number" ? originalPrice : typeof originalPrice === "string" ? parseFloat(originalPrice as string) : undefined,
     savedAt: String(savedAt),
-    category: (favorable?.category ?? r.category) as string | undefined,
-    companyId: (favorable?.company_id ?? favorable?.merchant_id ?? r.company_id) as string | undefined,
+    category: typeof categoryVal === "string" ? categoryVal : undefined,
+    companyId: typeof companyIdVal === "string" ? companyIdVal : typeof companyIdVal === "number" ? String(companyIdVal) : undefined,
   };
 }

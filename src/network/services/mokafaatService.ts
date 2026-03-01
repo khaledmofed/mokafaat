@@ -147,13 +147,14 @@ export const subscriptionApi = {
   plans: () => api.get(API_ENDPOINTS.subscription.plans),
   subscribe: (
     planId: string | number,
-    paymentMethod?: "online" | "cash" | "bank",
+    paymentMethod?: "online" | "cash" | "bank" | "card",
     useWallet?: boolean
   ) =>
     api.post(API_ENDPOINTS.subscription.subscribe, null, {
       params: {
         plan_id: planId,
-        ...(paymentMethod && { payment_method: paymentMethod }),
+        // Spec: payment_method مطلوب مثلاً card للدفع عبر ميسر
+        ...(paymentMethod && { payment_method: paymentMethod === "online" ? "card" : paymentMethod }),
         ...(useWallet && { use_wallet: true }),
       },
     }),

@@ -15,11 +15,13 @@ import CurrencyIcon from "@components/CurrencyIcon";
 import { useOrders } from "@hooks/api/useMokafaatQueries";
 import { normalizeOrdersList } from "@utils/orders";
 import { LoadingSpinner } from "@components/LoadingSpinner";
+import { downloadVoucher } from "@utils/voucherDownload";
 
 const OrdersPage: React.FC = () => {
   const { t } = useTranslation();
   const isRTL = useIsRTL();
   const token = useUserStore((s) => s.token);
+  const getToken = useUserStore.getState;
   const { data: ordersData, isLoading, isError, error } = useOrders(undefined, { enabled: !!token });
   const orders = useMemo(() => normalizeOrdersList(ordersData ?? null), [ordersData]);
 
@@ -325,12 +327,24 @@ const OrdersPage: React.FC = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <div className="flex space-x-2 space-x-reverse">
-                            <button className="text-[#440798] hover:text-[#440798c9] transition-colors">
+                            <Link
+                              to={`/orders/${order.id}`}
+                              className="text-[#440798] hover:text-[#440798c9] transition-colors inline-flex items-center gap-1"
+                            >
                               <IoEyeOutline className="w-4 h-4" />
-                            </button>
-                            {order.status === "completed" && (
-                              <button className="text-green-600 hover:text-green-700 transition-colors">
+                              {isRTL ? "عرض" : "View"}
+                            </Link>
+                            {order.status === "completed" && order.voucherUrl && (
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  downloadVoucher(order.voucherUrl!, () => getToken().token)
+                                    .catch(() => {})
+                                }
+                                className="text-green-600 hover:text-green-700 transition-colors inline-flex items-center gap-1"
+                              >
                                 <IoDownloadOutline className="w-4 h-4" />
+                                {isRTL ? "تنزيل" : "Download"}
                               </button>
                             )}
                           </div>

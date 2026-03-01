@@ -55,9 +55,14 @@ const SubscriptionPaymentPage: React.FC = () => {
         useWallet: useWallet || undefined,
       },
       {
-        onSuccess: (res: { data?: Record<string, unknown> }) => {
-          const data = (res?.data ?? res) as Record<string, unknown> | undefined;
-          if (data?.status === false) {
+        onSuccess: (res: unknown) => {
+          const response = res as { data?: unknown };
+          const data = (response?.data ?? res) as Record<string, unknown> | undefined;
+          if (!data) {
+            navigate("/subscription/success", { replace: true });
+            return;
+          }
+          if (data.status === false) {
             const msg = (data.msg as string) || t("home.subscription.paymentFailed");
             const errNum = data.errNum as string | undefined;
             if (errNum === "E006" || (msg && String(msg).includes("اشتراك فعال"))) {
@@ -67,10 +72,20 @@ const SubscriptionPaymentPage: React.FC = () => {
             setErrorMsg(msg);
             return;
           }
-          const inner = data?.data as Record<string, unknown> | undefined;
-          const paymentUrl = (data?.payment_url ?? data?.redirect_url ?? inner?.payment_url ?? inner?.redirect_url) as string | undefined;
+          const inner = (data.data ?? data) as Record<string, unknown> | undefined;
+          const deep = (inner?.data ?? inner) as Record<string, unknown> | undefined;
+          const paymentUrl = (
+            data.payment_url ?? data.redirect_url ?? data.url ?? data.checkout_url ?? data.link
+            ?? inner?.payment_url ?? inner?.redirect_url ?? inner?.url ?? inner?.checkout_url ?? inner?.link
+            ?? deep?.payment_url ?? deep?.redirect_url ?? deep?.url ?? deep?.checkout_url ?? deep?.link
+          ) as string | undefined;
           if (paymentUrl && typeof paymentUrl === "string") {
             window.location.href = paymentUrl;
+            return;
+          }
+          const paymentMethodForRedirect = useWallet ? "wallet" : paymentMethod;
+          if (paymentMethodForRedirect === "online") {
+            setErrorMsg(t("home.subscription.paymentFailed") + " " + (isRTL ? "(لم يُرجَع رابط الدفع. جرّب مرة أخرى أو تواصل مع الدعم.)" : "(Payment link was not returned. Try again or contact support.)"));
             return;
           }
           navigate("/subscription/success", { replace: true });

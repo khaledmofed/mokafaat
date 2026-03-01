@@ -7,6 +7,8 @@ import ProfilePage from "../profile/ProfilePage";
 import SavedPage from "../saved/SavedPage";
 import CartPage from "../cart/CartPage";
 import OrdersPage from "../orders/OrdersPage";
+import OrderDetailPage from "../orders/OrderDetailPage";
+import OrderSuccessRedirectPage from "../orders/OrderSuccessRedirectPage";
 import WalletPage from "../wallet/WalletPage";
 
-export { ProfilePage, SavedPage, CartPage, OrdersPage, WalletPage };
+export { ProfilePage, SavedPage, CartPage, OrdersPage, OrderDetailPage, OrderSuccessRedirectPage, WalletPage };

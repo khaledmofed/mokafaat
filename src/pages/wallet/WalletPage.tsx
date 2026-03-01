@@ -57,7 +57,8 @@ const WalletPage: React.FC = () => {
           toast.success(t("wallet.redeem_success"));
           return;
         }
-        toast.error((payload as Record<string, unknown>)?.msg ?? (payload as Record<string, unknown>)?.message ?? t("wallet.redeem_error"));
+        const msg = (payload as Record<string, unknown>)?.msg ?? (payload as Record<string, unknown>)?.message ?? t("wallet.redeem_error");
+        toast.error(String(msg));
       },
       onError: () => toast.error(t("wallet.redeem_error")),
     });

@@ -1,6 +1,6 @@
 /**
  * Determines if the user has an active subscription from GET /api/subscription/status response.
- * يدعم أكثر من شكل لاستجابة الـ API (is_active, subscribed, active, status, expires_at، إلخ)
+ * الباكند يعتمد على اشتراك فعال (غير منتهي)؛ نتحقق من expires_at أولاً إن وُجد.
  */
 export function isUserSubscribed(subscriptionStatusData: unknown): boolean {
   const raw = subscriptionStatusData as Record<string, unknown> | undefined;
@@ -9,6 +9,18 @@ export function isUserSubscribed(subscriptionStatusData: unknown): boolean {
   const data = (raw.data ?? raw) as Record<string, unknown> | undefined;
   if (!data) return false;
 
+  const sub = data.subscription as Record<string, unknown> | undefined;
+  const expiresAt = (data.expires_at ?? sub?.expires_at) as string | undefined;
+
+  if (expiresAt && typeof expiresAt === "string") {
+    try {
+      const exp = new Date(expiresAt).getTime();
+      if (!Number.isNaN(exp) && exp <= Date.now()) return false;
+    } catch {
+      // ignore
+    }
+  }
+
   if (data.is_active === true) return true;
   if (data.active === true) return true;
   if (data.is_subscribed === true) return true;
@@ -16,13 +28,23 @@ export function isUserSubscribed(subscriptionStatusData: unknown): boolean {
   if (data.has_subscription === true) return true;
   if (data.status === "active" || data.status === "subscribed") return true;
 
-  const sub = data.subscription as Record<string, unknown> | undefined;
   if (sub && (sub.is_active === true || sub.status === "active")) return true;
-  if (sub && typeof sub === "object" && (sub.id != null || sub.plan_id != null || sub.expires_at != null)) return true;
+  if (sub && typeof sub === "object" && (sub.id != null || sub.plan_id != null)) {
+    if (expiresAt) {
+      try {
+        const exp = new Date(expiresAt).getTime();
+        if (!Number.isNaN(exp) && exp > Date.now()) return true;
+      } catch {
+        // ignore
+      }
+    } else {
+      return true;
+    }
+  }
 
-  if (data.expires_at && typeof data.expires_at === "string") {
+  if (expiresAt && typeof expiresAt === "string") {
     try {
-      const exp = new Date(data.expires_at).getTime();
+      const exp = new Date(expiresAt).getTime();
       if (!Number.isNaN(exp) && exp > Date.now()) return true;
     } catch {
       // ignore

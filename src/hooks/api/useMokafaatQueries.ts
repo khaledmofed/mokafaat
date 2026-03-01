@@ -206,6 +206,21 @@ export function useOrderDetail(id: string | number) {
   });
 }
 
+export function useCreateOrder() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (params: {
+      order_type: "offer" | "card";
+      item_id: string | number;
+      quantity: number;
+      branch_id?: string | number;
+    }) => ordersApi.create(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["mokafaat", "orders"] });
+    },
+  });
+}
+
 // ========== Coupons ==========
 export function useCouponsHome() {
   const lang = useQueryLang();
@@ -338,9 +353,14 @@ export function useSubscribe() {
 
 // ========== Payment callback (after gateway redirect) ==========
 export function usePaymentCallback() {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (params: { id: string; status: string }) =>
       paymentApi.callback(params).then((r) => r.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: mokafaatKeys.subscriptionStatus });
+      queryClient.invalidateQueries({ queryKey: ["mokafaat", "orders"] });
+    },
   });
 }
 

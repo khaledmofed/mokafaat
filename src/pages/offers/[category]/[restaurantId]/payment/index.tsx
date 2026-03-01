@@ -27,6 +27,20 @@ import {
 } from "@data/offers";
 import { GetStartedSection } from "@pages/home/components";
 import { stripHtml } from "@utils/stripHtml";
+import { useUserStore } from "@stores/userStore";
+import { useCreateOrder, useSubscriptionStatus } from "@hooks/api/useMokafaatQueries";
+import { LoadingSpinner } from "@components/LoadingSpinner";
+import { AxiosError } from "axios";
+import { isUserSubscribed } from "@utils/subscription";
+import { useQueryClient } from "@tanstack/react-query";
+import { mokafaatKeys } from "@hooks/api/useMokafaatQueries";
+import {
+  CardNumberInput,
+  ExpiryInput,
+  CVVInput,
+  CardholderNameInput,
+  validateCardForm,
+} from "@components/CardInputs";
 
 const PaymentPage: React.FC = () => {
   const { category, restaurantId } = useParams<{
@@ -37,10 +51,21 @@ const PaymentPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isRTL = useIsRTL();
+  const token = useUserStore((s) => s.token);
+  const createOrder = useCreateOrder();
+  const queryClient = useQueryClient();
+  const { data: subscriptionStatusData } = useSubscriptionStatus(!!token);
+  const isSubscribed = isUserSubscribed(subscriptionStatusData);
 
   const [selectedPaymentMethod, setSelectedPaymentMethod] =
     useState<string>("");
   const [step, setStep] = useState<"method" | "card" | "confirm">("method");
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [cardNumber, setCardNumber] = useState("");
+  const [expiry, setExpiry] = useState("");
+  const [cvv, setCvv] = useState("");
+  const [cardholderName, setCardholderName] = useState("");
+  const [cardErrors, setCardErrors] = useState<Record<string, string>>({});
 
   // Get data from URL parameters
   const offerId = searchParams.get("offer");
@@ -62,6 +87,12 @@ const PaymentPage: React.FC = () => {
       navigate("/offers");
     }
   }, [company, offer, navigate]);
+
+  useEffect(() => {
+    if (!token && company && offer) {
+      navigate(`/login?returnUrl=${encodeURIComponent(location.pathname + location.search)}`);
+    }
+  }, [token, company, offer, navigate, location.pathname, location.search]);
 
   if (!company || !offer) {
     return (
@@ -121,13 +152,75 @@ const PaymentPage: React.FC = () => {
 
   const handleCardSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const { valid, errors } = validateCardForm({
+      cardNumber,
+      expiry,
+      cvv,
+      cardholderName,
+    });
+    if (!valid) {
+      setCardErrors(errors);
+      return;
+    }
+    setCardErrors({});
     setStep("confirm");
   };
 
   const handleConfirmPurchase = () => {
-    // Navigate to success page with same dynamic structure
-    navigate(
-      `/offers/${category}/${restaurantId}/success?offer=${offerId}&quantity=${quantity}&total=${totalPrice}&method=${selectedPaymentMethod}`
+    if (!offerId || !offer) return;
+    setErrorMsg(null);
+    if (!isSubscribed) {
+      setErrorMsg(isRTL ? "يجب أن يكون لديك اشتراك فعال للحصول على هذا العرض. يرجى الاشتراك أولاً." : "You need an active subscription for this offer. Please subscribe first.");
+      return;
+    }
+    createOrder.mutate(
+      {
+        order_type: "offer",
+        item_id: offerId,
+        quantity,
+        branch_id: undefined,
+      },
+      {
+        onSuccess: (res: unknown) => {
+          const response = res as { data?: unknown };
+          const data = response?.data ?? res;
+          const root = (data as Record<string, unknown>) ?? {};
+          if (root.status === false) {
+            const msg = (root.msg as string) || (root.message as string) || (isRTL ? "فشل إنشاء الطلب" : "Failed to create order");
+            const errNum = root.errNum as string | undefined;
+            if (errNum === "E005") {
+              queryClient.invalidateQueries({ queryKey: mokafaatKeys.subscriptionStatus });
+            }
+            setErrorMsg(msg);
+            return;
+          }
+          const inner = (root.data ?? root) as Record<string, unknown>;
+          const paymentUrl = (root.payment_url ?? root.redirect_url ?? inner?.payment_url ?? inner?.redirect_url) as string | undefined;
+          if (paymentUrl && typeof paymentUrl === "string") {
+            window.location.href = paymentUrl;
+            return;
+          }
+          const orderId = (root.order_id ?? inner?.order_id ?? (root.order as Record<string, unknown>)?.id) as string | number | undefined;
+          if (orderId != null) {
+            navigate(`/orders/${orderId}`);
+            return;
+          }
+          setErrorMsg(isRTL ? "لم يتم إرجاع رابط الدفع. جرّب مرة أخرى." : "Payment link was not returned. Please try again.");
+        },
+        onError: (err) => {
+          if (err instanceof AxiosError && err.response?.status === 401) {
+            setErrorMsg(isRTL ? "يجب تسجيل الدخول" : "Login required");
+            return;
+          }
+          const data = (err as AxiosError<{ msg?: string; message?: string; errNum?: string }>)?.response?.data;
+          if (data?.errNum === "E005" && (data?.msg || data?.message)) {
+            queryClient.invalidateQueries({ queryKey: mokafaatKeys.subscriptionStatus });
+            setErrorMsg(String(data.msg || data.message));
+            return;
+          }
+          setErrorMsg(isRTL ? "فشل إنشاء الطلب" : "Failed to create order");
+        },
+      }
     );
   };
 
@@ -386,58 +479,54 @@ const PaymentPage: React.FC = () => {
                   </h2>
 
                   <form onSubmit={handleCardSubmit} className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {isRTL ? "رقم البطاقة" : "Card Number"}
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="1234 5678 9012 3456"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        required
-                      />
-                    </div>
+                    <CardNumberInput
+                      value={cardNumber}
+                      onChange={setCardNumber}
+                      label={isRTL ? "رقم البطاقة" : "Card Number"}
+                      placeholder="1234 5678 9012 3456"
+                      required
+                      isRTL={!!isRTL}
+                      error={cardErrors.cardNumber}
+                      className="focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    />
 
                     <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          {isRTL ? "تاريخ الانتهاء" : "Expiry Date"}
-                        </label>
-                        <input
-                          type="text"
-                          placeholder="MM/YY"
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          {isRTL ? "CVV" : "CVV"}
-                        </label>
-                        <input
-                          type="text"
-                          placeholder="123"
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {isRTL ? "اسم حامل البطاقة" : "Cardholder Name"}
-                      </label>
-                      <input
-                        type="text"
-                        placeholder={
-                          isRTL
-                            ? "الاسم كما هو مكتوب على البطاقة"
-                            : "Name as it appears on card"
-                        }
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      <ExpiryInput
+                        value={expiry}
+                        onChange={setExpiry}
+                        label={isRTL ? "تاريخ الانتهاء" : "Expiry Date"}
+                        placeholder="MM/YY"
                         required
+                        isRTL={!!isRTL}
+                        error={cardErrors.expiry}
+                        className="focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                      />
+                      <CVVInput
+                        value={cvv}
+                        onChange={setCvv}
+                        label={isRTL ? "CVV" : "CVV"}
+                        placeholder="123"
+                        required
+                        isRTL={!!isRTL}
+                        error={cardErrors.cvv}
+                        className="focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                       />
                     </div>
+
+                    <CardholderNameInput
+                      value={cardholderName}
+                      onChange={setCardholderName}
+                      label={isRTL ? "اسم حامل البطاقة" : "Cardholder Name"}
+                      placeholder={
+                        isRTL
+                          ? "الاسم كما هو مكتوب على البطاقة"
+                          : "Name as it appears on card"
+                      }
+                      required
+                      isRTL={!!isRTL}
+                      error={cardErrors.cardholderName}
+                      className="focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    />
 
                     <button
                       type="submit"
@@ -455,6 +544,19 @@ const PaymentPage: React.FC = () => {
                     {isRTL ? "تأكيد الدفع" : "Confirm Payment"}
                   </h2>
 
+                  {errorMsg && (
+                    <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                      <p>{errorMsg}</p>
+                      <button
+                        type="button"
+                        onClick={() => navigate("/subscription/plans")}
+                        className="mt-3 text-[#400198] font-medium underline hover:no-underline"
+                      >
+                        {isRTL ? "الذهاب لصفحة الاشتراك" : "Go to subscription page"}
+                      </button>
+                    </div>
+                  )}
+
                   <div className="text-center py-8">
                     <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                       <FiCheck className="text-green-600 text-2xl" />
@@ -467,6 +569,12 @@ const PaymentPage: React.FC = () => {
                         ? "هل أنت متأكد من إتمام عملية الدفع؟"
                         : "Are you sure you want to complete this payment?"}
                     </p>
+                    {selectedPaymentMethod && (
+                      <p className="text-gray-500 text-sm mb-4">
+                        {isRTL ? "طريقة الدفع: " : "Payment method: "}
+                        {selectedPaymentMethod}
+                      </p>
+                    )}
 
                     <div className="flex gap-4 justify-center">
                       <button
@@ -477,9 +585,17 @@ const PaymentPage: React.FC = () => {
                       </button>
                       <button
                         onClick={handleConfirmPurchase}
-                        className="px-6 py-3 bg-[#400198] text-white rounded-lg hover:bg-[#54015d] transition-colors"
+                        disabled={createOrder.isPending}
+                        className="px-6 py-3 bg-[#400198] text-white rounded-lg hover:bg-[#54015d] transition-colors disabled:opacity-70 flex items-center justify-center gap-2"
                       >
-                        {isRTL ? "تأكيد الدفع" : "Confirm Payment"}
+                        {createOrder.isPending ? (
+                          <>
+                            <LoadingSpinner />
+                            <span>{isRTL ? "جاري التحويل..." : "Redirecting..."}</span>
+                          </>
+                        ) : (
+                          isRTL ? "تأكيد الدفع" : "Confirm Payment"
+                        )}
                       </button>
                     </div>
                   </div>

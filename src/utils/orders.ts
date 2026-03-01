@@ -1,6 +1,6 @@
 /**
  * Normalize GET /api/orders response to a unified list for the Orders page.
- * Supports: data.data, data.orders, data = array, and item fields: id, status, created_at, total, items, payment_method, etc.
+ * Spec: data.orders.active.orders + data.orders.finished.orders (or legacy data.orders / array).
  */
 export type OrderStatus = "pending" | "confirmed" | "completed" | "cancelled";
 
@@ -19,12 +19,21 @@ export interface OrderItem {
 
 export interface NormalizedOrder {
   id: string;
+  orderNumber?: string;
+  orderType?: "offer" | "card";
   items: OrderItem[];
   totalAmount: number;
   status: OrderStatus;
   paymentMethod: string;
   createdAt: string;
   completedAt?: string;
+  /** من الـ API للتفاصيل والـ voucher */
+  activationCode?: string;
+  qrCodeUrl?: string;
+  voucherUrl?: string;
+  usedAt?: string;
+  item?: Record<string, unknown>;
+  merchant?: Record<string, unknown>;
 }
 
 const STATUS_MAP: Record<string, OrderStatus> = {
@@ -97,25 +106,47 @@ function normalizeOrderRow(row: unknown): NormalizedOrder | null {
 
   return {
     id: String(id),
+    orderNumber: r.order_number != null ? String(r.order_number) : undefined,
+    orderType: (r.order_type as NormalizedOrder["orderType"]) ?? undefined,
     items,
     totalAmount,
     status: toStatus(r.status),
     paymentMethod: String(paymentMethod),
     createdAt: String(createdAt),
     completedAt: completedAt != null ? String(completedAt) : undefined,
+    activationCode: r.activation_code != null ? String(r.activation_code) : undefined,
+    qrCodeUrl: typeof r.qr_code_url === "string" ? r.qr_code_url : undefined,
+    voucherUrl: typeof r.voucher_url === "string" ? r.voucher_url : undefined,
+    usedAt: r.used_at != null ? String(r.used_at) : undefined,
+    item: r.item && typeof r.item === "object" ? (r.item as Record<string, unknown>) : undefined,
+    merchant: r.merchant && typeof r.merchant === "object" ? (r.merchant as Record<string, unknown>) : undefined,
   };
 }
 
 export function normalizeOrdersList(data: unknown): NormalizedOrder[] {
   const raw = (data as Record<string, unknown>)?.data ?? data;
   let list: unknown[] = [];
-  if (Array.isArray(raw)) list = raw;
-  else if (raw && typeof raw === "object") {
-    const arr =
-      (raw as Record<string, unknown>).data ??
-      (raw as Record<string, unknown>).orders ??
-      (raw as Record<string, unknown>).list;
-    list = Array.isArray(arr) ? arr : [];
+  if (Array.isArray(raw)) {
+    list = raw;
+  } else if (raw && typeof raw === "object") {
+    const ordersBlock = (raw as Record<string, unknown>).orders;
+    if (ordersBlock && typeof ordersBlock === "object") {
+      const active = (ordersBlock as Record<string, unknown>).active;
+      const finished = (ordersBlock as Record<string, unknown>).finished;
+      const activeList = Array.isArray((active as Record<string, unknown>)?.orders)
+        ? (active as Record<string, unknown>).orders as unknown[]
+        : [];
+      const finishedList = Array.isArray((finished as Record<string, unknown>)?.orders)
+        ? (finished as Record<string, unknown>).orders as unknown[]
+        : [];
+      list = [...activeList, ...finishedList];
+    } else {
+      const arr =
+        (raw as Record<string, unknown>).data ??
+        (raw as Record<string, unknown>).orders ??
+        (raw as Record<string, unknown>).list;
+      list = Array.isArray(arr) ? arr : [];
+    }
   }
   return list.map(normalizeOrderRow).filter(Boolean) as NormalizedOrder[];
 }

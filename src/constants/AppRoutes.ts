@@ -37,6 +37,8 @@ import {
   SavedPage,
   CartPage,
   OrdersPage,
+  OrderDetailPage,
+  OrderSuccessRedirectPage,
   WalletPage,
 } from "@pages/App";
 
@@ -327,6 +329,16 @@ export const routes: AppRouter[] = [
   {
     path: "/orders",
     element: OrdersPage,
+    inLayout: true,
+  },
+  {
+    path: "/orders/success",
+    element: OrderSuccessRedirectPage,
+    inLayout: false,
+  },
+  {
+    path: "/orders/:orderId",
+    element: OrderDetailPage,
     inLayout: true,
   },
   {

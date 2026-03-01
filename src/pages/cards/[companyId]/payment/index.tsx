@@ -9,9 +9,6 @@ import { useIsRTL } from "@hooks";
 import { useState } from "react";
 import {
   FiArrowLeft,
-  FiCreditCard,
-  //   FiDollarSign,
-  //   FiGift,
 } from "react-icons/fi";
 import {
   getCompanyById,
@@ -38,15 +35,27 @@ import {
 } from "@assets";
 import CurrencyIcon from "@components/CurrencyIcon";
 import GetStartedSection from "@pages/home/components/GetStartedSection";
-import { useWebHome } from "@hooks/api/useMokafaatQueries";
+import { useWebHome, useCreateOrder } from "@hooks/api/useMokafaatQueries";
 import { mapApiCardsToModels } from "@network/mappers/cardsMapper";
 import { useMemo } from "react";
+import { useUserStore } from "@stores/userStore";
+import { LoadingSpinner } from "@components/LoadingSpinner";
+import { AxiosError } from "axios";
+import {
+  CardNumberInput,
+  ExpiryInput,
+  CVVInput,
+  CardholderNameInput,
+  validateCardForm,
+} from "@components/CardInputs";
 
 const PaymentPage = () => {
   const { companyId } = useParams<{ companyId: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const isRTL = useIsRTL();
+  const token = useUserStore((s) => s.token);
+  const createOrder = useCreateOrder();
   const { data: webHomeResponse } = useWebHome();
 
   const offerId = searchParams.get("offer");
@@ -108,6 +117,12 @@ const PaymentPage = () => {
     null;
 
   const [step, setStep] = useState<"method" | "card" | "confirm">("method");
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [cardNumber, setCardNumber] = useState("");
+  const [expiry, setExpiry] = useState("");
+  const [cvv, setCvv] = useState("");
+  const [cardholderName, setCardholderName] = useState("");
+  const [cardErrors, setCardErrors] = useState<Record<string, string>>({});
 
   // Function to get card image (supports URL from API)
   const getCardImage = (logoName: string) => {
@@ -150,6 +165,11 @@ const PaymentPage = () => {
         </div>
       </div>
     );
+  }
+
+  if (!token) {
+    navigate(`/login?returnUrl=${encodeURIComponent(`/cards/${companyId}/payment?offer=${offerId}&quantity=${quantity}`)}`);
+    return null;
   }
 
   const totalPrice = offer.price * quantity;
@@ -204,13 +224,55 @@ const PaymentPage = () => {
   };
 
   const handleCardSubmit = () => {
+    const { valid, errors } = validateCardForm({
+      cardNumber,
+      expiry,
+      cvv,
+      cardholderName,
+    });
+    if (!valid) {
+      setCardErrors(errors);
+      return;
+    }
+    setCardErrors({});
     setStep("confirm");
   };
 
   const handleConfirmPurchase = () => {
-    // Navigate to success page
-    navigate(
-      `/cards/${companyId}/success?offer=${offerId}&quantity=${quantity}&total=${totalPrice}`
+    if (!companyId || !offer) return;
+    setErrorMsg(null);
+    createOrder.mutate(
+      {
+        order_type: "card",
+        item_id: companyId,
+        quantity,
+      },
+      {
+        onSuccess: (res: unknown) => {
+          const response = res as { data?: unknown };
+          const data = response?.data ?? res;
+          const root = (data as Record<string, unknown>) ?? {};
+          const inner = (root.data ?? root) as Record<string, unknown>;
+          const paymentUrl = (root.payment_url ?? root.redirect_url ?? inner?.payment_url ?? inner?.redirect_url) as string | undefined;
+          if (paymentUrl && typeof paymentUrl === "string") {
+            window.location.href = paymentUrl;
+            return;
+          }
+          const orderId = (root.order_id ?? inner?.order_id ?? (root.order as Record<string, unknown>)?.id) as string | number | undefined;
+          if (orderId != null) {
+            navigate(`/orders/${orderId}`);
+            return;
+          }
+          setErrorMsg(isRTL ? "لم يتم إرجاع رابط الدفع. جرّب مرة أخرى." : "Payment link was not returned. Please try again.");
+        },
+        onError: (err) => {
+          if (err instanceof AxiosError && err.response?.status === 401) {
+            setErrorMsg(isRTL ? "يجب تسجيل الدخول" : "Login required");
+            return;
+          }
+          setErrorMsg(isRTL ? "فشل إنشاء الطلب" : "Failed to create order");
+        },
+      }
     );
   };
 
@@ -423,47 +485,54 @@ const PaymentPage = () => {
                 }}
               >
                 <div className="space-y-4">
-                  {/* Card Number */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {isRTL ? "رقم البطاقة" : "Card Number"}
-                    </label>
-                    <div className="relative">
-                      <FiCreditCard className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                      <input
-                        type="text"
-                        placeholder="3999 - 1234 - 5678 - 0000"
-                        className="w-full pl-4 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        required
-                      />
-                    </div>
+                  <CardNumberInput
+                    value={cardNumber}
+                    onChange={setCardNumber}
+                    label={isRTL ? "رقم البطاقة" : "Card Number"}
+                    placeholder="1234 5678 9012 3456"
+                    required
+                    isRTL={!!isRTL}
+                    error={cardErrors.cardNumber}
+                    className="focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  />
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <ExpiryInput
+                      value={expiry}
+                      onChange={setExpiry}
+                      label={isRTL ? "تاريخ الانتهاء" : "Expiry Date"}
+                      placeholder="MM/YY"
+                      required
+                      isRTL={!!isRTL}
+                      error={cardErrors.expiry}
+                      className="focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    />
+                    <CVVInput
+                      value={cvv}
+                      onChange={setCvv}
+                      label={isRTL ? "CVV" : "CVV"}
+                      placeholder="123"
+                      required
+                      isRTL={!!isRTL}
+                      error={cardErrors.cvv}
+                      className="focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    />
                   </div>
 
-                  {/* Expiry and CVC */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        {isRTL ? "تاريخ الانتهاء" : "Expiry Date"}
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="MM/YY"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        CVC
-                      </label>
-                      <input
-                        type="text"
-                        placeholder="CVC"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                        required
-                      />
-                    </div>
-                  </div>
+                  <CardholderNameInput
+                    value={cardholderName}
+                    onChange={setCardholderName}
+                    label={isRTL ? "اسم حامل البطاقة" : "Cardholder Name"}
+                    placeholder={
+                      isRTL
+                        ? "الاسم كما هو مكتوب على البطاقة"
+                        : "Name as it appears on card"
+                    }
+                    required
+                    isRTL={!!isRTL}
+                    error={cardErrors.cardholderName}
+                    className="focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  />
                 </div>
 
                 <div className="flex gap-4 mt-6">
@@ -491,6 +560,12 @@ const PaymentPage = () => {
               <h2 className="text-lg font-semibold text-gray-800 mb-6">
                 {isRTL ? "تأكيد الشراء" : "Confirm Purchase"}
               </h2>
+
+              {errorMsg && (
+                <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                  {errorMsg}
+                </div>
+              )}
 
               <div className="text-center mb-6">
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -527,9 +602,17 @@ const PaymentPage = () => {
                 </button>
                 <button
                   onClick={handleConfirmPurchase}
-                  className="flex-1 py-3 px-6 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-medium"
+                  disabled={createOrder.isPending}
+                  className="flex-1 py-3 px-6 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-medium disabled:opacity-70 flex items-center justify-center gap-2"
                 >
-                  {isRTL ? "تأكيد الشراء" : "Confirm Purchase"}
+                  {createOrder.isPending ? (
+                    <>
+                      <LoadingSpinner />
+                      <span>{isRTL ? "جاري التحويل..." : "Redirecting..."}</span>
+                    </>
+                  ) : (
+                    isRTL ? "تأكيد الشراء" : "Confirm Purchase"
+                  )}
                 </button>
               </div>
             </div>

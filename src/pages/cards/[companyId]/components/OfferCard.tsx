@@ -41,9 +41,10 @@ interface OfferCardProps {
 
 const OfferCard: React.FC<OfferCardProps> = ({
   offer,
-  companyId,
+  companyId: _companyId,
   onOfferClick,
 }) => {
+  void _companyId;
   const isRTL = useIsRTL();
   const navigate = useNavigate();
   const { i18n } = useTranslation();
