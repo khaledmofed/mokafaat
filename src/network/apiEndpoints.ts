@@ -38,6 +38,7 @@ export const API_ENDPOINTS = {
 
   // ========== Home & Discovery ==========
   home: `${API}/home`,
+  filters: (categoryId: string | number) => `${API}/filters/${categoryId}`,
   offersByCategory: (categoryId: string | number) =>
     `${API}/offers-by-category/${categoryId}`,
   search: `${API}/search`,

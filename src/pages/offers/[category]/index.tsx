@@ -21,15 +21,15 @@ import { Pro1, Pro2, Pro3, Pro4, Pro5, Pro6, Pro7, Pro8 } from "@assets";
 import { AboutPattern } from "@assets";
 import GetStartedSection from "@pages/home/components/GetStartedSection";
 import { BsHeart, BsShare } from "react-icons/bs";
-import FilterSidebar from "../components/FilterSidebar";
+import FilterSidebar, { type FilterState } from "../components/FilterSidebar";
 import RestaurantListView from "../components/RestaurantListView";
-import { useWebHome } from "@hooks/api/useMokafaatQueries";
+import { useWebHome, useFilters } from "@hooks/api/useMokafaatQueries";
 import { mapApiOffersToModels } from "@network/mappers/offersMapper";
 import { API_BASE_URL } from "@config/api";
 
 function buildCategoryIconUrl(
   icon: string | undefined,
-  fallback: string
+  fallback: string,
 ): string {
   if (!icon || typeof icon !== "string") return fallback;
   let url = icon.trim();
@@ -40,7 +40,9 @@ function buildCategoryIconUrl(
       url.substring(i + "/storage/https://".length);
   }
   if (url && !url.startsWith("http")) {
-    url = url.startsWith("/") ? `${API_BASE_URL}${url}` : `${API_BASE_URL}/storage/${url}`;
+    url = url.startsWith("/")
+      ? `${API_BASE_URL}${url}`
+      : `${API_BASE_URL}/storage/${url}`;
   }
   return url || fallback;
 }
@@ -54,18 +56,40 @@ const CategoryOffersPage = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [appliedFilters, setAppliedFilters] = useState<{
-    sortBy: string;
-    restaurants: string[];
-    subcategories: string[];
-    offerTypes: string[];
-    facilities: string[];
-  } | null>(null);
+  const [appliedFilters, setAppliedFilters] = useState<FilterState | null>(null);
   const perPage = 9;
 
   const { data: webHomeResponse } = useWebHome();
 
+  // استخراج categoryId من API قبل أي استخدام (مطلوب لـ useFilters)
+  const categoryId = useMemo(() => {
+    if (!category || !webHomeResponse) return null;
+    const res = webHomeResponse as Record<string, unknown>;
+    const data = res?.data as Record<string, unknown> | undefined;
+    const cats = data?.categories as Array<Record<string, unknown>> | undefined;
+    const apiCat = Array.isArray(cats)
+      ? cats.find((c) => String(c?.slug ?? "") === category)
+      : undefined;
+    return typeof apiCat?.id === "number" ? apiCat.id : null;
+  }, [category, webHomeResponse]);
+
+  const { data: filtersResponse } = useFilters(categoryId);
+  const filterOptions = useMemo(() => {
+    if (!filtersResponse) return { sortOptions: [], subcategories: [], offerTypes: [], brands: [] };
+    const res = filtersResponse as Record<string, unknown>;
+    const data = res?.data as Record<string, unknown> | undefined;
+    const inner = data?.data as Record<string, unknown> | undefined;
+    if (!inner) return { sortOptions: [], subcategories: [], offerTypes: [], brands: [] };
+    return {
+      sortOptions: (inner.sort_options as Array<{ key: string; name: string }>) ?? [],
+      subcategories: (inner.subcategories as Array<{ id: number; name: string }>) ?? [],
+      offerTypes: (inner.offer_types as Array<{ id: number; name: string }>) ?? [],
+      brands: (inner.brands as Array<{ id: number; name: string }>) ?? [],
+    };
+  }, [filtersResponse]);
+
   // Category info: from API categories or fallback to offerCategories
+  // العرض في الـ breadcrumb والهيدر يكون دائماً الـ name وليس الـ slug
   const categoryInfo = useMemo(() => {
     const fallback = offerCategories.find((cat) => cat.key === category);
     if (!webHomeResponse) return fallback ?? null;
@@ -76,19 +100,44 @@ const CategoryOffersPage = () => {
       ? cats.find((c) => String(c?.slug ?? "") === category)
       : undefined;
     if (!apiCat) return fallback ?? null;
-    const name = String(apiCat.name ?? apiCat.title ?? "");
+    const nameAr = String(
+      apiCat.name_ar ?? apiCat.name ?? apiCat.title ?? "",
+    ).trim();
+    const nameEn = String(
+      apiCat.name_en ?? apiCat.name ?? apiCat.title ?? "",
+    ).trim();
+    const ar = nameAr || (fallback?.ar as string) || "";
+    const en = nameEn || (fallback?.en as string) || "";
     const iconRaw = apiCat.image ?? apiCat.image_url;
     const icon = buildCategoryIconUrl(
       typeof iconRaw === "string" ? iconRaw : undefined,
-      fallback?.icon ?? ""
+      fallback?.icon ?? "",
     );
     return {
       key: category!,
-      ar: name,
-      en: name,
+      id: typeof apiCat.id === "number" ? apiCat.id : undefined,
+      ar,
+      en,
       icon,
       color: fallback?.color ?? "#400198",
     };
+  }, [category, webHomeResponse]);
+
+  // التصنيفات الفرعية للتصنيف الحالي من API (data.categories[].subcategories)
+  const apiSubcategories = useMemo(() => {
+    if (!category || !webHomeResponse) return [];
+    const res = webHomeResponse as Record<string, unknown>;
+    const data = res?.data as Record<string, unknown> | undefined;
+    const cats = data?.categories as Array<Record<string, unknown>> | undefined;
+    if (!Array.isArray(cats)) return [];
+    const mainCat = cats.find((c) => String(c?.slug ?? "") === category);
+    const sub = mainCat?.subcategories as Array<{ id?: number; name?: string; slug?: string; image?: string | null }> | undefined;
+    if (!Array.isArray(sub) || sub.length === 0) return [];
+    return sub.map((s) => ({
+      id: s.id ?? 0,
+      name: String(s.name ?? ""),
+      slug: String(s.slug ?? ""),
+    })).filter((s) => s.name && s.slug);
   }, [category, webHomeResponse]);
 
   // Restaurants from API (offers grouped by merchant) or fallback to static data
@@ -107,7 +156,8 @@ const CategoryOffersPage = () => {
         : []),
     ];
     const offers = mapApiOffersToModels(all).filter(
-      (o) => (o.category || "").toLowerCase() === (category || "").toLowerCase()
+      (o) =>
+        (o.category || "").toLowerCase() === (category || "").toLowerCase(),
     );
     const byCompany = new Map<string, Offer[]>();
     for (const o of offers) {
@@ -190,28 +240,53 @@ const CategoryOffersPage = () => {
             .includes(search.toLowerCase()) ||
           restaurant.description[isRTL ? "ar" : "en"]
             .toLowerCase()
-            .includes(search.toLowerCase())
+            .includes(search.toLowerCase()),
       );
     }
 
     if (appliedFilters) {
-      if (appliedFilters.sortBy === "rating") {
-        restaurants = [...restaurants].sort((a, b) => b.rating - a.rating);
-      } else if (appliedFilters.sortBy === "newest") {
-        restaurants = [...restaurants].sort((a, b) => b.views - a.views);
+      if (appliedFilters.brandIds.length > 0) {
+        restaurants = restaurants.filter((r) =>
+          appliedFilters!.brandIds.some((bid) => String(bid) === r.id || bid === Number(r.id)),
+        );
+      }
+      if (appliedFilters.priceRange.min != null || appliedFilters.priceRange.max != null) {
+        const min = appliedFilters.priceRange.min ?? 0;
+        const max = appliedFilters.priceRange.max ?? Infinity;
+        restaurants = restaurants.filter((r) =>
+          r.offers.some((o) => {
+            const price = o.discountPrice ?? o.originalPrice ?? 0;
+            return price >= min && price <= max;
+          }),
+        );
+      }
+      switch (appliedFilters.sortBy) {
+        case "highest_rated":
+          restaurants = [...restaurants].sort((a, b) => b.rating - a.rating);
+          break;
+        case "newest":
+          restaurants = [...restaurants].sort((a, b) => b.views - a.views);
+          break;
+        case "best_selling":
+          restaurants = [...restaurants].sort((a, b) => b.saves - a.saves);
+          break;
+        case "highest_discount":
+          restaurants = [...restaurants].sort((a, b) => {
+            const dA = Math.max(...a.offers.map((o) => o.discountPercentage ?? 0));
+            const dB = Math.max(...b.offers.map((o) => o.discountPercentage ?? 0));
+            return dB - dA;
+          });
+          break;
+        case "nearest":
+        default:
+          break;
       }
     }
 
     return restaurants;
   }, [category, search, isRTL, appliedFilters, apiRestaurants]);
 
-  const handleApplyFilters = (filters: {
-    sortBy: string;
-    restaurants: string[];
-    subcategories: string[];
-    offerTypes: string[];
-    facilities: string[];
-  }) => {
+  const handleApplyFilters = (filters: FilterState) => {
     setAppliedFilters(filters);
     setCurrentPage(1);
   };
@@ -242,8 +317,14 @@ const CategoryOffersPage = () => {
     <>
       <Helmet>
         <title>
-          {isRTL ? categoryInfo.ar : categoryInfo.en} -{" "}
-          {isRTL ? "العروض" : "Offers"}
+          {categoryInfo
+            ? isRTL
+              ? categoryInfo.ar
+              : categoryInfo.en
+            : isRTL
+              ? "تصنيف"
+              : "Category"}{" "}
+          - {isRTL ? "العروض" : "Offers"}
         </title>
         <link
           rel="canonical"
@@ -271,21 +352,39 @@ const CategoryOffersPage = () => {
               style={{ backgroundColor: `#f8f1ff` }}
             >
               <img
-                src={categoryInfo.icon}
-                alt={isRTL ? categoryInfo.ar : categoryInfo.en}
+                src={categoryInfo?.icon}
+                alt={
+                  categoryInfo
+                    ? isRTL
+                      ? categoryInfo.ar
+                      : categoryInfo.en
+                    : isRTL
+                      ? "تصنيف"
+                      : "Category"
+                }
                 className="w-6 h-6 object-contain"
               />
             </div>
             <h1 className="text-3xl md:text-4xl font-bold text-white">
-              {isRTL ? categoryInfo.ar : categoryInfo.en}
+              {categoryInfo
+                ? isRTL
+                  ? categoryInfo.ar
+                  : categoryInfo.en
+                : isRTL
+                  ? "تصنيف"
+                  : "Category"}
             </h1>
           </div>
 
           {/* Description */}
           <p className="text-white/80 text-lg mb-4">
-            {isRTL
-              ? `اكتشف أفضل العروض في فئة ${categoryInfo.ar}`
-              : `Discover the best offers in ${categoryInfo.en} category`}
+            {categoryInfo
+              ? isRTL
+                ? `اكتشف أفضل العروض في فئة ${categoryInfo.ar}`
+                : `Discover the best offers in ${categoryInfo.en} category`
+              : isRTL
+                ? "اكتشف أفضل العروض"
+                : "Discover the best offers"}
           </p>
 
           {/* Breadcrumb */}
@@ -305,7 +404,13 @@ const CategoryOffersPage = () => {
             </Link>
             <span className="text-white text-xs mx-2">|</span>
             <span className="text-[#fd671a] font-medium text-xs">
-              {isRTL ? categoryInfo.ar : categoryInfo.en}
+              {categoryInfo
+                ? isRTL
+                  ? categoryInfo.ar
+                  : categoryInfo.en
+                : isRTL
+                  ? "تصنيف"
+                  : "Category"}
             </span>
           </div>
         </div>
@@ -321,6 +426,47 @@ const CategoryOffersPage = () => {
       </section>
 
       <section className="container mx-auto md:py-10 py-6 px-4">
+        {/* التصنيفات الفرعية من API - فوق شريط البحث والفلتر */}
+        {apiSubcategories.length > 0 && (
+          <div className="mb-6">
+            <h3 className="text-sm font-semibold text-gray-700 mb-3">
+              {isRTL ? "فئات فرعية" : "Subcategories"}
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {apiSubcategories.map((sub) => (
+                <button
+                  key={sub.id}
+                  type="button"
+                  onClick={() => {
+                    setAppliedFilters((prev) => {
+                      const next = prev ?? {
+                        sortBy: "nearest",
+                        subcategoryIds: [],
+                        offerTypeIds: [],
+                        brandIds: [],
+                        priceRange: {},
+                      };
+                      const has = next.subcategoryIds.includes(sub.id);
+                      const subcategoryIds = has
+                        ? next.subcategoryIds.filter((s) => s !== sub.id)
+                        : [...next.subcategoryIds, sub.id];
+                      return { ...next, subcategoryIds };
+                    });
+                    setCurrentPage(1);
+                  }}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    appliedFilters?.subcategoryIds?.includes(sub.id)
+                      ? "bg-[#400198] text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200"
+                  }`}
+                >
+                  {sub.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Toolbar */}
         <div className="flex items-center justify-between mb-6">
           {/* Results Count */}
@@ -338,26 +484,14 @@ const CategoryOffersPage = () => {
             {/* Applied Filters Tags */}
             {appliedFilters && (
               <div className="flex flex-wrap gap-2">
-                {/* Sort By Tag */}
-                {appliedFilters.sortBy !== "closest" && (
+                {appliedFilters.sortBy !== "nearest" && (
                   <span className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
-                    {appliedFilters.sortBy === "rating"
-                      ? isRTL
-                        ? "أعلى تقييم"
-                        : "Highest rating"
-                      : appliedFilters.sortBy === "newest"
-                      ? isRTL
-                        ? "عروض جديدة"
-                        : "New offers"
-                      : appliedFilters.sortBy}
+                    {filterOptions.sortOptions.find((s) => s.key === appliedFilters.sortBy)?.name ?? appliedFilters.sortBy}
                     <button
                       onClick={() => {
-                        const newFilters = {
-                          ...appliedFilters,
-                          sortBy: "closest",
-                        };
-                        setAppliedFilters(newFilters);
-                        handleApplyFilters(newFilters);
+                        const next = { ...appliedFilters, sortBy: "nearest" as const };
+                        setAppliedFilters(next);
+                        handleApplyFilters(next);
                       }}
                       className="ml-1 hover:bg-purple-200 rounded-full p-0.5"
                     >
@@ -365,215 +499,106 @@ const CategoryOffersPage = () => {
                     </button>
                   </span>
                 )}
-
-                {/* Restaurant Tags */}
-                {appliedFilters.restaurants.map((restaurant) => (
-                  <span
-                    key={restaurant}
-                    className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium"
-                  >
-                    {restaurant === "pizza"
-                      ? isRTL
-                        ? "مطاعم بيتزا"
-                        : "Pizza restaurants"
-                      : restaurant === "eastern"
-                      ? isRTL
-                        ? "أكلات شرقية"
-                        : "Eastern cuisine"
-                      : restaurant === "burger"
-                      ? isRTL
-                        ? "برجر"
-                        : "Burger"
-                      : restaurant === "shawarma"
-                      ? isRTL
-                        ? "شاورما"
-                        : "Shawarma"
-                      : restaurant === "grills"
-                      ? isRTL
-                        ? "مشاوي"
-                        : "Grills"
-                      : restaurant === "kitchen"
-                      ? isRTL
-                        ? "مطبخ"
-                        : "Kitchen"
-                      : restaurant === "falafel"
-                      ? isRTL
-                        ? "فلافل"
-                        : "Falafel"
-                      : restaurant === "desserts"
-                      ? isRTL
-                        ? "حلويات"
-                        : "Desserts"
-                      : isRTL
-                      ? "أخرى"
-                      : "Other"}
-                    <button
-                      onClick={() => {
-                        const newFilters = {
-                          ...appliedFilters,
-                          restaurants: appliedFilters.restaurants.filter(
-                            (r) => r !== restaurant
-                          ),
-                        };
-                        setAppliedFilters(newFilters);
-                        handleApplyFilters(newFilters);
-                      }}
-                      className="ml-1 hover:bg-blue-200 rounded-full p-0.5"
+                {appliedFilters.subcategoryIds.map((id) => {
+                  const sub = apiSubcategories.find((s) => s.id === id) ?? filterOptions.subcategories.find((s) => s.id === id);
+                  const label = sub?.name ?? String(id);
+                  return (
+                    <span
+                      key={id}
+                      className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium"
                     >
-                      ×
-                    </button>
-                  </span>
-                ))}
-
-                {/* Subcategory Tags */}
-                {appliedFilters.subcategories.map((subcategory) => (
-                  <span
-                    key={subcategory}
-                    className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium"
-                  >
-                    {subcategory === "fastfood"
-                      ? isRTL
-                        ? "وجبات سريعة"
-                        : "Fast food"
-                      : subcategory === "finedining"
-                      ? isRTL
-                        ? "مطاعم فاخرة"
-                        : "Fine dining"
-                      : subcategory === "external"
-                      ? isRTL
-                        ? "طلبات خارجية"
-                        : "External orders"
-                      : subcategory === "cafes"
-                      ? isRTL
-                        ? "مقاهي"
-                        : "Cafes"
-                      : isRTL
-                      ? "أخرى"
-                      : "Other"}
-                    <button
-                      onClick={() => {
-                        const newFilters = {
-                          ...appliedFilters,
-                          subcategories: appliedFilters.subcategories.filter(
-                            (s) => s !== subcategory
-                          ),
-                        };
-                        setAppliedFilters(newFilters);
-                        handleApplyFilters(newFilters);
-                      }}
-                      className="ml-1 hover:bg-green-200 rounded-full p-0.5"
+                      {label}
+                      <button
+                        onClick={() => {
+                          const next = { ...appliedFilters, subcategoryIds: appliedFilters.subcategoryIds.filter((s) => s !== id) };
+                          setAppliedFilters(next);
+                          handleApplyFilters(next);
+                        }}
+                        className="ml-1 hover:bg-green-200 rounded-full p-0.5"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  );
+                })}
+                {appliedFilters.offerTypeIds.map((id) => {
+                  const ot = filterOptions.offerTypes.find((o) => o.id === id);
+                  return (
+                    <span
+                      key={id}
+                      className="inline-flex items-center gap-1 px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium"
                     >
-                      ×
-                    </button>
-                  </span>
-                ))}
-
-                {/* Offer Type Tags */}
-                {appliedFilters.offerTypes.map((offerType) => (
-                  <span
-                    key={offerType}
-                    className="inline-flex items-center gap-1 px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium"
-                  >
-                    {offerType === "light"
-                      ? isRTL
-                        ? "عروض لايت"
-                        : "Light offers"
-                      : offerType === "kids"
-                      ? isRTL
-                        ? "للأطفال"
-                        : "For children"
-                      : offerType === "buffet"
-                      ? isRTL
-                        ? "بوفيه"
-                        : "Buffet"
-                      : offerType === "brunch"
-                      ? isRTL
-                        ? "برانش"
-                        : "Brunch"
-                      : offerType}
-                    <button
-                      onClick={() => {
-                        const newFilters = {
-                          ...appliedFilters,
-                          offerTypes: appliedFilters.offerTypes.filter(
-                            (o) => o !== offerType
-                          ),
-                        };
-                        setAppliedFilters(newFilters);
-                        handleApplyFilters(newFilters);
-                      }}
-                      className="ml-1 hover:bg-orange-200 rounded-full p-0.5"
+                      {ot?.name ?? String(id)}
+                      <button
+                        onClick={() => {
+                          const next = { ...appliedFilters, offerTypeIds: appliedFilters.offerTypeIds.filter((o) => o !== id) };
+                          setAppliedFilters(next);
+                          handleApplyFilters(next);
+                        }}
+                        className="ml-1 hover:bg-orange-200 rounded-full p-0.5"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  );
+                })}
+                {appliedFilters.brandIds.map((id) => {
+                  const brand = filterOptions.brands.find((b) => b.id === id);
+                  return (
+                    <span
+                      key={id}
+                      className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium"
                     >
-                      ×
-                    </button>
-                  </span>
-                ))}
-
-                {/* Facilities Tags */}
-                {appliedFilters.facilities.map((facility) => (
-                  <span
-                    key={facility}
-                    className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium"
-                  >
-                    {facility === "fastfood"
-                      ? isRTL
-                        ? "وجبات سريعة"
-                        : "Fast food"
-                      : facility === "finedining"
-                      ? isRTL
-                        ? "مطاعم فاخرة"
-                        : "Fine dining"
-                      : facility === "external"
-                      ? isRTL
-                        ? "طلبات خارجية"
-                        : "External orders"
-                      : facility === "cafes"
-                      ? isRTL
-                        ? "مقاهي"
-                        : "Cafes"
-                      : isRTL
-                      ? "أخرى"
-                      : "Other"}
+                      {brand?.name ?? String(id)}
+                      <button
+                        onClick={() => {
+                          const next = { ...appliedFilters, brandIds: appliedFilters.brandIds.filter((b) => b !== id) };
+                          setAppliedFilters(next);
+                          handleApplyFilters(next);
+                        }}
+                        className="ml-1 hover:bg-blue-200 rounded-full p-0.5"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  );
+                })}
+                {(appliedFilters.priceRange.min != null || appliedFilters.priceRange.max != null) && (
+                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
+                    {appliedFilters.priceRange.min != null && appliedFilters.priceRange.max != null
+                      ? `${appliedFilters.priceRange.min} - ${appliedFilters.priceRange.max}`
+                      : appliedFilters.priceRange.min != null
+                        ? `من ${appliedFilters.priceRange.min}`
+                        : `إلى ${appliedFilters.priceRange.max}`}
                     <button
                       onClick={() => {
-                        const newFilters = {
-                          ...appliedFilters,
-                          facilities: appliedFilters.facilities.filter(
-                            (f) => f !== facility
-                          ),
-                        };
-                        setAppliedFilters(newFilters);
-                        handleApplyFilters(newFilters);
+                        const next = { ...appliedFilters, priceRange: {} };
+                        setAppliedFilters(next);
+                        handleApplyFilters(next);
                       }}
                       className="ml-1 hover:bg-gray-200 rounded-full p-0.5"
                     >
                       ×
                     </button>
                   </span>
-                ))}
-
-                {/* Clear All Button */}
-                {(appliedFilters.restaurants.length > 0 ||
-                  appliedFilters.subcategories.length > 0 ||
-                  appliedFilters.offerTypes.length > 0 ||
-                  appliedFilters.facilities.length > 0 ||
-                  appliedFilters.sortBy !== "closest") && (
+                )}
+                {(appliedFilters.sortBy !== "nearest" ||
+                  appliedFilters.subcategoryIds.length > 0 ||
+                  appliedFilters.offerTypeIds.length > 0 ||
+                  appliedFilters.brandIds.length > 0 ||
+                  appliedFilters.priceRange.min != null ||
+                  appliedFilters.priceRange.max != null) && (
                   <button
                     onClick={() => {
-                      setAppliedFilters({
-                        sortBy: "closest",
-                        restaurants: [],
-                        subcategories: [],
-                        offerTypes: [],
-                        facilities: [],
-                      });
-                      handleApplyFilters({
-                        sortBy: "closest",
-                        restaurants: [],
-                        subcategories: [],
-                        offerTypes: [],
-                        facilities: [],
-                      });
+                      const reset: FilterState = {
+                        sortBy: "nearest",
+                        subcategoryIds: [],
+                        offerTypeIds: [],
+                        brandIds: [],
+                        priceRange: {},
+                      };
+                      setAppliedFilters(reset);
+                      handleApplyFilters(reset);
                     }}
                     className="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium hover:bg-red-200 transition-colors"
                   >
@@ -745,8 +770,8 @@ const CategoryOffersPage = () => {
                   ? `لم يتم العثور على عروض لـ "${search}"`
                   : `No offers found for "${search}"`
                 : isRTL
-                ? "لا توجد عروض متاحة"
-                : "No offers available"}
+                  ? "لا توجد عروض متاحة"
+                  : "No offers available"}
             </p>
           </div>
         )}
@@ -779,6 +804,7 @@ const CategoryOffersPage = () => {
 
       {/* Filter Sidebar */}
       <FilterSidebar
+        categoryId={categoryId}
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}
         onApplyFilters={handleApplyFilters}

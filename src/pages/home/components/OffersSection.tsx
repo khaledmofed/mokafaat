@@ -114,7 +114,7 @@ const OffersSection: React.FC = () => {
       autoplay: displayOffers.length > 4, // Only autoplay if there are more than 4 items
       autoplayTimeout: 5000,
       autoplayHoverPause: true,
-      rtl: isRTL.toString(), // Handle RTL direction
+      rtl: (isRTL && displayOffers.length < 4) ? "true" : "false",
       responsive: {
         0: {
           items: 1,
@@ -200,7 +200,12 @@ const OffersSection: React.FC = () => {
         </div>
 
         {/* Products Carousel */}
-        <div className="relative OffersCarousel PropertiesCarousel">
+        <div
+          className="relative OffersCarousel PropertiesCarousel"
+          style={{
+            direction: isRTL && displayOffers.length < 4 ? "rtl" : "ltr",
+          }}
+        >
           {apiLoading ? (
             // Loading skeleton
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pb-10">
@@ -225,7 +230,7 @@ const OffersSection: React.FC = () => {
               className="owl-theme"
               {...owlCarouselOptions}
               style={{
-                direction: displayOffers.length > 4 && isRTL ? "ltr" : "ltr",
+                direction: isRTL && displayOffers.length < 4 ? "rtl" : "ltr",
               }}
             >
               {displayOffers.map((offer) => (

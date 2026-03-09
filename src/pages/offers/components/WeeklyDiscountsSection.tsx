@@ -54,7 +54,7 @@ const WeeklyDiscountsSection: React.FC = () => {
       autoplay: weeklyDiscounts.length > 4,
       autoplayTimeout: 4000,
       autoplayHoverPause: true,
-      rtl: isRTL.toString(),
+      rtl: (isRTL && weeklyDiscounts.length < 4) ? "true" : "false",
       responsive: {
         0: {
           items: 1,
@@ -83,12 +83,17 @@ const WeeklyDiscountsSection: React.FC = () => {
         </p>
       </div>
 
-      <div className="relative OffersCarousel PropertiesCarousel -ms-[15px]">
+      <div
+        className="relative OffersCarousel PropertiesCarousel -ms-[15px]"
+        style={{
+          direction: isRTL && weeklyDiscounts.length < 4 ? "rtl" : "ltr",
+        }}
+      >
         <OwlCarousel
           className="owl-theme"
           {...carouselOptions}
           style={{
-            direction: weeklyDiscounts.length > 4 && isRTL ? "ltr" : "ltr",
+            direction: isRTL && weeklyDiscounts.length < 4 ? "rtl" : "ltr",
           }}
         >
           {weeklyDiscounts.length > 0 ? (

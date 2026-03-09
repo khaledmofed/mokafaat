@@ -50,7 +50,7 @@ const LatestOffersSection: React.FC = () => {
       autoplay: latestOffers.length > 4,
       autoplayTimeout: 5000,
       autoplayHoverPause: true,
-      rtl: isRTL.toString(),
+      rtl: (isRTL && latestOffers.length < 4) ? "true" : "false",
       responsive: {
         0: {
           items: 1,
@@ -111,7 +111,12 @@ const LatestOffersSection: React.FC = () => {
         </p>
       </div>
 
-      <div className="relative OffersCarousel PropertiesCarousel">
+      <div
+        className="relative OffersCarousel PropertiesCarousel"
+        style={{
+          direction: isRTL && latestOffers.length < 4 ? "rtl" : "ltr",
+        }}
+      >
         {apiLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {Array.from({ length: 4 }).map((_, index) => (
@@ -126,7 +131,7 @@ const LatestOffersSection: React.FC = () => {
               className="owl-theme"
               {...owlCarouselOptions}
               style={{
-                direction: latestOffers.length > 4 && isRTL ? "ltr" : "ltr",
+                direction: isRTL && latestOffers.length < 4 ? "rtl" : "ltr",
               }}
             >
               {latestOffers.map((offer) => (

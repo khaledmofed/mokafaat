@@ -9,6 +9,7 @@ import CurrencyIcon from "@components/CurrencyIcon";
 import { useSubscribe } from "@hooks/api/useMokafaatQueries";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import { AxiosError } from "axios";
+import { initMoyasarPayment } from "@utils/moyasar";
 
 export interface SubscriptionPlanState {
   id: number | string;
@@ -73,22 +74,89 @@ const SubscriptionPaymentPage: React.FC = () => {
             return;
           }
           const inner = (data.data ?? data) as Record<string, unknown> | undefined;
-          const deep = (inner?.data ?? inner) as Record<string, unknown> | undefined;
-          const paymentUrl = (
-            data.payment_url ?? data.redirect_url ?? data.url ?? data.checkout_url ?? data.link
-            ?? inner?.payment_url ?? inner?.redirect_url ?? inner?.url ?? inner?.checkout_url ?? inner?.link
-            ?? deep?.payment_url ?? deep?.redirect_url ?? deep?.url ?? deep?.checkout_url ?? deep?.link
-          ) as string | undefined;
-          if (paymentUrl && typeof paymentUrl === "string") {
-            window.location.href = paymentUrl;
+          const subscription = (inner?.subscription as Record<string, unknown> | undefined) ??
+            (data.subscription as Record<string, unknown> | undefined);
+          const paymentInfo = (subscription?.payment_info as Record<string, unknown> | undefined) ??
+            (inner?.payment_info as Record<string, unknown> | undefined) ??
+            (data.payment_info as Record<string, unknown> | undefined);
+          const requiresPayment =
+            (subscription?.requires_payment as boolean | undefined) ??
+            (inner?.requires_payment as boolean | undefined) ??
+            (data.requires_payment as boolean | undefined) ??
+            // إذا لم يرسِل الباكند requires_payment لكن أرسل payment_info نفترض أن الدفع مطلوب
+            (!!paymentInfo || false);
+
+          // إذا أرسل الباكند معلومات دفع ويتطلب دفع، نستخدم ميسر دائماً لإكمال الدفع
+          if (paymentInfo && requiresPayment) {
+            const amountHalalaRaw =
+              (paymentInfo.amount_halala as number | undefined) ??
+              (typeof paymentInfo.amount === "number"
+                ? (paymentInfo.amount as number) * 100
+                : undefined);
+            const amountHalala = Number.isFinite(amountHalalaRaw as number)
+              ? (amountHalalaRaw as number)
+              : undefined;
+
+            const currency = (paymentInfo.currency as string | undefined) || "SAR";
+            const description =
+              (paymentInfo.description as string | undefined) ||
+              (planName || t("home.subscription.paymentTitle"));
+            const publishableKey = (paymentInfo.publishable_key as string | undefined) || "";
+            const metadata =
+              (paymentInfo.metadata as Record<string, unknown> | undefined) || {};
+
+            if (!publishableKey || !amountHalala) {
+              setErrorMsg(
+                t("home.subscription.paymentFailed") +
+                  " " +
+                  (isRTL
+                    ? "(بيانات الدفع غير مكتملة. تواصل مع الدعم.)"
+                    : "(Incomplete payment information. Please contact support.)")
+              );
+              return;
+            }
+
+            // نستخدم callback_url القادم من الباكند إن وُجد، وإلا نرجع لصفحة نجاح الاشتراك
+            const callbackUrl =
+              (paymentInfo.callback_url as string | undefined) ||
+              `${window.location.origin}/subscription/success`;
+
+            void initMoyasarPayment({
+              amountHalala,
+              currency,
+              description,
+              publishableKey,
+              callbackUrl,
+              metadata,
+              elementSelector: ".mysr-form",
+              methods: ["creditcard"],
+            }).catch(() => {
+              setErrorMsg(
+                t("home.subscription.paymentFailed") +
+                  " " +
+                  (isRTL
+                    ? "(تعذر تحميل بوابة الدفع. جرّب تحديث الصفحة أو تواصل مع الدعم.)"
+                    : "(Failed to load payment gateway. Try refreshing or contact support.)")
+              );
+            });
             return;
           }
-          const paymentMethodForRedirect = useWallet ? "wallet" : paymentMethod;
-          if (paymentMethodForRedirect === "online") {
-            setErrorMsg(t("home.subscription.paymentFailed") + " " + (isRTL ? "(لم يُرجَع رابط الدفع. جرّب مرة أخرى أو تواصل مع الدعم.)" : "(Payment link was not returned. Try again or contact support.)"));
+
+          // إذا كان الاشتراك لا يتطلب دفعاً (خطة مجانية أو تم تغطية المبلغ من المحفظة)
+          // ولا توجد بيانات payment_info لبوابة الدفع، نذهب مباشرة لصفحة النجاح
+          if (!requiresPayment && !paymentInfo) {
+            navigate("/subscription/success", { replace: true });
             return;
           }
-          navigate("/subscription/success", { replace: true });
+
+          // حالة غير متوقعة: يتطلب دفعاً لكن لم نَستخرج payment_info
+          setErrorMsg(
+            t("home.subscription.paymentFailed") +
+              " " +
+              (isRTL
+                ? "(تعذر تهيئة بوابة الدفع. تواصل مع الدعم.)"
+                : "(Could not initialize payment gateway. Please contact support.)")
+          );
         },
         onError: (err) => {
           if (err instanceof AxiosError && err.response?.status === 401) {
@@ -221,6 +289,8 @@ const SubscriptionPaymentPage: React.FC = () => {
               t("home.subscription.confirmPayment")
             )}
           </button>
+          {/* حاوية نموذج الدفع من ميسر */}
+          <div className="mysr-form mt-8" />
         </div>
       </section>
     </>

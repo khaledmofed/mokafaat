@@ -871,7 +871,12 @@ const PropertyProductPage: React.FC = () => {
               </div>
 
               {/* Properties Carousel */}
-              <div className="relative PropertiesCarousel">
+              <div
+                className="relative PropertiesCarousel"
+                style={{
+                  direction: isRTL && relatedProperties.length < 4 ? "rtl" : "ltr",
+                }}
+              >
                 <OwlCarousel
                   className="owl-theme"
                   loop={relatedProperties.length > 4}
@@ -881,6 +886,10 @@ const PropertyProductPage: React.FC = () => {
                   autoplay={relatedProperties.length > 4}
                   autoplayTimeout={5000}
                   autoplayHoverPause={true}
+                  rtl={(isRTL && relatedProperties.length < 4) ? "true" : "false"}
+                  style={{
+                    direction: isRTL && relatedProperties.length < 4 ? "rtl" : "ltr",
+                  }}
                   responsive={{
                     0: {
                       items: 1,

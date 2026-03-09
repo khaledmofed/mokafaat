@@ -36,6 +36,11 @@ export const searchApi = {
   filterOptions: () => api.get(API_ENDPOINTS.filterOptions),
 };
 
+export const filtersApi = {
+  get: (categoryId: string | number) =>
+    api.get(API_ENDPOINTS.filters(categoryId)),
+};
+
 // ========== Favorites (يتطلب توكن) ==========
 export const favoritesApi = {
   list: (type?: "offer" | "card" | "coupon") =>

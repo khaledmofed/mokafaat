@@ -153,7 +153,7 @@ const CategorySection: React.FC = () => {
       autoplay: true,
       autoplayTimeout: 4000,
       autoplayHoverPause: true,
-      rtl: isRTL.toString(),
+      rtl: (isRTL && categories.length < 4) ? "true" : "false",
       responsive: {
         0: { items: 2 },
         640: { items: 3 },
@@ -172,14 +172,14 @@ const CategorySection: React.FC = () => {
       autoplay: true,
       autoplayTimeout: 4000,
       autoplayHoverPause: true,
-      rtl: isRTL.toString(),
+      rtl: (isRTL && fallbackCategories.length < 4) ? "true" : "false",
       responsive: {
         0: { items: 2 },
         640: { items: 3 },
         1024: { items: 7 },
       },
     }),
-    [isRTL],
+    [isRTL, fallbackCategories.length],
   );
 
   // عرض loading state إذا كان الـ API ما زال يحمل
@@ -194,9 +194,17 @@ const CategorySection: React.FC = () => {
         >
           <div
             className="relative OffersCarousel PropertiesCarousel CategoryCarousel"
-            style={{ direction: "ltr" }}
+            style={{
+              direction: isRTL && fallbackCategories.length < 4 ? "rtl" : "ltr",
+            }}
           >
-            <OwlCarousel className="owl-theme" {...loadingCarouselOptions}>
+            <OwlCarousel
+              className="owl-theme"
+              {...loadingCarouselOptions}
+              style={{
+                direction: isRTL && fallbackCategories.length < 4 ? "rtl" : "ltr",
+              }}
+            >
               {fallbackCategories.map((category) => (
                 <div key={category.id} className="item">
                   <CategoryCard
@@ -229,12 +237,17 @@ const CategorySection: React.FC = () => {
         )}
         <div
           className="relative OffersCarousel PropertiesCarousel CategoryCarousel"
-          style={{ direction: "ltr" }}
+          style={{
+            direction: isRTL && categories.length < 4 ? "rtl" : "ltr",
+          }}
         >
           <OwlCarousel
             key={`categories-${categories.length}`}
             className="owl-theme"
             {...owlCarouselOptions}
+            style={{
+              direction: isRTL && categories.length < 4 ? "rtl" : "ltr",
+            }}
           >
             {categories.map((category) => (
               <div key={category.id} className="item">

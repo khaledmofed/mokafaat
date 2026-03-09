@@ -23,6 +23,7 @@ import {
   pointsApi,
   walletApi,
   profileApi,
+  filtersApi,
 } from "@network/services/mokafaatService";
 
 /** لغة حالية للـ query key (يعيد طلب البيانات عند تغيير اللغة) */
@@ -40,6 +41,8 @@ export const mokafaatKeys = {
   offerDetail: (id: string | number) => ["mokafaat", "offers", id] as const,
   search: (q: string) => ["mokafaat", "search", q] as const,
   filterOptions: ["mokafaat", "filterOptions"] as const,
+  filters: (categoryId: string | number) =>
+    ["mokafaat", "filters", categoryId] as const,
   favorites: (type?: string) => ["mokafaat", "favorites", type] as const,
   settings: ["mokafaat", "settings"] as const,
   pages: (platform?: string) => ["mokafaat", "pages", platform] as const,
@@ -97,6 +100,18 @@ export function useCategories() {
   return useQuery({
     queryKey: [...mokafaatKeys.categories, lang],
     queryFn: () => categoriesApi.list().then((r) => r.data),
+  });
+}
+
+// ========== Filters (لتصفية العروض حسب التصنيف) ==========
+export function useFilters(categoryId: string | number | null | undefined) {
+  const lang = useQueryLang();
+  return useQuery({
+    queryKey: categoryId
+      ? [...mokafaatKeys.filters(categoryId), lang]
+      : (["mokafaat", "filters", "none", lang] as const),
+    queryFn: () => filtersApi.get(categoryId!).then((r) => r.data),
+    enabled: !!categoryId,
   });
 }
 

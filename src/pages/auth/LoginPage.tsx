@@ -8,7 +8,10 @@ const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const returnUrl = searchParams.get("returnUrl") ?? "";
-  const safeReturnUrl = returnUrl && returnUrl.startsWith("/") && !returnUrl.startsWith("//") ? returnUrl : "/";
+  const safeReturnUrl =
+    returnUrl && returnUrl.startsWith("/") && !returnUrl.startsWith("//")
+      ? returnUrl
+      : "/";
   const { t } = useTranslation();
   const { sendOtp, verifyOtp, loading, error, otpSent } = useUserStore();
 
@@ -56,7 +59,7 @@ const LoginPage: React.FC = () => {
 
   const handleCodeKeyDown = (
     idx: number,
-    e: React.KeyboardEvent<HTMLInputElement>
+    e: React.KeyboardEvent<HTMLInputElement>,
   ) => {
     if (e.key === "Backspace" && !code[idx] && idx > 0) {
       codeRefs[idx - 1].current?.focus();
@@ -230,8 +233,8 @@ const LoginPage: React.FC = () => {
                   {loading
                     ? t("home.login.sending")
                     : isRegisterMode
-                    ? t("home.login.register_button")
-                    : t("home.login.login_button")}
+                      ? t("home.login.register_button")
+                      : t("home.login.login_button")}
                 </button>
               </form>
             </>
@@ -245,7 +248,10 @@ const LoginPage: React.FC = () => {
               <p className="mb-6 text-center text-gray-600">
                 {t("home.login.verify_desc")}
               </p>
-              <div className="flex justify-center gap-2 mb-4">
+              <div
+                className="flex justify-center gap-2 mb-4"
+                dir="ltr"
+              >
                 {code.map((v, i) => (
                   <input
                     key={i}
@@ -253,6 +259,7 @@ const LoginPage: React.FC = () => {
                     type="text"
                     inputMode="numeric"
                     maxLength={1}
+                    dir="ltr"
                     className="w-14 h-14 text-2xl text-center border border-gray-300 bg-white focus:border-[#440798] focus:ring-2 focus:ring-[#440798] outline-none rounded-md"
                     value={v}
                     onChange={(e) => handleCodeChange(i, e.target.value)}
@@ -284,8 +291,8 @@ const LoginPage: React.FC = () => {
                 {loading
                   ? t("home.login.verifying")
                   : isRegisterMode
-                  ? t("home.login.register_button")
-                  : t("home.login.verify_button")}
+                    ? t("home.login.register_button")
+                    : t("home.login.verify_button")}
               </button>
               {error && <p className="text-md text-red-500 mt-2">{error}</p>}
             </div>

@@ -14,7 +14,9 @@ const CouponsSection: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState<string>("all");
-  const [selectedCoupon, setSelectedCoupon] = useState<CouponWithIcon | null>(null);
+  const [selectedCoupon, setSelectedCoupon] = useState<CouponWithIcon | null>(
+    null,
+  );
 
   // Fetch coupons from API
   const { data: webHomeResponse } = useWebHome();
@@ -65,7 +67,7 @@ const CouponsSection: React.FC = () => {
       key: "discounts",
       label: t("home.coupons.filters.discounts"),
       count: couponsWithIcons.filter(
-        (item) => item.discountPercentage !== undefined
+        (item) => item.discountPercentage !== undefined,
       ).length,
     },
     {
@@ -88,7 +90,7 @@ const CouponsSection: React.FC = () => {
     }
     if (activeFilter === "discounts") {
       return couponsWithIcons.filter(
-        (item) => item.discountPercentage !== undefined
+        (item) => item.discountPercentage !== undefined,
       );
     }
     if (activeFilter === "coffee") {
@@ -117,6 +119,7 @@ const CouponsSection: React.FC = () => {
     autoplay: true,
     autoplayTimeout: 5000,
     autoplayHoverPause: true,
+    rtl: isRTL && groupedCoupons.length < 4 ? "true" : "false",
     responsive: {
       0: {
         items: 1,
@@ -143,11 +146,7 @@ const CouponsSection: React.FC = () => {
     }
   };
 
-  const CouponCard = ({
-    coupon,
-  }: {
-    coupon: CouponWithIcon;
-  }) => (
+  const CouponCard = ({ coupon }: { coupon: CouponWithIcon }) => (
     <button
       type="button"
       onClick={() => setSelectedCoupon(coupon)}
@@ -158,7 +157,7 @@ const CouponsSection: React.FC = () => {
         {/* Right Section - Colored Background with Notches */}
         <div
           className={`w-24 ${getColorClasses(
-            coupon.color
+            coupon.color,
           )} flex flex-col items-center justify-center text-white relative`}
         >
           {/* Top Notch */}

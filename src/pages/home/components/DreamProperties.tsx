@@ -106,7 +106,7 @@ const DreamProperties: React.FC = () => {
       autoplay: currentProperties.length > 4, // Only autoplay if there are more than 4 items
       autoplayTimeout: 5000,
       autoplayHoverPause: true,
-      rtl: isRTL.toString(), // Handle RTL direction
+      rtl: (isRTL && currentProperties.length < 4) ? "true" : "false",
       responsive: {
         0: {
           items: 1,
@@ -233,7 +233,12 @@ const DreamProperties: React.FC = () => {
         </div>
 
         {/* Properties Carousel */}
-        <div className="relative PropertiesCarousel">
+        <div
+          className="relative PropertiesCarousel"
+          style={{
+            direction: isRTL && currentProperties.length < 4 ? "rtl" : "ltr",
+          }}
+        >
           {isLoading ? (
             // Skeleton Loading
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pb-10">
@@ -248,7 +253,9 @@ const DreamProperties: React.FC = () => {
               ref={owlCarouselRef}
               className="owl-theme"
               {...owlCarouselOptions}
-              style={{ direction: "ltr" }}
+              style={{
+                direction: isRTL && currentProperties.length < 4 ? "rtl" : "ltr",
+              }}
             >
               {currentProperties.map((property) => (
                 <div key={property.id} className="item">
