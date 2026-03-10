@@ -2,27 +2,18 @@ import { useMemo, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useIsRTL } from "@hooks";
-import {
-  FiArrowLeft,
-  FiStar,
-  FiEye,
-  FiDownload,
-  FiFilter,
-  FiGrid,
-  FiList,
-} from "react-icons/fi";
+import { FiArrowLeft, FiFilter, FiGrid, FiList } from "react-icons/fi";
 import {
   getRestaurantsByCategory,
   offerCategories,
   type Restaurant,
   type Offer,
 } from "@data/offers";
-import { Pro1, Pro2, Pro3, Pro4, Pro5, Pro6, Pro7, Pro8 } from "@assets";
 import { AboutPattern } from "@assets";
 import GetStartedSection from "@pages/home/components/GetStartedSection";
-import { BsHeart, BsShare } from "react-icons/bs";
 import FilterSidebar, { type FilterState } from "../components/FilterSidebar";
-import RestaurantListView from "../components/RestaurantListView";
+import OfferCard from "../components/OfferCard";
+import CategoryCard from "@components/CategoryCard";
 import { useWebHome, useFilters } from "@hooks/api/useMokafaatQueries";
 import { mapApiOffersToModels } from "@network/mappers/offersMapper";
 import { API_BASE_URL } from "@config/api";
@@ -56,7 +47,9 @@ const CategoryOffersPage = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [appliedFilters, setAppliedFilters] = useState<FilterState | null>(null);
+  const [appliedFilters, setAppliedFilters] = useState<FilterState | null>(
+    null,
+  );
   const perPage = 9;
 
   const { data: webHomeResponse } = useWebHome();
@@ -75,15 +68,20 @@ const CategoryOffersPage = () => {
 
   const { data: filtersResponse } = useFilters(categoryId);
   const filterOptions = useMemo(() => {
-    if (!filtersResponse) return { sortOptions: [], subcategories: [], offerTypes: [], brands: [] };
+    if (!filtersResponse)
+      return { sortOptions: [], subcategories: [], offerTypes: [], brands: [] };
     const res = filtersResponse as Record<string, unknown>;
     const data = res?.data as Record<string, unknown> | undefined;
     const inner = data?.data as Record<string, unknown> | undefined;
-    if (!inner) return { sortOptions: [], subcategories: [], offerTypes: [], brands: [] };
+    if (!inner)
+      return { sortOptions: [], subcategories: [], offerTypes: [], brands: [] };
     return {
-      sortOptions: (inner.sort_options as Array<{ key: string; name: string }>) ?? [],
-      subcategories: (inner.subcategories as Array<{ id: number; name: string }>) ?? [],
-      offerTypes: (inner.offer_types as Array<{ id: number; name: string }>) ?? [],
+      sortOptions:
+        (inner.sort_options as Array<{ key: string; name: string }>) ?? [],
+      subcategories:
+        (inner.subcategories as Array<{ id: number; name: string }>) ?? [],
+      offerTypes:
+        (inner.offer_types as Array<{ id: number; name: string }>) ?? [],
       brands: (inner.brands as Array<{ id: number; name: string }>) ?? [],
     };
   }, [filtersResponse]);
@@ -131,14 +129,31 @@ const CategoryOffersPage = () => {
     const cats = data?.categories as Array<Record<string, unknown>> | undefined;
     if (!Array.isArray(cats)) return [];
     const mainCat = cats.find((c) => String(c?.slug ?? "") === category);
-    const sub = mainCat?.subcategories as Array<{ id?: number; name?: string; slug?: string; image?: string | null }> | undefined;
+    const sub = mainCat?.subcategories as
+      | Array<{
+          id?: number;
+          name?: string;
+          slug?: string;
+          image?: string | null;
+        }>
+      | undefined;
     if (!Array.isArray(sub) || sub.length === 0) return [];
-    return sub.map((s) => ({
-      id: s.id ?? 0,
-      name: String(s.name ?? ""),
-      slug: String(s.slug ?? ""),
-    })).filter((s) => s.name && s.slug);
-  }, [category, webHomeResponse]);
+    const fallbackIcon = (categoryInfo?.icon as string) ?? "";
+    return sub
+      .map((s) => {
+        const icon = buildCategoryIconUrl(
+          typeof s.image === "string" ? s.image : undefined,
+          fallbackIcon,
+        );
+        return {
+          id: s.id ?? 0,
+          name: String(s.name ?? ""),
+          slug: String(s.slug ?? ""),
+          icon,
+        };
+      })
+      .filter((s) => s.name && s.slug);
+  }, [category, webHomeResponse, categoryInfo?.icon]);
 
   // Restaurants from API (offers grouped by merchant) or fallback to static data
   const apiRestaurants = useMemo((): Restaurant[] => {
@@ -198,84 +213,73 @@ const CategoryOffersPage = () => {
     });
   }, [category, webHomeResponse]);
 
-  // Function to get restaurant image (URL or static asset name)
-  const getRestaurantImage = (logoName: string) => {
-    if (logoName.startsWith("http")) return logoName;
-    switch (logoName) {
-      case "Pro1":
-        return Pro1;
-      case "Pro2":
-        return Pro2;
-      case "Pro3":
-        return Pro3;
-      case "Pro4":
-        return Pro4;
-      case "Pro5":
-        return Pro5;
-      case "Pro6":
-        return Pro6;
-      case "Pro7":
-        return Pro7;
-      case "Pro8":
-        return Pro8;
-      default:
-        return Pro1;
-    }
-  };
-
-  // Get restaurants: API first, then fallback to static; then apply search & filters
-  const filteredRestaurants = useMemo(() => {
+  // قائمة العروض المسطحة للتصنيف (عروض فقط بدون تجميع حسب متجر)
+  const allOffers = useMemo((): Offer[] => {
     if (!category) return [];
-
-    let restaurants: Restaurant[] =
+    const restaurants: Restaurant[] =
       apiRestaurants.length > 0
         ? apiRestaurants
         : getRestaurantsByCategory(category);
+    return restaurants.flatMap((r) => r.offers);
+  }, [category, apiRestaurants]);
+
+  // فلترة وترتيب العروض (عرض جميع العروض في التصنيف وليس المتاجر)
+  const filteredOffers = useMemo(() => {
+    if (!category) return [];
+
+    let offers: Offer[] = [...allOffers];
 
     if (search) {
-      restaurants = restaurants.filter(
-        (restaurant) =>
-          restaurant.name[isRTL ? "ar" : "en"]
-            .toLowerCase()
-            .includes(search.toLowerCase()) ||
-          restaurant.description[isRTL ? "ar" : "en"]
-            .toLowerCase()
-            .includes(search.toLowerCase()),
+      const q = search.toLowerCase();
+      offers = offers.filter(
+        (o) =>
+          (o.title?.ar ?? "").toLowerCase().includes(q) ||
+          (o.title?.en ?? "").toLowerCase().includes(q) ||
+          (o.description?.ar ?? "").toLowerCase().includes(q) ||
+          (o.description?.en ?? "").toLowerCase().includes(q) ||
+          (o.merchantName ?? "").toLowerCase().includes(q),
       );
     }
 
     if (appliedFilters) {
       if (appliedFilters.brandIds.length > 0) {
-        restaurants = restaurants.filter((r) =>
-          appliedFilters!.brandIds.some((bid) => String(bid) === r.id || bid === Number(r.id)),
+        offers = offers.filter((o) =>
+          appliedFilters!.brandIds.some(
+            (bid) =>
+              String(bid) === String(o.companyId) ||
+              bid === Number(o.companyId),
+          ),
         );
       }
-      if (appliedFilters.priceRange.min != null || appliedFilters.priceRange.max != null) {
+      if (
+        appliedFilters.priceRange.min != null ||
+        appliedFilters.priceRange.max != null
+      ) {
         const min = appliedFilters.priceRange.min ?? 0;
         const max = appliedFilters.priceRange.max ?? Infinity;
-        restaurants = restaurants.filter((r) =>
-          r.offers.some((o) => {
-            const price = o.discountPrice ?? o.originalPrice ?? 0;
-            return price >= min && price <= max;
-          }),
-        );
+        offers = offers.filter((o) => {
+          const price = o.discountPrice ?? o.originalPrice ?? 0;
+          return price >= min && price <= max;
+        });
       }
       switch (appliedFilters.sortBy) {
         case "highest_rated":
-          restaurants = [...restaurants].sort((a, b) => b.rating - a.rating);
+          offers = [...offers].sort(
+            (a, b) => (b.rating ?? 0) - (a.rating ?? 0),
+          );
           break;
         case "newest":
-          restaurants = [...restaurants].sort((a, b) => b.views - a.views);
+          offers = [...offers].sort((a, b) => (b.views ?? 0) - (a.views ?? 0));
           break;
         case "best_selling":
-          restaurants = [...restaurants].sort((a, b) => b.saves - a.saves);
+          offers = [...offers].sort(
+            (a, b) => (b.bookmarks ?? 0) - (a.bookmarks ?? 0),
+          );
           break;
         case "highest_discount":
-          restaurants = [...restaurants].sort((a, b) => {
-            const dA = Math.max(...a.offers.map((o) => o.discountPercentage ?? 0));
-            const dB = Math.max(...b.offers.map((o) => o.discountPercentage ?? 0));
-            return dB - dA;
-          });
+          offers = [...offers].sort(
+            (a, b) => (b.discountPercentage ?? 0) - (a.discountPercentage ?? 0),
+          );
           break;
         case "nearest":
         default:
@@ -283,8 +287,8 @@ const CategoryOffersPage = () => {
       }
     }
 
-    return restaurants;
-  }, [category, search, isRTL, appliedFilters, apiRestaurants]);
+    return offers;
+  }, [category, search, appliedFilters, allOffers]);
 
   const handleApplyFilters = (filters: FilterState) => {
     setAppliedFilters(filters);
@@ -309,9 +313,13 @@ const CategoryOffersPage = () => {
     );
   }
 
-  const totalPages = Math.ceil(filteredRestaurants.length / perPage) || 1;
+  const totalPages = Math.ceil(filteredOffers.length / perPage) || 1;
   const startIdx = (currentPage - 1) * perPage;
-  const paginated = filteredRestaurants.slice(startIdx, startIdx + perPage);
+  const paginatedOffers = filteredOffers.slice(startIdx, startIdx + perPage);
+
+  const handleOfferClick = (offer: Offer) => {
+    navigate(`/offers/${category}/${offer.companyId}/offer/${offer.id}`);
+  };
 
   return (
     <>
@@ -428,41 +436,56 @@ const CategoryOffersPage = () => {
       <section className="container mx-auto md:py-10 py-6 px-4">
         {/* التصنيفات الفرعية من API - فوق شريط البحث والفلتر */}
         {apiSubcategories.length > 0 && (
-          <div className="mb-6">
-            <h3 className="text-sm font-semibold text-gray-700 mb-3">
+          <div
+            className="mb-6"
+            style={{
+              marginTop: "-55px",
+              zIndex: 1,
+              position: "relative",
+            }}
+          >
+            {/* <h3 className="text-sm font-semibold text-gray-700 mb-3">
               {isRTL ? "فئات فرعية" : "Subcategories"}
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {apiSubcategories.map((sub) => (
-                <button
-                  key={sub.id}
-                  type="button"
-                  onClick={() => {
-                    setAppliedFilters((prev) => {
-                      const next = prev ?? {
-                        sortBy: "nearest",
-                        subcategoryIds: [],
-                        offerTypeIds: [],
-                        brandIds: [],
-                        priceRange: {},
-                      };
-                      const has = next.subcategoryIds.includes(sub.id);
-                      const subcategoryIds = has
-                        ? next.subcategoryIds.filter((s) => s !== sub.id)
-                        : [...next.subcategoryIds, sub.id];
-                      return { ...next, subcategoryIds };
-                    });
-                    setCurrentPage(1);
-                  }}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
-                    appliedFilters?.subcategoryIds?.includes(sub.id)
-                      ? "bg-[#400198] text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200"
-                  }`}
-                >
-                  {sub.name}
-                </button>
-              ))}
+            </h3> */}
+            <div className="flex flex-wrap justify-center gap-2">
+              {apiSubcategories.map((sub) => {
+                const isSelected = appliedFilters?.subcategoryIds?.includes(
+                  sub.id,
+                );
+                return (
+                  <button
+                    key={sub.id}
+                    type="button"
+                    onClick={() => {
+                      setAppliedFilters((prev) => {
+                        const next = prev ?? {
+                          sortBy: "nearest",
+                          subcategoryIds: [],
+                          offerTypeIds: [],
+                          brandIds: [],
+                          priceRange: {},
+                        };
+                        const has = next.subcategoryIds.includes(sub.id);
+                        const subcategoryIds = has
+                          ? next.subcategoryIds.filter((s) => s !== sub.id)
+                          : [...next.subcategoryIds, sub.id];
+                        return { ...next, subcategoryIds };
+                      });
+                      setCurrentPage(1);
+                    }}
+                    className={`rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-[#400198]/30 min-w-[120px] ${
+                      isSelected ? "" : "hover:bg-gray-50/80"
+                    }`}
+                  >
+                    <CategoryCard
+                      icon={sub.icon}
+                      title={sub.name}
+                      alt={sub.name}
+                      selected={isSelected}
+                    />
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}
@@ -473,12 +496,10 @@ const CategoryOffersPage = () => {
           <div className="text-sm text-gray-600">
             <div className="flex items-center gap-2 mb-0">
               <h2 className="text-[#400198] text-3xl font-bold">
-                {filteredRestaurants.length}
+                {filteredOffers.length}
               </h2>
 
-              {isRTL
-                ? ` نتيجة تم العثور عليها لنتيجة البحث`
-                : ` results found for search`}
+              {isRTL ? ` عرض في هذه الفئة` : ` offers in this category`}
             </div>
 
             {/* Applied Filters Tags */}
@@ -486,10 +507,15 @@ const CategoryOffersPage = () => {
               <div className="flex flex-wrap gap-2">
                 {appliedFilters.sortBy !== "nearest" && (
                   <span className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
-                    {filterOptions.sortOptions.find((s) => s.key === appliedFilters.sortBy)?.name ?? appliedFilters.sortBy}
+                    {filterOptions.sortOptions.find(
+                      (s) => s.key === appliedFilters.sortBy,
+                    )?.name ?? appliedFilters.sortBy}
                     <button
                       onClick={() => {
-                        const next = { ...appliedFilters, sortBy: "nearest" as const };
+                        const next = {
+                          ...appliedFilters,
+                          sortBy: "nearest" as const,
+                        };
                         setAppliedFilters(next);
                         handleApplyFilters(next);
                       }}
@@ -500,7 +526,9 @@ const CategoryOffersPage = () => {
                   </span>
                 )}
                 {appliedFilters.subcategoryIds.map((id) => {
-                  const sub = apiSubcategories.find((s) => s.id === id) ?? filterOptions.subcategories.find((s) => s.id === id);
+                  const sub =
+                    apiSubcategories.find((s) => s.id === id) ??
+                    filterOptions.subcategories.find((s) => s.id === id);
                   const label = sub?.name ?? String(id);
                   return (
                     <span
@@ -510,7 +538,13 @@ const CategoryOffersPage = () => {
                       {label}
                       <button
                         onClick={() => {
-                          const next = { ...appliedFilters, subcategoryIds: appliedFilters.subcategoryIds.filter((s) => s !== id) };
+                          const next = {
+                            ...appliedFilters,
+                            subcategoryIds:
+                              appliedFilters.subcategoryIds.filter(
+                                (s) => s !== id,
+                              ),
+                          };
                           setAppliedFilters(next);
                           handleApplyFilters(next);
                         }}
@@ -531,7 +565,12 @@ const CategoryOffersPage = () => {
                       {ot?.name ?? String(id)}
                       <button
                         onClick={() => {
-                          const next = { ...appliedFilters, offerTypeIds: appliedFilters.offerTypeIds.filter((o) => o !== id) };
+                          const next = {
+                            ...appliedFilters,
+                            offerTypeIds: appliedFilters.offerTypeIds.filter(
+                              (o) => o !== id,
+                            ),
+                          };
                           setAppliedFilters(next);
                           handleApplyFilters(next);
                         }}
@@ -552,7 +591,12 @@ const CategoryOffersPage = () => {
                       {brand?.name ?? String(id)}
                       <button
                         onClick={() => {
-                          const next = { ...appliedFilters, brandIds: appliedFilters.brandIds.filter((b) => b !== id) };
+                          const next = {
+                            ...appliedFilters,
+                            brandIds: appliedFilters.brandIds.filter(
+                              (b) => b !== id,
+                            ),
+                          };
                           setAppliedFilters(next);
                           handleApplyFilters(next);
                         }}
@@ -563,9 +607,11 @@ const CategoryOffersPage = () => {
                     </span>
                   );
                 })}
-                {(appliedFilters.priceRange.min != null || appliedFilters.priceRange.max != null) && (
+                {(appliedFilters.priceRange.min != null ||
+                  appliedFilters.priceRange.max != null) && (
                   <span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
-                    {appliedFilters.priceRange.min != null && appliedFilters.priceRange.max != null
+                    {appliedFilters.priceRange.min != null &&
+                    appliedFilters.priceRange.max != null
                       ? `${appliedFilters.priceRange.min} - ${appliedFilters.priceRange.max}`
                       : appliedFilters.priceRange.min != null
                         ? `من ${appliedFilters.priceRange.min}`
@@ -665,103 +711,23 @@ const CategoryOffersPage = () => {
           </div>
         </div>
 
-        {/* Restaurants Display */}
-        {paginated.length > 0 ? (
-          viewMode === "grid" ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 grid-view">
-              {paginated.map((restaurant) => (
-                <div
-                  key={restaurant.id}
-                  className="relative overflow-hidden rounded-xl shadow-lg group hover:shadow-2xl transition-all duration-700 ease-out cursor-pointer"
-                  onClick={() =>
-                    navigate(`/offers/${category}/${restaurant.slug}`)
-                  }
-                >
-                  {/* Restaurant Card Background */}
-                  <div className="w-full h-64 relative overflow-hidden">
-                    {/* Restaurant Image */}
-                    <img
-                      src={getRestaurantImage(restaurant.logo)}
-                      alt={restaurant.name[isRTL ? "ar" : "en"]}
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute top-3 right-3 flex gap-2">
-                      <button className="w-8 h-8 bg-white bg-opacity-90 rounded-full flex items-center justify-center text-gray-700 hover:bg-opacity-100 transition-all duration-200">
-                        <BsShare className="text-sm" />
-                      </button>
-                      <button className="w-8 h-8 bg-white bg-opacity-90 rounded-full flex items-center justify-center text-gray-700 hover:bg-opacity-100 transition-all duration-200">
-                        <BsHeart className="text-sm" />
-                      </button>
-                    </div>
-                    {/* Status Badges */}
-                    <div className="absolute top-3 left-3 flex flex-col gap-2">
-                      {restaurant.isOpen && (
-                        <span className="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
-                          {isRTL ? "مفتوح" : "Open"}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Discount Badge */}
-                    <div className="absolute top-10 left-3">
-                      <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">
-                        {restaurant.offers[0]?.discountPercentage || 30}%{" "}
-                        {isRTL ? "خصم" : "OFF"}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Card Info Overlay */}
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent px-4 py-4 flex items-end h-full">
-                    <div className="p-0 text-white w-full">
-                      <h3 className="text-xl font-bold leading-tight">
-                        {restaurant.name[isRTL ? "ar" : "en"]}
-                      </h3>
-                      <div className="text-sm opacity-90 mt-1">
-                        {restaurant.description[isRTL ? "ar" : "en"]}
-                      </div>
-
-                      {/* Stats and Offers Count */}
-                      <div className="flex items-center justify-between mt-3 text-xs text-white/80">
-                        <div className="flex items-center gap-2 text-white/90 text-sm">
-                          <span className="px-2 py-1 bg-white/20 rounded-full text-xs">
-                            {restaurant.location[isRTL ? "ar" : "en"]}
-                          </span>
-                          <span className="text-xs">{restaurant.distance}</span>
-                        </div>
-                        <div className="flex items-center gap-4">
-                          <div className="flex items-center gap-1">
-                            <FiStar className="text-yellow-400" />
-                            <span>{restaurant.rating}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <FiEye />
-                            <span>{restaurant.views}</span>
-                          </div>
-                          <div className="flex items-center gap-1">
-                            <FiDownload />
-                            <span>{restaurant.saves}</span>
-                          </div>
-                        </div>
-                        <div className="text-white/70">
-                          {isRTL
-                            ? `${restaurant.offers.length} عروض`
-                            : `${restaurant.offers.length} offers`}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <RestaurantListView
-              restaurants={paginated}
-              category={category!}
-              getRestaurantImage={getRestaurantImage}
-              className="list-view"
-            />
-          )
+        {/* عرض جميع العروض في التصنيف */}
+        {paginatedOffers.length > 0 ? (
+          <div
+            className={
+              viewMode === "grid"
+                ? "grid grid-cols-1 md:grid-cols-3 gap-6 grid-view"
+                : "grid grid-cols-1 gap-6 list-view"
+            }
+          >
+            {paginatedOffers.map((offer) => (
+              <OfferCard
+                key={offer.id}
+                offer={offer}
+                onOfferClick={handleOfferClick}
+              />
+            ))}
+          </div>
         ) : (
           <div className="text-center py-20">
             <p className="text-gray-500 text-xl">

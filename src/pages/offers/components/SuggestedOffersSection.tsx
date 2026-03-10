@@ -244,7 +244,7 @@ const SuggestedOffersSection: React.FC = () => {
             {offers.slice(0, 8).map((offer) => (
               <div
                 key={offer.id}
-                className="item"
+                className="item h-full"
                 style={{ direction: isRTL ? "rtl" : "ltr" }}
               >
                 <OfferCard offer={offer} onOfferClick={handleOfferClick} />

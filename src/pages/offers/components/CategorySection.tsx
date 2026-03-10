@@ -144,6 +144,16 @@ const CategorySection: React.FC = () => {
   const categories =
     apiCategories.length > 0 ? apiCategories : fallbackCategories;
 
+  // بالعربي نعكس ترتيب التصنيفات عشان أول واحد يظهر على اليمين والسكرول لليمين
+  const categoriesForDisplay = useMemo(
+    () => (isRTL ? [...categories].reverse() : categories),
+    [isRTL, categories],
+  );
+  const fallbackForDisplay = useMemo(
+    () => (isRTL ? [...fallbackCategories].reverse() : fallbackCategories),
+    [isRTL, fallbackCategories],
+  );
+
   const owlCarouselOptions = useMemo(
     () => ({
       loop: categories.length > 4,
@@ -153,7 +163,7 @@ const CategorySection: React.FC = () => {
       autoplay: true,
       autoplayTimeout: 4000,
       autoplayHoverPause: true,
-      rtl: (isRTL && categories.length < 4) ? "true" : "false",
+      rtl: isRTL && categories.length < 4 ? "true" : "false",
       responsive: {
         0: { items: 2 },
         640: { items: 3 },
@@ -172,7 +182,7 @@ const CategorySection: React.FC = () => {
       autoplay: true,
       autoplayTimeout: 4000,
       autoplayHoverPause: true,
-      rtl: (isRTL && fallbackCategories.length < 4) ? "true" : "false",
+      rtl: isRTL && fallbackCategories.length < 4 ? "true" : "false",
       responsive: {
         0: { items: 2 },
         640: { items: 3 },
@@ -202,10 +212,11 @@ const CategorySection: React.FC = () => {
               className="owl-theme"
               {...loadingCarouselOptions}
               style={{
-                direction: isRTL && fallbackCategories.length < 4 ? "rtl" : "ltr",
+                direction:
+                  isRTL && fallbackCategories.length < 4 ? "rtl" : "ltr",
               }}
             >
-              {fallbackCategories.map((category) => (
+              {fallbackForDisplay.map((category) => (
                 <div key={category.id} className="item">
                   <CategoryCard
                     icon={category.icon}
@@ -249,7 +260,7 @@ const CategorySection: React.FC = () => {
               direction: isRTL && categories.length < 4 ? "rtl" : "ltr",
             }}
           >
-            {categories.map((category) => (
+            {categoriesForDisplay.map((category) => (
               <div key={category.id} className="item">
                 <CategoryCard
                   icon={category.icon}
