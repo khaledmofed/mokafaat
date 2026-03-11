@@ -27,26 +27,44 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer, onOfferClick }) => {
   const isAuthenticated = useUserStore((s) => !!s.token);
   const { data: favoritesData } = useFavorites();
   const toggleFavorite = useFavoriteToggle();
-  const favoritesList = useMemo(() => normalizeFavoritesList(favoritesData ?? null), [favoritesData]);
+  const favoritesList = useMemo(
+    () => normalizeFavoritesList(favoritesData ?? null),
+    [favoritesData],
+  );
   const isFavorite = useMemo(
-    () => favoritesList.some((f) => f.favorable_type === "offer" && String(f.favorable_id) === String(offer.id)),
-    [favoritesList, offer.id]
+    () =>
+      favoritesList.some(
+        (f) =>
+          f.favorable_type === "offer" &&
+          String(f.favorable_id) === String(offer.id),
+      ),
+    [favoritesList, offer.id],
   );
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!isAuthenticated) {
-      navigate(`/login?returnUrl=${encodeURIComponent(window.location.pathname)}`);
+      navigate(
+        `/login?returnUrl=${encodeURIComponent(window.location.pathname)}`,
+      );
       return;
     }
     toggleFavorite.mutate(
       { favorable_type: "offer", favorable_id: offer.id },
       {
         onSuccess: () => {
-          toast.success(isFavorite ? (isRTL ? "تمت إزالته من المحفوظات" : "Removed from favorites") : (isRTL ? "تمت الإضافة إلى المحفوظات" : "Added to favorites"));
+          toast.success(
+            isFavorite
+              ? isRTL
+                ? "تمت إزالته من المفضلة"
+                : "Removed from favorites"
+              : isRTL
+                ? "تمت الإضافة إلى المفضلة"
+                : "Added to favorites",
+          );
         },
         onError: () => toast.error(isRTL ? "حدث خطأ" : "Something went wrong"),
-      }
+      },
     );
   };
 
@@ -58,7 +76,7 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer, onOfferClick }) => {
   // Get company and category data - prefer API data if available
   const company = getRestaurantById(offer.companyId);
   const categoryInfo = offerCategories.find(
-    (cat) => cat.key === offer.category
+    (cat) => cat.key === offer.category,
   );
 
   // Use API data if available, otherwise fallback to static data
@@ -75,10 +93,14 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer, onOfferClick }) => {
       let url = offer.merchantLogo.trim();
       if (url.includes("/storage/https://")) {
         const i = url.indexOf("/storage/https://");
-        url = url.slice(0, i + "/storage".length) + url.slice(i + "/storage/https://".length);
+        url =
+          url.slice(0, i + "/storage".length) +
+          url.slice(i + "/storage/https://".length);
       }
       if (url && !url.startsWith("http")) {
-        url = url.startsWith("/") ? `${API_BASE_URL}${url}` : `${API_BASE_URL}/storage/${url}`;
+        url = url.startsWith("/")
+          ? `${API_BASE_URL}${url}`
+          : `${API_BASE_URL}/storage/${url}`;
       }
       return url || null;
     }
@@ -121,7 +143,11 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer, onOfferClick }) => {
             className="w-8 h-8 bg-white bg-opacity-90 rounded-full flex items-center justify-center text-gray-700 hover:bg-opacity-100 transition-all duration-200 disabled:opacity-50"
             disabled={toggleFavorite.isPending}
           >
-            {isFavorite ? <BsHeartFill className="text-sm text-red-500" /> : <BsHeart className="text-sm" />}
+            {isFavorite ? (
+              <BsHeartFill className="text-sm text-red-500" />
+            ) : (
+              <BsHeart className="text-sm" />
+            )}
           </button>
         </div>
         {/* Discount Badge */}
@@ -149,19 +175,16 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer, onOfferClick }) => {
       {/* Content Section - نفس الارتفاع بين كل الكاردات، السعر والزر يثبتان في الأسفل */}
       <div className="p-4 flex flex-col flex-1 min-h-0">
         <div className="flex flex-col flex-1 min-h-0">
-          <h3 className="text-lg font-bold text-gray-800 mb-2 line-clamp-2">
+          <h3 className="text-lg font-bold text-gray-800 mb-1 line-clamp-2">
             {offer.title[isRTL ? "ar" : "en"]}
           </h3>
 
-          <p
-            className="text-sm text-gray-600 mb-3 line-clamp-2"
-            style={{ height: "40px", overflow: "hidden" }}
-          >
+          <p className="text-sm text-gray-600 mb-1.5 line-clamp-1">
             {stripHtml(offer.description[isRTL ? "ar" : "en"])}
           </p>
 
           {/* Features */}
-          <div className="mb-4">
+          <div className="mb-2">
             <div className="flex flex-wrap gap-1">
               {offer.features.slice(0, 2).map((feature, index) => (
                 <span
@@ -180,7 +203,7 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer, onOfferClick }) => {
           </div>
 
           {/* Breadcrumb Navigation - مع صور صغيرة للتصنيف والمتجر */}
-          <div className="mb-4">
+          <div className="mb-2">
             <div className="flex flex-wrap items-center gap-1.5 text-xs">
               {displayCategoryName && (
                 <>
@@ -191,11 +214,17 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer, onOfferClick }) => {
                     {categoryInfo?.icon != null && (
                       <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center overflow-hidden rounded bg-[#400198]/10">
                         {typeof categoryInfo.icon === "string" ? (
-                          <img src={categoryInfo.icon} alt="" className="h-full w-full object-contain" />
+                          <img
+                            src={categoryInfo.icon}
+                            alt=""
+                            className="h-full w-full object-contain"
+                          />
                         ) : (
                           React.createElement(
-                            categoryInfo.icon as unknown as React.ComponentType<{ className?: string }>,
-                            { className: "h-3 w-3 text-[#400198]" }
+                            categoryInfo.icon as unknown as React.ComponentType<{
+                              className?: string;
+                            }>,
+                            { className: "h-3 w-3 text-[#400198]" },
                           )
                         )}
                       </span>
@@ -211,7 +240,11 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer, onOfferClick }) => {
                       >
                         {storeImageUrl ? (
                           <span className="relative h-5 w-5 flex-shrink-0 overflow-hidden rounded-full bg-gray-100 ring-1 ring-gray-200">
-                            <img src={storeImageUrl} alt="" className="h-full w-full object-cover" />
+                            <img
+                              src={storeImageUrl}
+                              alt=""
+                              className="h-full w-full object-cover"
+                            />
                           </span>
                         ) : (
                           <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[#400198]/10">
@@ -228,7 +261,7 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer, onOfferClick }) => {
           </div>
 
           {/* Stats */}
-          <div className="flex items-center justify-between mb-4 text-sm text-gray-500">
+          <div className="flex items-center justify-between mb-2 text-sm text-gray-500">
             <div className="flex items-center gap-1">
               <span className="text-yellow-500">★</span>
               <span>{offer.rating}</span>

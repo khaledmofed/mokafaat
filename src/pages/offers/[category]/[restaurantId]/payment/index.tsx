@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   useParams,
   useSearchParams,
@@ -7,7 +7,7 @@ import {
   Link,
 } from "react-router-dom";
 import { useIsRTL } from "@hooks";
-import { FiArrowLeft, FiBookmark, FiCheck, FiEye } from "react-icons/fi";
+import { FiArrowLeft } from "react-icons/fi";
 import CurrencyIcon from "@components/CurrencyIcon";
 import {
   Visa,
@@ -34,13 +34,7 @@ import { AxiosError } from "axios";
 import { isUserSubscribed } from "@utils/subscription";
 import { useQueryClient } from "@tanstack/react-query";
 import { mokafaatKeys } from "@hooks/api/useMokafaatQueries";
-import {
-  CardNumberInput,
-  ExpiryInput,
-  CVVInput,
-  CardholderNameInput,
-  validateCardForm,
-} from "@components/CardInputs";
+import { initMoyasarPayment } from "@utils/moyasar";
 
 const PaymentPage: React.FC = () => {
   const { category, restaurantId } = useParams<{
@@ -57,30 +51,46 @@ const PaymentPage: React.FC = () => {
   const { data: subscriptionStatusData } = useSubscriptionStatus(!!token);
   const isSubscribed = isUserSubscribed(subscriptionStatusData);
 
-  const [selectedPaymentMethod, setSelectedPaymentMethod] =
-    useState<string>("");
-  const [step, setStep] = useState<"method" | "card" | "confirm">("method");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [cardNumber, setCardNumber] = useState("");
-  const [expiry, setExpiry] = useState("");
-  const [cvv, setCvv] = useState("");
-  const [cardholderName, setCardholderName] = useState("");
-  const [cardErrors, setCardErrors] = useState<Record<string, string>>({});
+  const [showMoyasarForm, setShowMoyasarForm] = useState(false);
+  const moyasarInitedRef = useRef(false);
+  const moyasarConfigRef = useRef<{
+    amountHalala: number;
+    currency: string;
+    description: string;
+    publishableKey: string;
+    callbackUrl: string;
+    metadata: Record<string, unknown>;
+  } | null>(null);
 
   // Get data from URL parameters
   const offerId = searchParams.get("offer");
   const quantity = parseInt(searchParams.get("quantity") || "1");
 
   // Prefer offer/restaurant from navigation state (from offer detail page), then static data
-  const state = location.state as { restaurant?: unknown; offer?: unknown } | null | undefined;
+  // orderId: الطلب مُنشأ مسبقاً من "شراء سريع" — نمرّره عند إتمام الدفع
+  const state = location.state as {
+    orderId?: string | number;
+    order?: Record<string, unknown>;
+    restaurant?: unknown;
+    offer?: unknown;
+  } | null | undefined;
+  const orderIdFromState = state?.orderId;
+  const orderFromState = state?.order;
   const company = (state?.restaurant ?? (restaurantId ? getRestaurantById(restaurantId) : null)) as ReturnType<typeof getRestaurantById>;
   const offer = (state?.offer ?? (offerId && restaurantId ? getOfferById(restaurantId, offerId) : null)) as ReturnType<typeof getOfferById>;
   const categoryInfo = category
     ? offerCategories.find((cat) => cat.key === category)
     : null;
 
-  // Calculate total price
-  const totalPrice = offer ? offer.discountPrice * quantity : 0;
+  // المبلغ الذي يدفعه المستخدم على المنصة (نفس منطق صفحة تفاصيل العرض)
+  const unitPrice =
+    offer &&
+    offer.platformPrice !== undefined &&
+    offer.platformPrice !== null
+      ? offer.platformPrice
+      : offer?.discountPrice ?? 0;
+  const totalPrice = offer ? unitPrice * quantity : 0;
 
   useEffect(() => {
     if (!company || !offer) {
@@ -93,6 +103,21 @@ const PaymentPage: React.FC = () => {
       navigate(`/login?returnUrl=${encodeURIComponent(location.pathname + location.search)}`);
     }
   }, [token, company, offer, navigate, location.pathname, location.search]);
+
+  useEffect(() => {
+    if (!showMoyasarForm || moyasarInitedRef.current || !moyasarConfigRef.current) return;
+    const config = moyasarConfigRef.current;
+    moyasarInitedRef.current = true;
+    initMoyasarPayment({
+      ...config,
+      elementSelector: ".mysr-form-offer",
+      methods: ["creditcard"],
+    }).catch(() => {
+      setErrorMsg(isRTL ? "تعذر تحميل بوابة الدفع. حدّث الصفحة أو تواصل مع الدعم." : "Failed to load payment gateway. Refresh or contact support.");
+      setShowMoyasarForm(false);
+      moyasarInitedRef.current = false;
+    });
+  }, [showMoyasarForm, isRTL]);
 
   if (!company || !offer) {
     return (
@@ -146,33 +171,60 @@ const PaymentPage: React.FC = () => {
   ];
 
   const handlePaymentMethodSelect = (methodId: string) => {
-    setSelectedPaymentMethod(methodId);
-    setStep("card");
+    void methodId; // اختيار طريقة الدفع — كل الطرق توجّه لميسر
+    submitPayment();
   };
 
-  const handleCardSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const { valid, errors } = validateCardForm({
-      cardNumber,
-      expiry,
-      cvv,
-      cardholderName,
-    });
-    if (!valid) {
-      setCardErrors(errors);
-      return;
-    }
-    setCardErrors({});
-    setStep("confirm");
-  };
-
-  const handleConfirmPurchase = () => {
+  const submitPayment = () => {
     if (!offerId || !offer) return;
     setErrorMsg(null);
     if (!isSubscribed) {
       setErrorMsg(isRTL ? "يجب أن يكون لديك اشتراك فعال للحصول على هذا العرض. يرجى الاشتراك أولاً." : "You need an active subscription for this offer. Please subscribe first.");
       return;
     }
+
+    // إذا الطلب تم إنشاؤه من زر "شراء" فلا نُنشئ طلباً مرة ثانية هنا.
+    // نفترض أن createOrder في صفحة العرض أعاد payment_url أو payment_info داخل order/state.
+    if (orderIdFromState != null) {
+      const paymentUrlFromState = (orderFromState?.payment_url ?? orderFromState?.redirect_url) as string | undefined;
+      if (paymentUrlFromState && typeof paymentUrlFromState === "string") {
+        window.location.href = paymentUrlFromState;
+        return;
+      }
+      const paymentInfoFromState = orderFromState?.payment_info as Record<string, unknown> | undefined;
+      if (paymentInfoFromState && typeof paymentInfoFromState === "object") {
+        const amountHalala = Math.max(100, Math.floor((totalPrice || 0) * 100));
+        const publishableKey = (paymentInfoFromState.publishable_key as string | undefined) || "";
+        const callbackUrl = `${window.location.origin}/orders/callback?` +
+          new URLSearchParams({
+            order_id: String(orderIdFromState),
+            type: "offer",
+            ...(category ? { category } : {}),
+            ...(restaurantId ? { restaurant_id: String(restaurantId) } : {}),
+          }).toString();
+        if (publishableKey && amountHalala >= 100) {
+          moyasarConfigRef.current = {
+            amountHalala,
+            currency: (paymentInfoFromState.currency as string) || "SAR",
+            description: (paymentInfoFromState.description as string) || (isRTL ? "إتمام الدفع للطلب" : "Complete order payment"),
+            publishableKey,
+            callbackUrl,
+            metadata: (paymentInfoFromState.metadata as Record<string, unknown>) || {},
+          };
+          moyasarInitedRef.current = false;
+          setShowMoyasarForm(true);
+          return;
+        }
+      }
+      setErrorMsg(
+        isRTL
+          ? "لا تتوفر بيانات الدفع لهذا الطلب. ارجع لصفحة العرض واضغط على شراء مرة أخرى."
+          : "Payment info is not available for this order. Go back and click Buy again."
+      );
+      return;
+    }
+
+    // دخول مباشر لصفحة الدفع بدون إنشاء طلب مسبقاً — ننشئ الطلب ثم نفتح ميسر
     createOrder.mutate(
       {
         order_type: "offer",
@@ -195,12 +247,37 @@ const PaymentPage: React.FC = () => {
             return;
           }
           const inner = (root.data ?? root) as Record<string, unknown>;
-          const paymentUrl = (root.payment_url ?? root.redirect_url ?? inner?.payment_url ?? inner?.redirect_url) as string | undefined;
+          const order = (inner?.order ?? root.order) as Record<string, unknown> | undefined;
+          const paymentUrl = (root.payment_url ?? inner?.payment_url ?? root.redirect_url ?? inner?.redirect_url) as string | undefined;
           if (paymentUrl && typeof paymentUrl === "string") {
             window.location.href = paymentUrl;
             return;
           }
-          const orderId = (root.order_id ?? inner?.order_id ?? (root.order as Record<string, unknown>)?.id) as string | number | undefined;
+          const paymentInfo = (order?.payment_info ?? inner?.payment_info) as Record<string, unknown> | undefined;
+          if (paymentInfo && typeof paymentInfo === "object") {
+            const amountHalala = Math.max(100, Math.floor((totalPrice || 0) * 100));
+            const publishableKey = (paymentInfo.publishable_key as string | undefined) || "";
+            const callbackUrl = `${window.location.origin}/orders/callback?` +
+              new URLSearchParams({
+                type: "offer",
+                ...(category ? { category } : {}),
+                ...(restaurantId ? { restaurant_id: String(restaurantId) } : {}),
+              }).toString();
+            if (publishableKey && amountHalala >= 100) {
+              moyasarConfigRef.current = {
+                amountHalala,
+                currency: (paymentInfo.currency as string) || "SAR",
+                description: (paymentInfo.description as string) || (isRTL ? "إتمام الدفع للطلب" : "Complete order payment"),
+                publishableKey,
+                callbackUrl,
+                metadata: (paymentInfo.metadata as Record<string, unknown>) || {},
+              };
+              moyasarInitedRef.current = false;
+              setShowMoyasarForm(true);
+              return;
+            }
+          }
+          const orderId = (root.order_id ?? inner?.order_id ?? order?.id) as string | number | undefined;
           if (orderId != null) {
             navigate(`/orders/${orderId}`);
             return;
@@ -261,39 +338,6 @@ const PaymentPage: React.FC = () => {
                 : "Complete payment for the selected offer"
             )}
           </p>
-
-          {/* Location and Status */}
-          <div className="flex items-center justify-center gap-4 text-white/70 mb-4">
-            <span className="px-3 py-1 bg-white/20 rounded-full text-sm">
-              {company.location[isRTL ? "ar" : "en"]} • {company.distance}
-            </span>
-            <span className="px-3 py-1 bg-white/20 rounded-full text-sm">
-              {company.isOpen
-                ? isRTL
-                  ? "مفتوح"
-                  : "Open"
-                : isRTL
-                ? "مغلق"
-                : "Closed"}
-            </span>
-          </div>
-
-          {/* Stats */}
-          <div className="flex items-center justify-center gap-6 text-white/70 mb-4">
-            <div className="flex items-center gap-1">
-              <span className="text-yellow-400">★</span>
-              <span>{company.rating}</span>
-              <span>({company.reviewsCount})</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <FiEye />
-              <span>{company.views}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <FiBookmark />
-              <span>{company.saves}</span>
-            </div>
-          </div>
 
           {/* Breadcrumb */}
           <div className="flex items-center justify-center text-sm md:text-base">
@@ -416,6 +460,17 @@ const PaymentPage: React.FC = () => {
                     <CurrencyIcon size={12} />
                   </span>
                 </div>
+                {offer.platformPrice != null && offer.platformPrice !== offer.discountPrice && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">
+                      {isRTL ? "المبلغ على المنصة" : "Platform price"}
+                    </span>
+                    <span className="flex items-center gap-1 font-medium">
+                      {unitPrice}
+                      <CurrencyIcon size={12} />
+                    </span>
+                  </div>
+                )}
               </div>
 
               <div className="border-t pt-4">
@@ -424,8 +479,16 @@ const PaymentPage: React.FC = () => {
                     {isRTL ? "المجموع" : "Total"}
                   </span>
                   <span className="text-xl font-bold text-[#400198] flex items-center gap-1">
-                    {totalPrice}
-                    <CurrencyIcon size={16} />
+                    {totalPrice > 0 ? (
+                      <>
+                        {totalPrice}
+                        <CurrencyIcon size={16} />
+                      </>
+                    ) : (
+                      <span className="text-green-600">
+                        {isRTL ? "مجاني" : "Free"}
+                      </span>
+                    )}
                   </span>
                 </div>
               </div>
@@ -435,26 +498,67 @@ const PaymentPage: React.FC = () => {
           {/* Payment Form */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-xl p-6">
-              {step === "method" && (
+              {showMoyasarForm ? (
+                <>
+                  <h2 className="text-lg font-semibold text-gray-800 mb-6">
+                    {isRTL ? "إتمام الدفع عبر ميسر" : "Complete payment via Moyasar"}
+                  </h2>
+                  {errorMsg && (
+                    <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                      {errorMsg}
+                    </div>
+                  )}
+                  <p className="text-gray-600 mb-4">
+                    {isRTL ? "أدخل بيانات البطاقة أدناه:" : "Enter your card details below:"}
+                  </p>
+                  <div className="mysr-form-offer min-h-[200px]" />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowMoyasarForm(false);
+                      moyasarInitedRef.current = false;
+                      moyasarConfigRef.current = null;
+                      setErrorMsg(null);
+                    }}
+                    className="mt-4 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                  >
+                    {isRTL ? "العودة لاختيار طريقة الدفع" : "Back to payment methods"}
+                  </button>
+                </>
+              ) : (
                 <>
                   <h2 className="text-lg font-semibold text-gray-800 mb-6">
                     {isRTL ? "اختر طريقة الدفع" : "Choose Payment Method"}
                   </h2>
 
+                  {errorMsg && (
+                    <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                      {errorMsg}
+                      <button
+                        type="button"
+                        onClick={() => navigate("/subscription/plans")}
+                        className="mt-3 text-[#400198] font-medium underline hover:no-underline block"
+                      >
+                        {isRTL ? "الذهاب لصفحة الاشتراك" : "Go to subscription page"}
+                      </button>
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
                     {paymentMethods.map((method) => (
                       <label
                         key={method.id}
-                        className="px-4 py-3 border border-gray-200 rounded-lg hover:border-purple-300 hover:bg-purple-50 transition-colors flex items-center justify-between cursor-pointer"
+                        className={`px-4 py-3 border rounded-lg transition-colors flex items-center justify-between cursor-pointer ${
+                          (createOrder.isPending) ? "opacity-60 pointer-events-none border-gray-200" : "border-gray-200 hover:border-purple-300 hover:bg-purple-50"
+                        }`}
                       >
                         <div className="flex items-center gap-3">
                           <input
                             type="radio"
                             name="paymentMethod"
                             value={method.id}
-                            onChange={() =>
-                              handlePaymentMethodSelect(method.id)
-                            }
+                            onChange={() => handlePaymentMethodSelect(method.id)}
+                            disabled={createOrder.isPending}
                             className="w-4 h-4 text-purple-600 border-gray-300 focus:ring-purple-500"
                           />
                           <span className="font-medium text-gray-800">
@@ -469,136 +573,12 @@ const PaymentPage: React.FC = () => {
                       </label>
                     ))}
                   </div>
-                </>
-              )}
-
-              {step === "card" && (
-                <>
-                  <h2 className="text-lg font-semibold text-gray-800 mb-6">
-                    {isRTL ? "معلومات البطاقة" : "Card Information"}
-                  </h2>
-
-                  <form onSubmit={handleCardSubmit} className="space-y-4">
-                    <CardNumberInput
-                      value={cardNumber}
-                      onChange={setCardNumber}
-                      label={isRTL ? "رقم البطاقة" : "Card Number"}
-                      placeholder="1234 5678 9012 3456"
-                      required
-                      isRTL={!!isRTL}
-                      error={cardErrors.cardNumber}
-                      className="focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    />
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <ExpiryInput
-                        value={expiry}
-                        onChange={setExpiry}
-                        label={isRTL ? "تاريخ الانتهاء" : "Expiry Date"}
-                        placeholder="MM/YY"
-                        required
-                        isRTL={!!isRTL}
-                        error={cardErrors.expiry}
-                        className="focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                      />
-                      <CVVInput
-                        value={cvv}
-                        onChange={setCvv}
-                        label={isRTL ? "CVV" : "CVV"}
-                        placeholder="123"
-                        required
-                        isRTL={!!isRTL}
-                        error={cardErrors.cvv}
-                        className="focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                      />
-                    </div>
-
-                    <CardholderNameInput
-                      value={cardholderName}
-                      onChange={setCardholderName}
-                      label={isRTL ? "اسم حامل البطاقة" : "Cardholder Name"}
-                      placeholder={
-                        isRTL
-                          ? "الاسم كما هو مكتوب على البطاقة"
-                          : "Name as it appears on card"
-                      }
-                      required
-                      isRTL={!!isRTL}
-                      error={cardErrors.cardholderName}
-                      className="focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                    />
-
-                    <button
-                      type="submit"
-                      className="w-full py-3 bg-[#400198] text-white rounded-lg hover:bg-[#54015d] transition-colors font-medium"
-                    >
-                      {isRTL ? "متابعة" : "Continue"}
-                    </button>
-                  </form>
-                </>
-              )}
-
-              {step === "confirm" && (
-                <>
-                  <h2 className="text-lg font-semibold text-gray-800 mb-6">
-                    {isRTL ? "تأكيد الدفع" : "Confirm Payment"}
-                  </h2>
-
-                  {errorMsg && (
-                    <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-                      <p>{errorMsg}</p>
-                      <button
-                        type="button"
-                        onClick={() => navigate("/subscription/plans")}
-                        className="mt-3 text-[#400198] font-medium underline hover:no-underline"
-                      >
-                        {isRTL ? "الذهاب لصفحة الاشتراك" : "Go to subscription page"}
-                      </button>
+                  {(createOrder.isPending) && (
+                    <div className="flex items-center justify-center gap-2 text-gray-600 py-4">
+                      <LoadingSpinner />
+                      <span>{isRTL ? "جاري التحويل لبوابة الدفع..." : "Redirecting to payment..."}</span>
                     </div>
                   )}
-
-                  <div className="text-center py-8">
-                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <FiCheck className="text-green-600 text-2xl" />
-                    </div>
-                    <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                      {isRTL ? "تأكيد الدفع" : "Confirm Payment"}
-                    </h3>
-                    <p className="text-gray-600 mb-6">
-                      {isRTL
-                        ? "هل أنت متأكد من إتمام عملية الدفع؟"
-                        : "Are you sure you want to complete this payment?"}
-                    </p>
-                    {selectedPaymentMethod && (
-                      <p className="text-gray-500 text-sm mb-4">
-                        {isRTL ? "طريقة الدفع: " : "Payment method: "}
-                        {selectedPaymentMethod}
-                      </p>
-                    )}
-
-                    <div className="flex gap-4 justify-center">
-                      <button
-                        onClick={() => setStep("card")}
-                        className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                      >
-                        {isRTL ? "العودة" : "Back"}
-                      </button>
-                      <button
-                        onClick={handleConfirmPurchase}
-                        disabled={createOrder.isPending}
-                        className="px-6 py-3 bg-[#400198] text-white rounded-lg hover:bg-[#54015d] transition-colors disabled:opacity-70 flex items-center justify-center gap-2"
-                      >
-                        {createOrder.isPending ? (
-                          <>
-                            <LoadingSpinner />
-                            <span>{isRTL ? "جاري التحويل..." : "Redirecting..."}</span>
-                          </>
-                        ) : (
-                          isRTL ? "تأكيد الدفع" : "Confirm Payment"
-                        )}
-                      </button>
-                    </div>
-                  </div>
                 </>
               )}
             </div>

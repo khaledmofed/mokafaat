@@ -12,6 +12,8 @@ import CurrencyIcon from "@components/CurrencyIcon";
 import { Cardpayment } from "@assets";
 import { useWebHome } from "@hooks/api/useMokafaatQueries";
 import { mapApiCardsToModels } from "@network/mappers/cardsMapper";
+import { downloadVoucher } from "@utils/voucherDownload";
+import { useUserStore } from "@stores/userStore";
 
 const SuccessPage = () => {
   const { companyId } = useParams<{ companyId: string }>();
@@ -19,10 +21,13 @@ const SuccessPage = () => {
   const navigate = useNavigate();
   const isRTL = useIsRTL();
   const { data: webHomeResponse } = useWebHome();
+  const token = useUserStore((s) => s.token);
+  const getToken = useUserStore.getState;
 
   const offerId = searchParams.get("offer");
   const quantity = parseInt(searchParams.get("quantity") || "1");
   const total = parseFloat(searchParams.get("total") || "0");
+  const orderId = searchParams.get("order") ?? searchParams.get("order_id");
 
   const apiCardCompanyAndOffer = useMemo((): {
     company: CardCompany;
@@ -102,11 +107,17 @@ const SuccessPage = () => {
   };
 
   const handleViewOrder = () => {
-    // Navigate to order details or download PDF
-    window.open(
-      `/cards/${companyId}/download?offer=${offerId}&quantity=${quantity}`,
-      "_blank"
-    );
+    // تنزيل PDF يتطلب توكن — نطلبه عبر fetch مع Authorization
+    if (!orderId) {
+      // fallback: إذا ما في order_id بالرابط ما نقدر نبني voucher endpoint
+      navigate("/orders");
+      return;
+    }
+    if (!token) {
+      navigate(`/login?returnUrl=${encodeURIComponent(window.location.pathname + window.location.search)}`);
+      return;
+    }
+    downloadVoucher(`/api/orders/${orderId}/voucher`, () => getToken().token).catch(() => {});
   };
 
   return (

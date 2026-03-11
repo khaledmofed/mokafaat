@@ -170,10 +170,17 @@ const CategoryOffersPage = () => {
         ? offersData.best_selling
         : []),
     ];
-    const offers = mapApiOffersToModels(all).filter(
+    let offers = mapApiOffersToModels(all).filter(
       (o) =>
         (o.category || "").toLowerCase() === (category || "").toLowerCase(),
     );
+    // إزالة تكرار العروض إذا ظهر نفس العرض في أكثر من قائمة (today / new / best_selling)
+    const seenIds = new Set<string>();
+    offers = offers.filter((o) => {
+      if (seenIds.has(o.id)) return false;
+      seenIds.add(o.id);
+      return true;
+    });
     const byCompany = new Map<string, Offer[]>();
     for (const o of offers) {
       const id = o.companyId || "unknown";
@@ -224,6 +231,8 @@ const CategoryOffersPage = () => {
   }, [category, apiRestaurants]);
 
   // فلترة وترتيب العروض (عرض جميع العروض في التصنيف وليس المتاجر)
+  // خيارات الفلتر من API: GET /api/filters/:categoryId
+  // التطبيق: على البيانات المحمّلة من web/home (today/new/best_selling). لتفعيل فلترة من السيرفر استخدم useOffersByCategory(categoryId, { subcategory_ids, offer_type_ids, brand_ids, sort_by, ... }) إن دعم الباكند.
   const filteredOffers = useMemo(() => {
     if (!category) return [];
 
@@ -251,6 +260,18 @@ const CategoryOffersPage = () => {
           ),
         );
       }
+      if (appliedFilters.subcategoryIds.length > 0) {
+        offers = offers.filter((o) =>
+          o.subcategoryId != null &&
+          appliedFilters!.subcategoryIds.includes(o.subcategoryId),
+        );
+      }
+      if (appliedFilters.offerTypeIds.length > 0) {
+        offers = offers.filter((o) =>
+          o.offerTypeId != null &&
+          appliedFilters!.offerTypeIds.includes(o.offerTypeId),
+        );
+      }
       if (
         appliedFilters.priceRange.min != null ||
         appliedFilters.priceRange.max != null
@@ -273,7 +294,7 @@ const CategoryOffersPage = () => {
           break;
         case "best_selling":
           offers = [...offers].sort(
-            (a, b) => (b.bookmarks ?? 0) - (a.bookmarks ?? 0),
+            (a, b) => (b.purchases ?? 0) - (a.purchases ?? 0),
           );
           break;
         case "highest_discount":

@@ -6,6 +6,7 @@ export default defineConfig(({ mode }) => {
   // Load env file based on `mode` in the current working directory.
   // Set the third parameter to '' to load all env regardless of the `VITE_` prefix.
   const env = loadEnv(mode, process.cwd(), "");
+  const apiBaseUrl = env.VITE_API_BASE_URL || "https://mokafat.ivadso.com";
 
   return {
     resolve: {
@@ -35,6 +36,16 @@ export default defineConfig(({ mode }) => {
       },
     },
     plugins: [react()],
+    server: {
+      // Avoid CORS in dev by proxying API calls through Vite (same-origin: localhost)
+      proxy: {
+        "/api": {
+          target: apiBaseUrl,
+          changeOrigin: true,
+          secure: false,
+        },
+      },
+    },
     define: {
       // Define environment variables
       "process.env.VITE_API_BASE_URL": JSON.stringify(

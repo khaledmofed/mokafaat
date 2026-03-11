@@ -39,6 +39,8 @@ import {
   OrdersPage,
   OrderDetailPage,
   OrderSuccessRedirectPage,
+  OrderFailureRedirectPage,
+  OrderPaymentCallbackPage,
   WalletPage,
 } from "@pages/App";
 
@@ -334,6 +336,16 @@ export const routes: AppRouter[] = [
   {
     path: "/orders/success",
     element: OrderSuccessRedirectPage,
+    inLayout: false,
+  },
+  {
+    path: "/orders/failure",
+    element: OrderFailureRedirectPage,
+    inLayout: false,
+  },
+  {
+    path: "/orders/callback",
+    element: OrderPaymentCallbackPage,
     inLayout: false,
   },
   {

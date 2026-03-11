@@ -168,10 +168,10 @@ export const subscriptionApi = {
 };
 
 // ========== Payment callback (بعد العودة من بوابة الدفع) ==========
-// مطابق لـ Postman: Subscriptions → "Subscribe Copy" → GET {{url}}/api/payment/callback?id=MOYASAR_PAYMENT_UUID&status=paid
+// الباكند قد يرد بصفحة HTML — نطلب النص فقط حتى لا يفشل التحويل لـ JSON
 export const paymentApi = {
   callback: (params: { id: string; status: string }) =>
-    api.get(API_ENDPOINTS.paymentCallback, { params }),
+    api.get(API_ENDPOINTS.paymentCallback, { params, responseType: "text" }),
 };
 
 // ========== Orders (يتطلب توكن) ==========
@@ -187,6 +187,8 @@ export const ordersApi = {
     quantity?: number;
     branch_id?: string | number;
     use_wallet?: boolean;
+    /** عند الدفع لطلب مُنشأ مسبقاً (من صفحة الشراء السريع) */
+    order_id?: string | number;
   }) => api.post(API_ENDPOINTS.orders, null, { params }),
 };
 

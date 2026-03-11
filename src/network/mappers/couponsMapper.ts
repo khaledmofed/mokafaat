@@ -14,6 +14,12 @@ export interface CouponModel {
   dealSubtext: string;
   discountPercentage?: number;
   category?: string;
+  /** كود الخصم الفعلي القادم من الـ API (coupon_code) */
+  couponCode?: string;
+  /** رابط المتجر (store_url) إن وجد */
+  storeUrl?: string;
+  /** تاريخ انتهاء الكوبون كما يأتي من الـ API (end_date) */
+  endDate?: string;
 }
 
 /**
@@ -31,6 +37,28 @@ export function mapApiCouponToModel(
       : null;
     const category = apiCoupon.category as Record<string, unknown> | undefined;
     const categoryName = category ? String(category.name ?? "") : "";
+
+    const couponCodeRaw =
+      (apiCoupon as Record<string, unknown>).coupon_code ??
+      (apiCoupon as Record<string, unknown>).couponCode;
+    const storeUrlRaw =
+      (apiCoupon as Record<string, unknown>).store_url ??
+      (apiCoupon as Record<string, unknown>).storeUrl;
+
+    const endDateRaw = (apiCoupon as Record<string, unknown>).end_date;
+    const endDate =
+      endDateRaw != null && endDateRaw !== ""
+        ? String(endDateRaw)
+        : undefined;
+
+    const couponCode =
+      couponCodeRaw != null && couponCodeRaw !== ""
+        ? String(couponCodeRaw)
+        : undefined;
+    const storeUrl =
+      storeUrlRaw != null && storeUrlRaw !== ""
+        ? String(storeUrlRaw)
+        : undefined;
 
     if (!id || !description) {
       console.warn("Coupon missing id or description:", apiCoupon);
@@ -73,7 +101,8 @@ export function mapApiCouponToModel(
       title: couponTitle,
       price: priceText,
       savings: savingsText,
-      validity: "صلاحية ٣٠ يوم",
+      // نعرض end_date كنص في حقل الصلاحية إن وُجد، وإلا نستخدم نص افتراضي
+      validity: endDate ?? "صلاحية غير محددة",
       reusable: true, // Default to reusable, API doesn't provide this info
       reusableText: "قابل لاعادة الاستخدام",
       color,
@@ -81,6 +110,9 @@ export function mapApiCouponToModel(
       dealSubtext,
       discountPercentage: discountPercentage || undefined,
       category: categoryName || undefined,
+      couponCode,
+      storeUrl,
+      endDate,
     };
   } catch (error) {
     console.error("Error mapping coupon:", error, apiCoupon);

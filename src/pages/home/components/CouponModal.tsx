@@ -2,7 +2,13 @@ import React, { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useIsRTL } from "@hooks";
 import { IoMdClose } from "react-icons/io";
-import { FiCheck, FiBookmark, FiShare2, FiExternalLink, FiEye } from "react-icons/fi";
+import {
+  FiCheck,
+  FiBookmark,
+  FiShare2,
+  FiExternalLink,
+  FiEye,
+} from "react-icons/fi";
 import { FaRegCopy } from "react-icons/fa";
 import { BsHeart, BsHeartFill } from "react-icons/bs";
 import type { CouponModel } from "@network/mappers/couponsMapper";
@@ -33,15 +39,25 @@ const CouponModal: React.FC<CouponModalProps> = ({
   const isAuthenticated = useUserStore((s) => !!s.token);
   const { data: favoritesData } = useFavorites();
   const toggleFavorite = useFavoriteToggle();
-  const favoritesList = useMemo(() => normalizeFavoritesList(favoritesData ?? null), [favoritesData]);
+  const favoritesList = useMemo(
+    () => normalizeFavoritesList(favoritesData ?? null),
+    [favoritesData],
+  );
   const isFavorite = useMemo(
-    () => favoritesList.some((f) => f.favorable_type === "coupon" && String(f.favorable_id) === String(coupon.id)),
-    [favoritesList, coupon.id]
+    () =>
+      favoritesList.some(
+        (f) =>
+          f.favorable_type === "coupon" &&
+          String(f.favorable_id) === String(coupon.id),
+      ),
+    [favoritesList, coupon.id],
   );
 
   const handleFavoriteClick = useCallback(() => {
     if (!isAuthenticated) {
-      navigate(`/login?returnUrl=${encodeURIComponent(window.location.pathname)}`);
+      navigate(
+        `/login?returnUrl=${encodeURIComponent(window.location.pathname)}`,
+      );
       onClose();
       return;
     }
@@ -49,14 +65,33 @@ const CouponModal: React.FC<CouponModalProps> = ({
       { favorable_type: "coupon", favorable_id: coupon.id },
       {
         onSuccess: () => {
-          toast.success(isFavorite ? (isRTL ? "تمت إزالته من المحفوظات" : "Removed from favorites") : (isRTL ? "تمت الإضافة إلى المحفوظات" : "Added to favorites"));
+          toast.success(
+            isFavorite
+              ? isRTL
+                ? "تمت إزالته من المفضلة"
+                : "Removed from favorites"
+              : isRTL
+                ? "تمت الإضافة إلى المفضلة"
+                : "Added to favorites",
+          );
         },
         onError: () => toast.error(isRTL ? "حدث خطأ" : "Something went wrong"),
-      }
+      },
     );
-  }, [isAuthenticated, navigate, onClose, toggleFavorite, coupon.id, isFavorite, isRTL]);
+  }, [
+    isAuthenticated,
+    navigate,
+    onClose,
+    toggleFavorite,
+    coupon.id,
+    isFavorite,
+    isRTL,
+  ]);
 
-  const code = `CPN${String(coupon.id).padStart(4, "0")}`;
+  const code =
+    coupon.couponCode && coupon.couponCode.trim().length > 0
+      ? coupon.couponCode
+      : `CPN${String(coupon.id).padStart(4, "0")}`;
 
   const copyCode = useCallback(() => {
     navigator.clipboard?.writeText(code).then(() => {
@@ -65,9 +100,14 @@ const CouponModal: React.FC<CouponModalProps> = ({
     });
   }, [code]);
 
-  const goToCouponsPage = () => {
+  const goToStore = () => {
+    const url = coupon.storeUrl;
+    if (url && url.trim().length > 0) {
+      window.open(url, "_blank", "noopener,noreferrer");
+    } else {
+      navigate("/coupons");
+    }
     onClose();
-    navigate("/coupons");
   };
 
   const logoUrl = getLogoUrl?.(coupon);
@@ -98,9 +138,7 @@ const CouponModal: React.FC<CouponModalProps> = ({
 
         <div className="px-5 pt-5 pb-6">
           {/* Store name + logo + stats */}
-          <div
-            className={`flex items-start gap-3 mb-4 ${isRTL ? "flex-row-reverse" : ""}`}
-          >
+          <div className={`flex items-start gap-3 mb-4`}>
             <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 bg-green-500 flex items-center justify-center">
               {logoUrl ? (
                 <img
@@ -117,12 +155,12 @@ const CouponModal: React.FC<CouponModalProps> = ({
             <div className="flex-1 min-w-0">
               <h2
                 id="coupon-modal-title"
-                className="text-lg font-bold text-gray-900"
+                className="text-base font-bold text-gray-900"
               >
                 {stripHtml(coupon.title)}
               </h2>
               <div
-                className={`flex items-center gap-4 mt-1 text-sm text-gray-500 ${isRTL ? "flex-row-reverse" : ""}`}
+                className={`flex items-center gap-4 mt-1 text-sm text-gray-500 `}
               >
                 <span className="flex items-center gap-1">
                   <FiBookmark className="w-4 h-4" /> 0
@@ -136,42 +174,62 @@ const CouponModal: React.FC<CouponModalProps> = ({
           </div>
 
           {/* Title + subtitle */}
-          <h3 className="text-xl font-bold text-gray-900 mb-1">
+          <h3 className="text-xl font-bold text-gray-900 mb-3">
             {coupon.dealText}
             {coupon.discountPercentage ? ` ${coupon.discountPercentage}%` : ""}
           </h3>
-          <p className="text-base font-semibold text-gray-700 mb-2">
+          {/* <p className="text-base font-semibold text-gray-700 mb-2">
             {coupon.dealSubtext}
-          </p>
+          </p> */}
 
           {/* Description */}
-          <p className="text-sm text-gray-500 mb-6 line-clamp-3">
+          {/* <p className="text-sm text-gray-500 mb-6 line-clamp-3">
             {stripHtml(coupon.savings)}
-          </p>
+          </p> */}
 
           {/* Action icons: فعال، أضف للمفضلة، مشاركة، تسوق بالموقع */}
-          <div
-            className={`flex flex-wrap gap-6 mb-6 ${isRTL ? "flex-row-reverse" : ""}`}
-          >
-            <div className="flex flex-col items-center gap-1">
+          <div className={`flex flex-wrap gap-6 mb-6 `}>
+            <button
+              type="button"
+              onClick={() =>
+                toast.success(
+                  isRTL
+                    ? "شكرًا لاستخدامك هذا الكوبون"
+                    : "Thanks for using this coupon",
+                )
+              }
+              className="flex flex-col items-center gap-1 text-green-600 focus:outline-none"
+            >
               <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
                 <FiCheck className="w-6 h-6 text-green-600" />
               </div>
-              <span className="text-xs font-medium text-green-600">
+              <span className="text-xs font-medium">
                 {isRTL ? "فعال" : "Active"}
               </span>
-            </div>
+            </button>
             <button
               type="button"
               onClick={handleFavoriteClick}
               disabled={toggleFavorite.isPending}
               className="flex flex-col items-center gap-1 text-gray-500 hover:text-gray-700 disabled:opacity-50"
             >
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${isFavorite ? "bg-red-100 text-red-600" : "bg-gray-100"}`}>
-                {isFavorite ? <BsHeartFill className="w-5 h-5" /> : <BsHeart className="w-5 h-5" />}
+              <div
+                className={`w-12 h-12 rounded-full flex items-center justify-center ${isFavorite ? "bg-red-100 text-red-600" : "bg-gray-100"}`}
+              >
+                {isFavorite ? (
+                  <BsHeartFill className="w-5 h-5" />
+                ) : (
+                  <BsHeart className="w-5 h-5" />
+                )}
               </div>
               <span className="text-xs font-medium">
-                {isRTL ? (isFavorite ? "إزالة من المحفوظات" : "أضف للمفضلة") : (isFavorite ? "Remove from favorites" : "Add to favorites")}
+                {isRTL
+                  ? isFavorite
+                    ? "إزالة من المفضلة"
+                    : "أضف للمفضلة"
+                  : isFavorite
+                    ? "Remove from favorites"
+                    : "Add to favorites"}
               </span>
             </button>
             <button
@@ -186,7 +244,11 @@ const CouponModal: React.FC<CouponModalProps> = ({
               </span>
             </button>
             <a
-              href="/coupons"
+              href={
+                coupon.storeUrl && coupon.storeUrl.trim()
+                  ? coupon.storeUrl
+                  : "/coupons"
+              }
               target="_blank"
               rel="noopener noreferrer"
               className="flex flex-col items-center gap-1 text-gray-500 hover:text-gray-700"
@@ -218,16 +280,29 @@ const CouponModal: React.FC<CouponModalProps> = ({
             </div>
           </div>
 
-          {/* Expiry */}
+          {/* Expiry (من end_date إن وُجد) */}
           <p className="text-sm text-gray-500 mb-6">
-            {isRTL ? "ينتهي " : "Expires "}
-            {coupon.validity}
+            {coupon.endDate
+              ? (() => {
+                  const d = new Date(coupon.endDate as string);
+                  const formatted = Number.isNaN(d.getTime())
+                    ? coupon.endDate
+                    : d.toLocaleDateString(isRTL ? "ar-SA" : "en-US", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      });
+                  return (isRTL ? "ينتهي " : "Expires ") + String(formatted);
+                })()
+              : isRTL
+                ? "الصلاحية غير محددة"
+                : "No expiry date"}
           </p>
 
-          {/* CTA - التوجيه لصفحة الكوبونز */}
+          {/* CTA - الذهاب إلى متجر الكوبون (إن وجد) */}
           <button
             type="button"
-            onClick={goToCouponsPage}
+            onClick={goToStore}
             className="block w-full py-4 rounded-2xl bg-[#fd671a] text-white text-center font-bold text-lg hover:opacity-95 transition-opacity"
           >
             {isRTL ? "الذهاب للمتجر" : "Go to store"}

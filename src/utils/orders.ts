@@ -81,7 +81,7 @@ function normalizeOrderRow(row: unknown): NormalizedOrder | null {
 
   const rawItems = r.items ?? r.order_items ?? r.line_items ?? [];
   const itemList = Array.isArray(rawItems) ? rawItems : [];
-  const items: OrderItem[] = itemList.map((item, i) => normalizeOrderItem(item, i));
+  let items: OrderItem[] = itemList.map((item, i) => normalizeOrderItem(item, i));
   if (items.length === 0 && (r.item_name || r.title || r.name)) {
     items.push(
       normalizeOrderItem(
@@ -97,8 +97,24 @@ function normalizeOrderRow(row: unknown): NormalizedOrder | null {
       )
     );
   }
+  if (items.length === 0 && r.item && typeof r.item === "object") {
+    const itemObj = r.item as Record<string, unknown>;
+    items.push(
+      normalizeOrderItem(
+        {
+          id: itemObj.id ?? r.item_id ?? r.id,
+          name_ar: itemObj.name,
+          name_en: itemObj.name,
+          image: itemObj.image ?? "",
+          price: itemObj.price_after ?? r.total_price ?? r.price ?? 0,
+          quantity: r.quantity ?? 1,
+        },
+        0
+      )
+    );
+  }
 
-  const total = r.total ?? r.total_amount ?? r.amount ?? r.price ?? 0;
+  const total = r.total ?? r.total_amount ?? r.total_price ?? r.amount ?? r.price ?? 0;
   const totalAmount = typeof total === "number" ? total : parseFloat(String(total)) || 0;
   const paymentMethod = (r.payment_method ?? r.payment_method_name ?? r.method ?? "—") as string;
   const createdAt = (r.created_at ?? r.date ?? r.order_date ?? new Date().toISOString()) as string;

@@ -235,7 +235,7 @@ const OrdersPage: React.FC = () => {
                         التاريخ
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        العناصر
+                        {isRTL ? "اسم العرض" : "Offer"}
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                         الحالة
@@ -294,7 +294,7 @@ const OrdersPage: React.FC = () => {
                               </div>
                               <div className="text-sm text-gray-500">
                                 {order.items.length > 1 &&
-                                  (isRTL ? `+${order.items.length - 1} عناصر أخرى` : `+${order.items.length - 1} more items`)}
+                                  (isRTL ? `+${order.items.length - 1} عروض أخرى` : `+${order.items.length - 1} more offers`)}
                               </div>
                             </div>
                           </div>

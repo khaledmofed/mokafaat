@@ -53,9 +53,18 @@ const RestaurantDetailsPage = () => {
 
     const mappedOffers = mapApiOffersToModels(allApiOffers);
 
-    const companyOffers = mappedOffers.filter(
-      (o) => String(o.companyId || "") === String(restaurantId)
+    const companyOffersRaw = mappedOffers.filter(
+      (o) => String(o.companyId || "") === String(restaurantId),
     );
+
+    // إزالة التكرار: نفس العرض قد يظهر في today و new و best_selling
+    const seenIds = new Set<string>();
+    const companyOffers = companyOffersRaw.filter((o) => {
+      const id = String(o.id);
+      if (seenIds.has(id)) return false;
+      seenIds.add(id);
+      return true;
+    });
 
     if (companyOffers.length === 0) return null;
 
@@ -214,8 +223,8 @@ const RestaurantDetailsPage = () => {
                   ? "مفتوح"
                   : "Open"
                 : isRTL
-                ? "مغلق"
-                : "Closed"}
+                  ? "مغلق"
+                  : "Closed"}
             </span>
           </div>
 
@@ -280,20 +289,22 @@ const RestaurantDetailsPage = () => {
       </section>
 
       {/* Special Offers Section */}
-      <section className="container mx-auto px-4 pb-16 mt-16">
-        <div className="mb-8 flex justify-between items-center">
-          <div className="text-start mb-4">
-            <h2 className="text-[#400198] text-3xl font-bold">
+      <section className="container mx-auto px-4 pb-16 mt-16 min-h-[50vh] flex flex-col">
+        <div className="mb-8 grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-12 items-start flex-1">
+          <div className={`text-start ${isRTL ? "lg:order-1" : "lg:order-1"}`}>
+            <h2 className="text-[#400198] text-3xl font-bold mb-3">
               {isRTL ? restaurant.name.ar : restaurant.name.en}
             </h2>
-            <p className="text-md text-gray-700 leading-relaxed">
+            <p className="text-md text-gray-700 leading-relaxed max-w-xl">
               {stripHtml(restaurant.description[isRTL ? "ar" : "en"])}
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+          <div
+            className={`grid grid-cols-1 sm:grid-cols-3 gap-3 ${isRTL ? "lg:order-1" : "lg:order-2"}`}
+          >
             {/* Delivery Time */}
             <div className="text-start flex items-center gap-2 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mb-0">
+              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mb-0 flex-shrink-0">
                 <svg
                   className="w-5 h-5 text-blue-600"
                   fill="none"
@@ -308,8 +319,8 @@ const RestaurantDetailsPage = () => {
                   />
                 </svg>
               </div>
-              <div className="flex flex-col gap-0">
-                <h4 className="font-semibold text-gray-800 mb-0">
+              <div className="flex flex-col gap-0 min-w-0">
+                <h4 className="font-semibold text-gray-800 mb-0 text-[14px]">
                   {isRTL ? "وقت التوصيل" : "Delivery Time"}
                 </h4>
                 <p className="text-gray-600 font-medium mb-0">
@@ -320,7 +331,7 @@ const RestaurantDetailsPage = () => {
 
             {/* Minimum Order */}
             <div className="text-start flex items-center gap-2 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-              <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center  mb-0">
+              <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center  mb-0 flex-shrink-0">
                 <svg
                   className="w-7 h-7 text-green-600"
                   fill="none"
@@ -335,8 +346,8 @@ const RestaurantDetailsPage = () => {
                   />
                 </svg>
               </div>
-              <div className="flex flex-col gap-0">
-                <h4 className="font-semibold text-gray-800 mb-0">
+              <div className="flex flex-col gap-0 min-w-0">
+                <h4 className="font-semibold text-gray-800 mb-0 text-[14px]">
                   {isRTL ? "الحد الأدنى للطلب" : "Minimum Order"}
                 </h4>
                 <p className="text-gray-600 font-medium mb-0">
@@ -347,7 +358,7 @@ const RestaurantDetailsPage = () => {
 
             {/* Delivery Fee */}
             <div className="text-start flex items-center gap-2 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-              <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center mb-0">
+              <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center mb-0 flex-shrink-0">
                 <svg
                   className="w-5 h-5 text-orange-600"
                   fill="none"
@@ -362,8 +373,8 @@ const RestaurantDetailsPage = () => {
                   />
                 </svg>
               </div>
-              <div className="flex flex-col gap-0">
-                <h4 className="font-semibold text-gray-800 mb-0">
+              <div className="flex flex-col gap-0 min-w-0">
+                <h4 className="font-semibold text-gray-600 mb-0 text-[14px]">
                   {isRTL ? "رسوم التوصيل" : "Delivery Fee"}
                 </h4>
                 <p className="text-gray-600 font-medium mb-0">

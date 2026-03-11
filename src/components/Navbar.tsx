@@ -179,7 +179,7 @@ const Navbar: React.FC = () => {
             {/* أزرار المستخدم */}
             {isAuthenticated ? (
               <>
-                {/* زر المحفوظات */}
+                {/* زر المفضلة */}
                 <Link
                   to="/saved"
                   className="relative flex items-center justify-center w-9 h-9 bg-[#fff] border-2 border border-[#440798] rounded-full transition-all duration-300 hover:bg-[#eee]"

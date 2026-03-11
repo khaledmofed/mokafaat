@@ -39,6 +39,8 @@ export const mokafaatKeys = {
   offersByCategory: (id: string | number) =>
     ["mokafaat", "offers", "category", id] as const,
   offerDetail: (id: string | number) => ["mokafaat", "offers", id] as const,
+  webOfferDetail: (id: string | number) =>
+    ["mokafaat", "web", "offers", id] as const,
   search: (q: string) => ["mokafaat", "search", q] as const,
   filterOptions: ["mokafaat", "filterOptions"] as const,
   filters: (categoryId: string | number) =>
@@ -57,6 +59,8 @@ export const mokafaatKeys = {
     ["mokafaat", "web", "offers", params] as const,
   webCoupons: (params?: Record<string, unknown>) =>
     ["mokafaat", "web", "coupons", params] as const,
+  webCouponCategories: (categorySlug: string) =>
+    ["mokafaat", "web", "categories", categorySlug, "coupons"] as const,
   webNews: ["mokafaat", "web", "news"] as const,
   webHome: ["mokafaat", "web", "home"] as const,
   appConfig: ["mokafaat", "appConfig"] as const,
@@ -133,6 +137,17 @@ export function useOfferDetail(id: string | number) {
   return useQuery({
     queryKey: [...mokafaatKeys.offerDetail(id), lang],
     queryFn: () => offersApi.detail(id).then((r) => r.data),
+    enabled: !!id,
+  });
+}
+
+export function useWebOfferDetail(id?: string | number) {
+  const lang = useQueryLang();
+  return useQuery({
+    queryKey: id
+      ? [...mokafaatKeys.webOfferDetail(id), lang]
+      : (["mokafaat", "web", "offers", "none", lang] as const),
+    queryFn: () => webApi.offerDetail(id as string | number).then((r) => r.data),
     enabled: !!id,
   });
 }
@@ -229,6 +244,7 @@ export function useCreateOrder() {
       item_id: string | number;
       quantity: number;
       branch_id?: string | number;
+      order_id?: string | number;
     }) => ordersApi.create(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["mokafaat", "orders"] });
@@ -276,6 +292,15 @@ export function useWebCoupons(params?: Record<string, unknown>) {
   return useQuery({
     queryKey: [...mokafaatKeys.webCoupons(params), lang],
     queryFn: () => webApi.coupons(params).then((r) => r.data),
+  });
+}
+
+export function useWebCouponCategories(categorySlug: string) {
+  const lang = useQueryLang();
+  return useQuery({
+    queryKey: [...mokafaatKeys.webCouponCategories(categorySlug), lang],
+    queryFn: () => webApi.categoryCoupons(categorySlug).then((r) => r.data),
+    enabled: !!categorySlug,
   });
 }
 

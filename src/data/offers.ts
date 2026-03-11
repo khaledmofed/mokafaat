@@ -19,6 +19,13 @@ import {
 // Categories for offers
 export const offerCategories = [
   {
+    key: "all",
+    ar: "جميع التصنيفات",
+    en: "All categories",
+    icon: ShopIcon,
+    color: "#6b7280",
+  },
+  {
     key: "restaurants",
     ar: "المطاعم",
     en: "Restaurants",
@@ -148,6 +155,7 @@ export interface Offer {
   title: { ar: string; en: string };
   description: { ar: string; en: string };
   image: string;
+  images?: string[];
   originalPrice: number;
   discountPrice: number;
   discountPercentage: number;
@@ -172,6 +180,16 @@ export interface Offer {
   categoryName?: string; // From API category.name
   merchantName?: string; // From API merchant.name
   merchantLogo?: string | null; // From API merchant.logo
+  /** المبلغ الذي يدفعه الزبون على المنصة (من API price) - إن وُجد يُستخدم للمجموع وعرض "المبلغ الذي تدفعه عندنا" */
+  platformPrice?: number;
+  /** عدد مرات شراء المستخدم الحالي لهذا العرض (من API - offer detail) */
+  userPurchaseCount?: number;
+  /** الحد الأقصى لعدد مرات بيع العرض (من API usage_limit) - null = غير محدود */
+  usageLimit?: number | null;
+  /** للفلتر: التصنيف الفرعي (من API subcategory_id) */
+  subcategoryId?: number | null;
+  /** للفلتر: نوع العرض (من API offer_type_id) */
+  offerTypeId?: number | null;
 }
 
 // Dummy data for restaurants and offers

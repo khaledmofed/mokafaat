@@ -3,67 +3,152 @@ import {
   useParams,
   useSearchParams,
   useNavigate,
+  useLocation,
   Link,
 } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { useIsRTL } from "@hooks";
-import { FiArrowLeft, FiBookmark, FiEye } from "react-icons/fi";
-import CurrencyIcon from "@components/CurrencyIcon";
-import { AboutPattern } from "@assets";
 import {
-  getRestaurantById,
-  getOfferById,
-  getOfferImage,
-  getCompanyImage,
-  offerCategories,
-} from "@data/offers";
-import { GetStartedSection } from "@pages/home/components";
-import { stripHtml } from "@utils/stripHtml";
+  IoClose,
+  IoDownloadOutline,
+  IoArrowBackOutline,
+} from "react-icons/io5";
+import CurrencyIcon from "@components/CurrencyIcon";
+import { useOrderDetail } from "@hooks/api/useMokafaatQueries";
+import { useUserStore } from "@stores/userStore";
+import { LoadingSpinner } from "@components/LoadingSpinner";
+import { normalizeOrdersList, type NormalizedOrder } from "@utils/orders";
+import { downloadVoucher } from "@utils/voucherDownload";
+
+/** شكل الطلب الخام من API تفاصيل الطلب (مطابق لـ OrderDetailPage) */
+interface RawOrder {
+  id?: number;
+  order_number?: string;
+  order_type?: string;
+  activation_code?: string;
+  qr_code_url?: string;
+  barcode_url?: string;
+  created_at?: string;
+  expires_at?: string;
+  activated_at?: string;
+  quantity?: number;
+  total_price?: string | number;
+  unit_price?: string | number;
+  status?: string;
+  voucher_url?: string;
+  item?: {
+    id?: number;
+    name?: string;
+    description?: string;
+    image?: string;
+    price_after?: string;
+    price_before?: string;
+    discount_percent?: string;
+    terms?: string;
+  };
+  merchant?: {
+    id?: number;
+    name?: string;
+    logo?: string;
+    phone?: string;
+  };
+}
+
+function formatVoucherNumber(code: string): string {
+  const digits = String(code).replace(/\D/g, "");
+  return digits.replace(/(.{3})/g, "$1 ").trim();
+}
+
+function formatOrderDate(dateStr: string | undefined, isRTL: boolean): string {
+  if (!dateStr) return "—";
+  const date = new Date(dateStr);
+  return isRTL
+    ? date.toLocaleDateString("ar-SA", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      })
+    : date.toLocaleDateString("en-US", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+}
 
 const SuccessPage: React.FC = () => {
-  const { category, restaurantId } = useParams<{
-    category: string;
-    restaurantId: string;
-  }>();
+  useParams<{ category: string; restaurantId: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const isRTL = useIsRTL();
+  const token = useUserStore((s) => s.token);
+  const getToken = useUserStore.getState;
 
-  // Get data from URL parameters
-  const offerId = searchParams.get("offer");
-  const quantity = parseInt(searchParams.get("quantity") || "1");
-  const total = parseInt(searchParams.get("total") || "0");
-  const paymentMethod = searchParams.get("method") || "";
+  const state = location.state as {
+    order?: Record<string, unknown>;
+    orderId?: string | number;
+    offer?: unknown;
+    restaurant?: unknown;
+  } | null | undefined;
 
-  // Get data from unified data
-  const company = restaurantId ? getRestaurantById(restaurantId) : null;
-  const offer =
-    offerId && restaurantId ? getOfferById(restaurantId, offerId) : null;
-  const categoryInfo = category
-    ? offerCategories.find((cat) => cat.key === category)
-    : null;
+  const orderIdParam = searchParams.get("order");
+  const orderId =
+    orderIdParam ??
+    (state?.orderId != null ? String(state.orderId) : null) ??
+    (state?.order &&
+    typeof state.order === "object" &&
+    state.order.id != null
+      ? String((state.order as { id?: unknown }).id)
+      : null);
 
-  const handleBackToOffers = () => {
-    navigate("/offers");
+  const {
+    data: rawOrderResponse,
+    isLoading: orderLoading,
+    isError: orderError,
+    error: orderErrorObj,
+  } = useOrderDetail(orderId ?? "");
+
+  const order: NormalizedOrder | null = React.useMemo(() => {
+    if (!rawOrderResponse) return null;
+    const r = rawOrderResponse as Record<string, unknown>;
+    const inner =
+      (r?.data as Record<string, unknown>)?.order ?? r?.data ?? r;
+    const single = Array.isArray(inner) ? inner[0] : inner;
+    if (!single || typeof single !== "object") return null;
+    return normalizeOrdersList({ data: [single] })[0] ?? null;
+  }, [rawOrderResponse]);
+
+  const rawOrderData: RawOrder | null = React.useMemo(() => {
+    if (!rawOrderResponse) return null;
+    const r = rawOrderResponse as Record<string, unknown>;
+    const data = r?.data as Record<string, unknown> | undefined;
+    const o = data?.order ?? data ?? r;
+    const single = Array.isArray(o) ? o[0] : o;
+    return (single as RawOrder) ?? null;
+  }, [rawOrderResponse]);
+
+  const handleDownloadVoucher = () => {
+    const url = rawOrderData?.voucher_url ?? order?.voucherUrl;
+    if (!url || !token) return;
+    downloadVoucher(url, () => getToken().token).catch(() => {});
   };
 
-  const handleViewOrder = () => {
-    // Simulate PDF download
-    const link = document.createElement("a");
-    link.href = "#";
-    link.download = `order-${offer?.id || "unknown"}.pdf`;
-    link.click();
-  };
-
-  if (!company || !offer) {
+  if (!orderId) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[#400198] to-[#54015d] flex items-center justify-center">
-        <div className="text-center text-white">
-          <h1 className="text-2xl font-bold mb-4">
-            {isRTL ? "العرض غير موجود" : "Offer not found"}
-          </h1>
+      <div
+        className="min-h-screen flex items-center justify-center p-4"
+        style={{
+          background: "linear-gradient(to bottom, #521A93, #33005D)",
+        }}
+      >
+        <div className="text-center bg-white/10 rounded-2xl p-8 max-w-md">
+          <h2 className="text-xl font-bold text-white mb-4">
+            {isRTL ? "الطلب غير معروف" : "Order not found"}
+          </h2>
           <button
-            onClick={handleBackToOffers}
-            className="px-6 py-3 bg-white text-[#400198] rounded-full hover:bg-gray-100 transition-colors"
+            type="button"
+            onClick={() => navigate("/offers")}
+            className="bg-white text-[#1D0843] px-6 py-3 rounded-xl font-medium hover:bg-white/90 transition-colors"
           >
             {isRTL ? "العودة للعروض" : "Back to Offers"}
           </button>
@@ -72,334 +157,266 @@ const SuccessPage: React.FC = () => {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Restaurant Header */}
-      <section className="relative w-full bg-[#1D0843] overflow-hidden min-h-[200px] flex items-center justify-center">
-        <div className="absolute inset-0 bg-primary opacity-30" />
-        <div className="relative pt-24 pb-10 px-6 mx-auto max-w-screen-xl text-center lg:pt-24 lg:pb-10 lg:px-12 flex flex-col justify-center z-10">
-          {/* Back Button */}
-          <button
-            onClick={() => navigate(`/offers/${category}/${restaurantId}`)}
-            className="absolute top-4 left-4 text-white hover:text-purple-300 transition-colors flex items-center gap-2"
+  if (!token) {
+    return (
+      <div
+        className="min-h-screen pt-24 pb-28 flex items-center justify-center"
+        style={{
+          background: "linear-gradient(to bottom, #521A93, #33005D)",
+        }}
+      >
+        <div className="text-center bg-white/10 rounded-2xl p-8 max-w-md mx-4">
+          <h2 className="text-xl font-bold text-white mb-4">
+            {isRTL ? "تسجيل الدخول مطلوب" : "Login required"}
+          </h2>
+          <Link
+            to={`/login?returnUrl=${encodeURIComponent(location.pathname + location.search)}`}
+            className="bg-white text-[#1D0843] px-6 py-3 rounded-xl font-medium hover:bg-white/90 transition-colors inline-block"
           >
-            <FiArrowLeft className="text-xl" />
-            <span className="text-sm">{isRTL ? "العودة" : "Back"}</span>
-          </button>
+            {isRTL ? "تسجيل الدخول" : "Login"}
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
-          {/* Restaurant Logo */}
-          <div className="w-14 h-14 mx-auto mb-4 rounded-full overflow-hidden">
-            <img
-              src={getCompanyImage(company.logo)}
-              alt={company.name[isRTL ? "ar" : "en"]}
-              className="w-full h-full object-cover"
-            />
-          </div>
+  if (orderLoading) {
+    return (
+      <div
+        className="min-h-screen flex justify-center items-center"
+        style={{
+          background: "linear-gradient(to bottom, #521A93, #33005D)",
+        }}
+      >
+        <LoadingSpinner />
+      </div>
+    );
+  }
 
-          {/* Title */}
-          <h1 className="text-2xl md:text-2xl font-bold mb-2 tracking-tight leading-none text-white">
-            {isRTL ? "تم الدفع بنجاح!" : "Payment Successful!"}
-          </h1>
-
-          {/* Description */}
-          <p className="text-white/80 text-base mb-4">
-            {stripHtml(
-              isRTL
-                ? "شكراً لك! تم تأكيد طلبك بنجاح"
-                : "Thank you! Your order has been confirmed successfully"
-            )}
+  if (orderError || !order) {
+    return (
+      <div
+        className="min-h-screen flex items-center justify-center p-4 pb-24"
+        style={{
+          background: "linear-gradient(to bottom, #521A93, #33005D)",
+        }}
+      >
+        <div className="text-center bg-white/10 rounded-2xl p-8 max-w-md">
+          <h2 className="text-xl font-bold text-white mb-2">
+            {isRTL ? "الطلب غير موجود" : "Order not found"}
+          </h2>
+          <p className="text-white/80 mb-6">
+            {String(orderErrorObj?.message ?? "")}
           </p>
+          <button
+            type="button"
+            onClick={() => navigate("/orders")}
+            className="bg-white text-[#1D0843] px-6 py-3 rounded-xl font-medium hover:bg-white/90 transition-colors"
+          >
+            {isRTL ? "العودة للطلبات" : "Back to Orders"}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
-          {/* Location and Status */}
-          <div className="flex items-center justify-center gap-4 text-white/70 mb-4">
-            <span className="px-3 py-1 bg-white/20 rounded-full text-sm">
-              {company.location[isRTL ? "ar" : "en"]} • {company.distance}
-            </span>
-            <span className="px-3 py-1 bg-white/20 rounded-full text-sm">
-              {company.isOpen
-                ? isRTL
-                  ? "مفتوح"
-                  : "Open"
-                : isRTL
-                ? "مغلق"
-                : "Closed"}
-            </span>
-          </div>
+  const voucherNumber =
+    rawOrderData?.activation_code ?? order?.activationCode ?? "";
+  const totalPrice =
+    rawOrderData?.total_price != null
+      ? typeof rawOrderData.total_price === "string"
+        ? parseFloat(rawOrderData.total_price)
+        : rawOrderData.total_price
+      : order?.totalAmount ?? 0;
+  const terms = rawOrderData?.item?.terms;
+  const hasVoucher = !!(rawOrderData?.voucher_url ?? order?.voucherUrl);
 
-          {/* Stats */}
-          <div className="flex items-center justify-center gap-6 text-white/70 mb-4">
-            <div className="flex items-center gap-1">
-              <span className="text-yellow-400">★</span>
-              <span>{company.rating}</span>
-              <span>({company.reviewsCount})</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <FiEye />
-              <span>{company.views}</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <FiBookmark />
-              <span>{company.saves}</span>
-            </div>
-          </div>
+  return (
+    <>
+      <Helmet>
+        <title>
+          {isRTL ? "تم الدفع بنجاح" : "Payment Successful"} #
+          {order.orderNumber ?? order.id} | Mokafaat
+        </title>
+      </Helmet>
 
-          {/* Breadcrumb */}
-          <div className="flex items-center justify-center text-sm md:text-base">
-            <Link
-              to="/"
-              className="text-white hover:text-purple-300 transition-colors cursor-pointer text-xs"
-            >
-              {isRTL ? "الرئيسية" : "Home"}
-            </Link>
-            <span className="text-white text-xs mx-2">|</span>
-            <Link
-              to="/offers"
-              className="text-white hover:text-purple-300 transition-colors cursor-pointer text-xs"
-            >
-              {isRTL ? "العروض" : "Offers"}
-            </Link>
-            <span className="text-white text-xs mx-2">|</span>
-            <Link
-              to={`/offers/${category}`}
-              className="text-white hover:text-purple-300 transition-colors cursor-pointer text-xs"
-            >
-              {isRTL ? categoryInfo?.ar : categoryInfo?.en}
-            </Link>
-            <span className="text-white text-xs mx-2">|</span>
-            <Link
-              to={`/offers/${category}/${restaurantId}`}
-              className="text-white hover:text-purple-300 transition-colors cursor-pointer text-xs"
-            >
-              {isRTL ? company.name.ar : company.name.en}
-            </Link>
-            <span className="text-white text-xs mx-2">|</span>
-            <span className="text-[#fd671a] font-medium text-xs">
-              {isRTL ? "النجاح" : "Success"}
+      <div
+        className="min-h-screen px-4 flex flex-col items-center pt-20 pb-[200px]"
+        style={{
+          background: "linear-gradient(to bottom, #521A93, #33005D)",
+          marginBottom: "-100px",
+        }}
+      >
+        {/* زر العودة فوق الكارد — مثل صفحة الطلب */}
+        <div className="w-full max-w-md flex items-center justify-between mb-6">
+          <button
+            type="button"
+            onClick={() => navigate("/orders")}
+            className="flex items-center gap-2 text-white/90 hover:text-white transition-colors"
+          >
+            <IoArrowBackOutline className="w-6 h-6" />
+            <span className="text-sm font-medium">
+              {isRTL ? "الطلبات" : "Orders"}
             </span>
-          </div>
+          </button>
         </div>
 
-        {/* Pattern Background */}
-        <div className="absolute -bottom-10 transform z-9">
-          <img
-            src={AboutPattern}
-            alt="Pattern"
-            className="w-full h-96 animate-float"
-          />
-        </div>
-      </section>
+        {/* كارد واحد في المنتصف — نفس تصميم صفحة /orders/:id */}
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden flex-shrink-0">
+          <div className="pt-6 pb-8 px-5">
+            <div className="flex justify-end mb-4">
+              <button
+                type="button"
+                onClick={() => navigate("/orders")}
+                className="w-10 h-10 flex items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 transition-colors"
+                aria-label={isRTL ? "إغلاق" : "Close"}
+              >
+                <IoClose className="w-6 h-6" />
+              </button>
+            </div>
 
-      <div className="container mx-auto px-4 max-w-4xl py-20">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* QR Card for Restaurant */}
-          <div className="bg-[#400198] rounded-3xl p-6 relative">
-            {/* Tear-off circles */}
-            <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-[#400198] rounded-full ml-0"></div>
-            <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-10 h-10 bg-[#400198] rounded-full mr-0"></div>
-
-            <div className="bg-white rounded-2xl p-6 h-full">
-              {/* Header */}
-              <p className="text-gray-600 text-sm text-center mb-4">
-                {isRTL
-                  ? "استخدم هذه البطاقة في الدفع للمتاجر"
-                  : "Use this card for in-store payments"}
-              </p>
-
-              {/* QR Code */}
-              <div className="w-auto h-[183px] mx-auto mb-4">
+            {/* QR */}
+            {order.qrCodeUrl && (
+              <div className="flex justify-center mb-6">
                 <img
-                  src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://mokafaat.com/order-confirmed"
-                  alt="QR Code"
-                  className="w-full h-full object-contain"
+                  src={order.qrCodeUrl}
+                  alt={isRTL ? "رمز الاستجابة السريعة" : "QR Code"}
+                  className="w-48 h-48 object-contain"
                 />
               </div>
+            )}
 
-              {/* Dashed Line */}
-              <div className="border-t-2 border-dashed border-gray-300 mb-4"></div>
+            {/* رقم القسيمة */}
+            {voucherNumber && (
+              <div className="text-center mb-2">
+                <p className="text-2xl font-bold text-gray-900 tracking-widest font-mono">
+                  {formatVoucherNumber(voucherNumber)}
+                </p>
+                <p className="text-sm text-gray-500 mt-1">
+                  {isRTL ? "رقم القسيمة" : "Voucher Number"}
+                </p>
+              </div>
+            )}
 
-              {/* User Info */}
-              <div className="text-center mb-4">
-                <h3 className="text-lg font-semibold text-gray-800 mb-1">
-                  {isRTL ? "خالد مفيد الشيخ علي" : "Khaled Mofed Al-Sheikh Ali"}
-                </h3>
-                <p className="text-gray-500 text-sm">
+            {/* تفاصيل الطلب */}
+            <div className="mt-8 space-y-4">
+              <div
+                className={`flex justify-between items-center text-sm gap-4 ${isRTL ? "flex-row-reverse" : ""}`}
+              >
+                <span className="text-gray-900 font-medium">
+                  {formatOrderDate(
+                    rawOrderData?.created_at ?? order.createdAt,
+                    isRTL
+                  )}
+                </span>
+                <span className="text-gray-500">
+                  {isRTL ? "تاريخ الشراء" : "Purchase Date"}
+                </span>
+              </div>
+              <div
+                className={`flex justify-between items-center text-sm gap-4 ${isRTL ? "flex-row-reverse" : ""}`}
+              >
+                <span className="text-gray-900 font-medium">
+                  {formatOrderDate(rawOrderData?.expires_at, isRTL)}
+                </span>
+                <span className="text-gray-500">
+                  {isRTL ? "انتهاء الكوبون" : "Coupon Expiry"}
+                </span>
+              </div>
+              {order.items?.[0] && (
+                <div
+                  className={`flex justify-between items-center text-sm gap-4 ${isRTL ? "flex-row-reverse" : ""}`}
+                >
+                  <span className="text-gray-900 font-medium">
+                    {order.items[0].title[isRTL ? "ar" : "en"]}
+                  </span>
+                  <span className="text-gray-500">
+                    {isRTL ? "العرض" : "Offer"}
+                  </span>
+                </div>
+              )}
+              {!order.items?.[0] && rawOrderData?.item?.name && (
+                <div
+                  className={`flex justify-between items-center text-sm gap-4 ${isRTL ? "flex-row-reverse" : ""}`}
+                >
+                  <span className="text-gray-900 font-medium">
+                    {rawOrderData.item.name as string}
+                  </span>
+                  <span className="text-gray-500">
+                    {isRTL ? "العرض" : "Offer"}
+                  </span>
+                </div>
+              )}
+              <div
+                className={`flex justify-between items-center text-sm gap-4 ${isRTL ? "flex-row-reverse" : ""}`}
+              >
+                <span className="text-gray-900 font-medium">
                   {isRTL
-                    ? "رقم إثبات / 10124587714"
-                    : "ID Number / 10124587714"}
-                </p>
-              </div>
-
-              {/* Card Number */}
-              <div className="text-center mb-6">
-                <p className="text-2xl font-bold text-gray-800 tracking-wider">
-                  242 325 678 122
-                </p>
-              </div>
-
-              {/* Status */}
-              <div className="bg-green-50 rounded-xl p-4 text-center">
-                <p className="text-gray-500 text-sm mb-2">
-                  {isRTL ? "حالة البطاقة" : "Card Status"}
-                </p>
-                <div className="flex items-center justify-center gap-2">
-                  <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                    <svg
-                      className="w-4 h-4 text-white"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
-                  <span className="text-green-600 font-semibold">
-                    {isRTL ? "فعالة" : "Active"}
-                  </span>
-                </div>
+                    ? `${order.items?.reduce((s, i) => s + i.quantity, 0) ?? rawOrderData?.quantity ?? 1} صفقة`
+                    : `${order.items?.reduce((s, i) => s + i.quantity, 0) ?? rawOrderData?.quantity ?? 1} deal(s)`}
+                </span>
+                <span className="text-gray-500">
+                  {isRTL
+                    ? "عدد الصفقات المشتراة"
+                    : "Number of Deals Purchased"}
+                </span>
               </div>
             </div>
-          </div>
 
-          {/* Success Message */}
-          <div className="bg-white rounded-3xl shadow-2xl p-4 text-center">
-            {/* Success Icon */}
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg
-                className="w-8 h-8 text-green-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+            {/* خط متقطع ثم السعر الإجمالي */}
+            <div className="border-t border-dashed border-gray-200 mt-6 pt-6">
+              <div
+                className={`flex justify-between items-center gap-4 ${isRTL ? "flex-row-reverse" : ""}`}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-            </div>
-
-            {/* Success Message */}
-            <h2 className="text-2xl font-bold text-gray-800 mb-0">
-              {isRTL ? "تم الدفع بنجاح!" : "Payment Successful!"}
-            </h2>
-
-            <p className="text-gray-600 text-lg mb-2">
-              {isRTL
-                ? "شكراً لك! تم تأكيد طلبك بنجاح"
-                : "Thank you! Your order has been confirmed successfully"}
-            </p>
-
-            {/* Order Details */}
-            <div className="bg-gray-50 rounded-xl p-6 mb-2">
-              <h2 className="text-lg font-semibold text-gray-800 mb-4">
-                {isRTL ? "تفاصيل الطلب" : "Order Details"}
-              </h2>
-
-              {/* Company Info */}
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-lg overflow-hidden">
-                  <img
-                    src={getOfferImage(company.logo)}
-                    alt={company.name[isRTL ? "ar" : "en"]}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="text-right flex-1">
-                  <h3 className="font-medium text-gray-800">
-                    {company.name[isRTL ? "ar" : "en"]}
-                  </h3>
-                  <p className="text-gray-600 text-sm">
-                    {company.category[isRTL ? "ar" : "en"]}
-                  </p>
-                </div>
-              </div>
-
-              {/* Offer Details */}
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-12 h-12 rounded-lg overflow-hidden">
-                  <img
-                    src={getOfferImage(offer.image)}
-                    alt={offer.title[isRTL ? "ar" : "en"]}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="text-right flex-1">
-                  <h3 className="font-medium text-gray-800">
-                    {offer.title[isRTL ? "ar" : "en"]}
-                  </h3>
-                  <p className="text-gray-600 text-sm">
-                    {isRTL ? `الكمية: ${quantity}` : `Quantity: ${quantity}`}
-                  </p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-6 text-sm">
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">
-                    {isRTL ? "الكمية:" : "Quantity:"}
-                  </span>
-                  <span className="font-medium text-gray-800">{quantity}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">
-                    {isRTL ? "طريقة الدفع:" : "Payment Method:"}
-                  </span>
-                  <span className="font-medium text-gray-800">
-                    {paymentMethod}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">
-                    {isRTL ? "المجموع:" : "Total:"}
-                  </span>
-                  <span className="font-medium text-[#400198] flex items-center gap-1">
-                    {total}
-                    <CurrencyIcon size={16} />
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-600">
-                    {isRTL ? "تاريخ الطلب:" : "Order Date:"}
-                  </span>
-                  <span className="font-medium text-gray-800">
-                    {new Date().toLocaleDateString()}
-                  </span>
-                </div>
+                <span className="text-2xl font-bold text-[#fd671a] flex items-center gap-1">
+                  {totalPrice}
+                  <CurrencyIcon size={20} className="text-[#fd671a]" />
+                </span>
+                <span className="text-gray-500">
+                  {isRTL ? "السعر الإجمالي" : "Total Price"}
+                </span>
               </div>
             </div>
-            {/* Action Buttons */}
-            <div className="flex gap-4 justify-center">
+
+            {/* شروط الخصوصية */}
+            {terms && (
+              <div className="mt-4">
+                <Link
+                  to="/privacy-policy"
+                  className="text-sm text-gray-500 hover:text-[#fd671a] transition-colors inline-flex items-center gap-1"
+                >
+                  {isRTL ? "تابع شروط الخصوصية" : "Privacy Terms"}
+                  <span className="rtl:rotate-180" aria-hidden>
+                    →
+                  </span>
+                </Link>
+              </div>
+            )}
+
+            {/* أزرار الإجراءات — مثل صفحة الطلب */}
+            <div className="border-t border-dashed border-gray-200 mt-6 pt-6 flex gap-3">
               <button
-                onClick={handleViewOrder}
-                className="py-3 px-8 bg-orange-500 text-white rounded-full hover:bg-orange-600 transition-colors font-medium"
+                type="button"
+                onClick={() => navigate("/orders")}
+                className="flex-1 py-3 px-4 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors"
               >
-                {isRTL ? "تنزيل ملف PDF" : "Download PDF File"}
+                {isRTL ? "عودة للمتجر" : "Return to Store"}
               </button>
-              <button
-                onClick={handleBackToOffers}
-                className="py-3 px-8 bg-white border-2 border-gray-300 text-gray-800 rounded-full hover:bg-gray-50 transition-colors font-medium"
-              >
-                {isRTL ? "موافق" : "OK"}
-              </button>
-            </div>
-
-            {/* Additional Info */}
-            <div className="mt-6 text-sm text-gray-500">
-              <p>
-                {isRTL
-                  ? "سيتم إرسال تفاصيل الطلب إلى بريدك الإلكتروني"
-                  : "Order details will be sent to your email"}
-              </p>
+              {hasVoucher && (
+                <button
+                  type="button"
+                  onClick={handleDownloadVoucher}
+                  className="flex-1 py-3 px-4 rounded-xl bg-[#fd671a] text-white font-medium hover:bg-[#e55c18] transition-colors flex items-center justify-center gap-2"
+                >
+                  <IoDownloadOutline className="w-5 h-5" />
+                  {isRTL ? "تنزيل ملف PDF" : "Download PDF"}
+                </button>
+              )}
             </div>
           </div>
         </div>
       </div>
-      <GetStartedSection className="mt-16 mb-28" />
-    </div>
+    </>
   );
 };
 

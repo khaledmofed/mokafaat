@@ -23,7 +23,12 @@ import {
   AboutPattern,
 } from "@assets";
 import { useUserStore } from "@stores/userStore";
-import { useWebHome, useSubscriptionStatus, useFavorites, useFavoriteToggle } from "@hooks/api/useMokafaatQueries";
+import {
+  useWebHome,
+  useSubscriptionStatus,
+  useFavorites,
+  useFavoriteToggle,
+} from "@hooks/api/useMokafaatQueries";
 import { mapApiCardsToModels } from "@network/mappers/cardsMapper";
 import { isUserSubscribed } from "@utils/subscription";
 import { normalizeFavoritesList } from "@utils/favorites";
@@ -31,12 +36,16 @@ import { BsHeart, BsHeartFill } from "react-icons/bs";
 import { toast } from "react-toastify";
 
 const CardOfferDetailPage = () => {
-  const { companyId, offerId } = useParams<{ companyId: string; offerId: string }>();
+  const { companyId, offerId } = useParams<{
+    companyId: string;
+    offerId: string;
+  }>();
   const navigate = useNavigate();
   const location = useLocation();
   const isRTL = useIsRTL();
   const [quantity, setQuantity] = useState(1);
-  const [subscribersOnlyModalOpen, setSubscribersOnlyModalOpen] = useState(false);
+  const [subscribersOnlyModalOpen, setSubscribersOnlyModalOpen] =
+    useState(false);
   const handleQuantityChange = useCallback((q: number) => setQuantity(q), []);
 
   const token = useUserStore((s) => s.token);
@@ -45,7 +54,10 @@ const CardOfferDetailPage = () => {
   const isSubscribed = isUserSubscribed(subscriptionStatusData);
   const { data: favoritesData } = useFavorites();
   const toggleFavorite = useFavoriteToggle();
-  const favoritesList = useMemo(() => normalizeFavoritesList(favoritesData ?? null), [favoritesData]);
+  const favoritesList = useMemo(
+    () => normalizeFavoritesList(favoritesData ?? null),
+    [favoritesData],
+  );
 
   const apiCompany = useMemo((): CardCompany | null => {
     if (!webHomeResponse || !companyId) return null;
@@ -100,25 +112,43 @@ const CardOfferDetailPage = () => {
   }, [company, offerId]);
 
   const isCardFavorite = useMemo(
-    () => offer && favoritesList.some((f) => f.favorable_type === "card" && String(f.favorable_id) === String(offer.id)),
-    [offer, favoritesList]
+    () =>
+      offer &&
+      favoritesList.some(
+        (f) =>
+          f.favorable_type === "card" &&
+          String(f.favorable_id) === String(offer.id),
+      ),
+    [offer, favoritesList],
   );
 
   const getCardImage = (logoName: string) => {
     if (logoName.startsWith("http")) return logoName;
     switch (logoName) {
-      case "Cards1": return Cards1;
-      case "Cards2": return Cards2;
-      case "Cards3": return Cards3;
-      case "Cards4": return Cards4;
-      case "Cards5": return Cards5;
-      case "Cards6": return Cards6;
-      case "Cards7": return Cards7;
-      case "Cards8": return Cards8;
-      case "Cards12": return Cards12;
-      case "Cards13": return Cards13;
-      case "Cards14": return Cards14;
-      default: return Cards1;
+      case "Cards1":
+        return Cards1;
+      case "Cards2":
+        return Cards2;
+      case "Cards3":
+        return Cards3;
+      case "Cards4":
+        return Cards4;
+      case "Cards5":
+        return Cards5;
+      case "Cards6":
+        return Cards6;
+      case "Cards7":
+        return Cards7;
+      case "Cards8":
+        return Cards8;
+      case "Cards12":
+        return Cards12;
+      case "Cards13":
+        return Cards13;
+      case "Cards14":
+        return Cards14;
+      default:
+        return Cards1;
     }
   };
 
@@ -169,8 +199,13 @@ const CardOfferDetailPage = () => {
         onBackToOffer={() => setSubscribersOnlyModalOpen(false)}
       />
       <Helmet>
-        <title>{offerTitle} - {companyName} | {isRTL ? "البطاقات" : "Cards"}</title>
-        <link rel="canonical" href={`https://mukafaat.com/cards/${companyId}/offer/${offerId}`} />
+        <title>
+          {offerTitle} - {companyName} | {isRTL ? "البطاقات" : "Cards"}
+        </title>
+        <link
+          rel="canonical"
+          href={`https://mukafaat.com/cards/${companyId}/offer/${offerId}`}
+        />
       </Helmet>
 
       {/* Header - ترويسة داكنة مثل صفحة العروض */}
@@ -247,14 +282,21 @@ const CardOfferDetailPage = () => {
               {companyName}
             </Link>
             <span className="text-white text-xs">|</span>
-            <span className="text-[#fd671a] font-medium text-xs" aria-current="page">
+            <span
+              className="text-[#fd671a] font-medium text-xs"
+              aria-current="page"
+            >
               {offerTitle}
             </span>
           </div>
         </div>
 
         <div className="absolute -bottom-10 transform z-0">
-          <img src={AboutPattern} alt="" className="w-full h-96 animate-float" />
+          <img
+            src={AboutPattern}
+            alt=""
+            className="w-full h-96 animate-float"
+          />
         </div>
       </section>
 
@@ -298,26 +340,46 @@ const CardOfferDetailPage = () => {
                     onClick={(e) => {
                       e.preventDefault();
                       if (!token) {
-                        navigate(`/login?returnUrl=${encodeURIComponent(location.pathname)}`);
+                        navigate(
+                          `/login?returnUrl=${encodeURIComponent(location.pathname)}`,
+                        );
                         return;
                       }
                       toggleFavorite.mutate(
                         { favorable_type: "card", favorable_id: offer.id },
                         {
                           onSuccess: () => {
-                            toast.success(isCardFavorite ? (isRTL ? "تمت إزالته من المحفوظات" : "Removed from favorites") : (isRTL ? "تمت الإضافة إلى المحفوظات" : "Added to favorites"));
+                            toast.success(
+                              isCardFavorite
+                                ? isRTL
+                                  ? "تمت إزالته من المفضلة"
+                                  : "Removed from favorites"
+                                : isRTL
+                                  ? "تمت الإضافة إلى المفضلة"
+                                  : "Added to favorites",
+                            );
                           },
-                          onError: () => toast.error(isRTL ? "حدث خطأ" : "Something went wrong"),
-                        }
+                          onError: () =>
+                            toast.error(
+                              isRTL ? "حدث خطأ" : "Something went wrong",
+                            ),
+                        },
                       );
                     }}
                     className="w-10 h-10 rounded-full border-2 border-[#440798] flex items-center justify-center text-[#440798] hover:bg-[#440798] hover:text-white transition-colors disabled:opacity-50"
                     disabled={toggleFavorite.isPending}
                   >
-                    {isCardFavorite ? <BsHeartFill className="text-lg" /> : <BsHeart className="text-lg" />}
+                    {isCardFavorite ? (
+                      <BsHeartFill className="text-lg" />
+                    ) : (
+                      <BsHeart className="text-lg" />
+                    )}
                   </button>
                 )}
-                <div className="text-3xl font-bold text-gray-800 flex items-center gap-1" data-total-price={totalPrice}>
+                <div
+                  className="text-3xl font-bold text-gray-800 flex items-center gap-1"
+                  data-total-price={totalPrice}
+                >
                   {totalPrice}
                   <CurrencyIcon className="text-gray-800" size={28} />
                 </div>
@@ -350,7 +412,9 @@ const CardOfferDetailPage = () => {
                 </div>
                 <div className="bg-gray-100 p-4 rounded-lg">
                   <h3 className="font-medium text-gray-800 mb-2">
-                    {isRTL ? "تعرف أكثر عن الخدمة" : "Learn more about the service"}
+                    {isRTL
+                      ? "تعرف أكثر عن الخدمة"
+                      : "Learn more about the service"}
                   </h3>
                   <p className="text-gray-600 text-sm">
                     {stripHtml(offer.description[isRTL ? "ar" : "en"])}

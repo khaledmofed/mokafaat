@@ -23,26 +23,44 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer, onOfferClick }) => {
   const isAuthenticated = useUserStore((s) => !!s.token);
   const { data: favoritesData } = useFavorites();
   const toggleFavorite = useFavoriteToggle();
-  const favoritesList = useMemo(() => normalizeFavoritesList(favoritesData ?? null), [favoritesData]);
+  const favoritesList = useMemo(
+    () => normalizeFavoritesList(favoritesData ?? null),
+    [favoritesData],
+  );
   const isFavorite = useMemo(
-    () => favoritesList.some((f) => f.favorable_type === "offer" && String(f.favorable_id) === String(offer.id)),
-    [favoritesList, offer.id]
+    () =>
+      favoritesList.some(
+        (f) =>
+          f.favorable_type === "offer" &&
+          String(f.favorable_id) === String(offer.id),
+      ),
+    [favoritesList, offer.id],
   );
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!isAuthenticated) {
-      navigate(`/login?returnUrl=${encodeURIComponent(window.location.pathname)}`);
+      navigate(
+        `/login?returnUrl=${encodeURIComponent(window.location.pathname)}`,
+      );
       return;
     }
     toggleFavorite.mutate(
       { favorable_type: "offer", favorable_id: offer.id },
       {
         onSuccess: () => {
-          toast.success(isFavorite ? (isRTL ? "تمت إزالته من المحفوظات" : "Removed from favorites") : (isRTL ? "تمت الإضافة إلى المحفوظات" : "Added to favorites"));
+          toast.success(
+            isFavorite
+              ? isRTL
+                ? "تمت إزالته من المفضلة"
+                : "Removed from favorites"
+              : isRTL
+                ? "تمت الإضافة إلى المفضلة"
+                : "Added to favorites",
+          );
         },
         onError: () => toast.error(isRTL ? "حدث خطأ" : "Something went wrong"),
-      }
+      },
     );
   };
 
@@ -95,7 +113,11 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer, onOfferClick }) => {
             className="w-8 h-8 bg-white bg-opacity-90 rounded-full flex items-center justify-center text-gray-700 hover:bg-opacity-100 transition-all disabled:opacity-50"
             disabled={toggleFavorite.isPending}
           >
-            {isFavorite ? <BsHeartFill className="text-sm text-red-500" /> : <BsHeart className="text-sm" />}
+            {isFavorite ? (
+              <BsHeartFill className="text-sm text-red-500" />
+            ) : (
+              <BsHeart className="text-sm" />
+            )}
           </button>
           <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold self-center">
             {offer.discountPercentage}% {isRTL ? "خصم" : "OFF"}

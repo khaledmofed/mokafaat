@@ -66,7 +66,7 @@ interface UserState {
   error: string | null;
   otpSent: boolean;
 
-  // المحفوظات
+  // المفضلة
   savedItems: SavedItem[];
 
   // السلة
@@ -78,19 +78,19 @@ interface UserState {
   // الإجراءات OTP (مرتبطة بـ API مكافآت)
   sendOtp: (
     phone: string,
-    countryCode?: string
+    countryCode?: string,
   ) => Promise<{ status: boolean; msg: string }>;
   verifyOtp: (
     phone: string,
     otp: string,
-    countryCode?: string
+    countryCode?: string,
   ) => Promise<{
     status: boolean;
     msg: string;
     data?: { user: User; token: string; is_profile_completed: boolean };
   }>;
   completeRegistration: (
-    userData: Partial<User>
+    userData: Partial<User>,
   ) => Promise<{ status: boolean; msg: string }>;
 
   // الإجراءات القديمة (للتوافق)
@@ -98,10 +98,10 @@ interface UserState {
   register: (userData: Partial<User>) => Promise<boolean>;
   logout: () => void;
   updateProfile: (
-    userData: Partial<User>
+    userData: Partial<User>,
   ) => Promise<{ status: boolean; msg: string }>;
 
-  // المحفوظات
+  // المفضلة
   addToSaved: (item: Omit<SavedItem, "id" | "savedAt">) => void;
   removeFromSaved: (itemId: string) => void;
   isItemSaved: (itemId: string) => boolean;
@@ -587,7 +587,9 @@ export const useUserStore = create<UserState>()(
           };
           if (data?.status === false) {
             const errorMsg =
-              (data?.message as string) ?? (data?.msg as string) ?? "Invalid verification code";
+              (data?.message as string) ??
+              (data?.msg as string) ??
+              "Invalid verification code";
             set({ loading: false, error: errorMsg });
             return { status: false, msg: errorMsg };
           }
@@ -595,7 +597,11 @@ export const useUserStore = create<UserState>()(
           // استخراج user: data.data.user أو data.data (إذا كان الكائن نفسه المستخدم) أو data.user
           const apiUser =
             (inner?.user as Record<string, unknown>) ??
-            (inner && typeof inner === "object" && (inner.id != null || inner.token != null) ? inner : null) ??
+            (inner &&
+            typeof inner === "object" &&
+            (inner.id != null || inner.token != null)
+              ? inner
+              : null) ??
             (data?.user as Record<string, unknown>);
           // استخراج token: من user أو من data.data.token أو data.token
           const token: string | undefined =
@@ -607,15 +613,15 @@ export const useUserStore = create<UserState>()(
             return { status: false, msg: "Invalid response from server" };
           }
           const isProfileCompleted = Boolean(
-            apiUser.is_profile_completed ?? inner?.is_profile_completed ?? true
+            apiUser.is_profile_completed ?? inner?.is_profile_completed ?? true,
           );
           const rawName = apiUser.name;
           const userName =
             rawName != null && rawName !== ""
               ? String(rawName)
               : apiUser.email
-              ? String(apiUser.email).split("@")[0]
-              : "User";
+                ? String(apiUser.email).split("@")[0]
+                : "User";
           const user: User = {
             id: String(apiUser.id ?? "user_unknown"),
             email: String(apiUser.email ?? ""),
@@ -623,7 +629,7 @@ export const useUserStore = create<UserState>()(
             phone: String(apiUser.phone ?? phone),
             avatar: apiUser.avatar as string | undefined,
             isVerified: Boolean(
-              apiUser.email_verified_at ?? isProfileCompleted ?? true
+              apiUser.email_verified_at ?? isProfileCompleted ?? true,
             ),
             createdAt: String(apiUser.created_at ?? new Date().toISOString()),
             preferences: {
@@ -640,7 +646,9 @@ export const useUserStore = create<UserState>()(
             loading: false,
             error: null,
           });
-          const msg = (data?.message ?? data?.msg ?? "Login successful") as string;
+          const msg = (data?.message ??
+            data?.msg ??
+            "Login successful") as string;
           return {
             status: true,
             msg,
@@ -698,7 +706,7 @@ export const useUserStore = create<UserState>()(
               createdAt: String(
                 apiUser?.created_at ??
                   mergedUser?.createdAt ??
-                  new Date().toISOString()
+                  new Date().toISOString(),
               ),
               preferences: mergedUser?.preferences ?? {
                 language: "ar",
@@ -825,7 +833,7 @@ export const useUserStore = create<UserState>()(
               phone: String(apiUser?.phone ?? userData.phone ?? user.phone),
               avatar: (apiUser?.avatar ?? user.avatar) as string | undefined,
               isVerified: Boolean(
-                apiUser?.email_verified_at ?? user.isVerified
+                apiUser?.email_verified_at ?? user.isVerified,
               ),
               createdAt: String(apiUser?.created_at ?? user.createdAt),
               preferences: user.preferences,
@@ -862,7 +870,7 @@ export const useUserStore = create<UserState>()(
         }
       },
 
-      // إزالة من المحفوظات
+      // إزالة من المفضلة
       removeFromSaved: (itemId: string) => {
         const { savedItems } = get();
         set({
@@ -870,7 +878,7 @@ export const useUserStore = create<UserState>()(
         });
       },
 
-      // التحقق من وجود العنصر في المحفوظات
+      // التحقق من وجود العنصر في المفضلة
       isItemSaved: (itemId: string) => {
         const { savedItems } = get();
         return savedItems.some((item) => item.itemId === itemId);
@@ -880,7 +888,7 @@ export const useUserStore = create<UserState>()(
       addToCart: (item: Omit<CartItem, "id" | "addedAt">) => {
         const { cartItems } = get();
         const existingItem = cartItems.find(
-          (cartItem) => cartItem.itemId === item.itemId
+          (cartItem) => cartItem.itemId === item.itemId,
         );
 
         if (existingItem) {
@@ -889,7 +897,7 @@ export const useUserStore = create<UserState>()(
             cartItems: cartItems.map((cartItem) =>
               cartItem.itemId === item.itemId
                 ? { ...cartItem, quantity: cartItem.quantity + item.quantity }
-                : cartItem
+                : cartItem,
             ),
           });
         } else {
@@ -919,7 +927,7 @@ export const useUserStore = create<UserState>()(
         } else {
           set({
             cartItems: cartItems.map((item) =>
-              item.itemId === itemId ? { ...item, quantity } : item
+              item.itemId === itemId ? { ...item, quantity } : item,
             ),
           });
         }
@@ -935,7 +943,7 @@ export const useUserStore = create<UserState>()(
         const { cartItems } = get();
         return cartItems.reduce(
           (total, item) => total + item.price * item.quantity,
-          0
+          0,
         );
       },
 
@@ -983,7 +991,7 @@ export const useUserStore = create<UserState>()(
                       ? new Date().toISOString()
                       : order.completedAt,
                 }
-              : order
+              : order,
           ),
         });
       },
@@ -999,6 +1007,6 @@ export const useUserStore = create<UserState>()(
         cartItems: state.cartItems,
         orders: state.orders,
       }),
-    }
-  )
+    },
+  ),
 );

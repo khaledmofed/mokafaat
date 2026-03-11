@@ -3,14 +3,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { useUserStore } from "@stores/userStore";
 import { useTranslation } from "react-i18next";
 import { useIsRTL } from "@hooks";
-import {
-  IoHeartOutline,
-  IoHeart,
-  IoTrashOutline,
-} from "react-icons/io5";
+import { IoHeartOutline, IoHeart, IoTrashOutline } from "react-icons/io5";
 import CurrencyIcon from "@components/CurrencyIcon";
 import { useFavorites, useFavoriteToggle } from "@hooks/api/useMokafaatQueries";
-import { normalizeFavoritesList, type NormalizedFavorite } from "@utils/favorites";
+import {
+  normalizeFavoritesList,
+  type NormalizedFavorite,
+} from "@utils/favorites";
 import { toast } from "react-toastify";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 
@@ -22,12 +21,18 @@ const SavedPage: React.FC = () => {
   const { data: favoritesData, isLoading, refetch } = useFavorites();
   const toggleMutation = useFavoriteToggle();
 
-  const [filter, setFilter] = useState<"all" | "offer" | "card" | "coupon">("all");
+  const [filter, setFilter] = useState<"all" | "offer" | "card" | "coupon">(
+    "all",
+  );
 
-  const items = useMemo(() => normalizeFavoritesList(favoritesData ?? null), [favoritesData]);
+  const items = useMemo(
+    () => normalizeFavoritesList(favoritesData ?? null),
+    [favoritesData],
+  );
   const filteredItems = useMemo(
-    () => (filter === "all" ? items : items.filter((item) => item.type === filter)),
-    [items, filter]
+    () =>
+      filter === "all" ? items : items.filter((item) => item.type === filter),
+    [items, filter],
   );
 
   const handleRemove = (item: NormalizedFavorite) => {
@@ -36,10 +41,12 @@ const SavedPage: React.FC = () => {
       {
         onSuccess: () => {
           refetch();
-          toast.success(isRTL ? "تمت إزالته من المحفوظات" : "Removed from favorites");
+          toast.success(
+            isRTL ? "تمت إزالته من المفضلة" : "Removed from favorites",
+          );
         },
         onError: () => toast.error(isRTL ? "فشل في التحديث" : "Update failed"),
-      }
+      },
     );
   };
 
@@ -98,11 +105,20 @@ const SavedPage: React.FC = () => {
 
   if (!token) {
     return (
-      <div className="min-h-screen bg-gray-50 pt-24 pb-28 flex items-center justify-center" style={{ marginTop: "77px" }}>
+      <div
+        className="min-h-screen bg-gray-50 pt-24 pb-28 flex items-center justify-center"
+        style={{ marginTop: "77px" }}
+      >
         <div className="text-center bg-white rounded-xl p-8 shadow-sm max-w-md">
           <IoHeartOutline className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-gray-900 mb-2">{isRTL ? "تسجيل الدخول مطلوب" : "Login required"}</h2>
-          <p className="text-gray-600 mb-6">{isRTL ? "سجّل دخولك لعرض المحفوظات" : "Sign in to view your saved items"}</p>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">
+            {isRTL ? "تسجيل الدخول مطلوب" : "Login required"}
+          </h2>
+          <p className="text-gray-600 mb-6">
+            {isRTL
+              ? "سجّل دخولك لعرض المفضلة"
+              : "Sign in to view your saved items"}
+          </p>
           <Link
             to="/login?returnUrl=/saved"
             className="bg-[#440798] text-white px-6 py-3 rounded-lg hover:bg-[#440798c9] transition-colors inline-block"
@@ -115,13 +131,20 @@ const SavedPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-8 pb-28" style={{ marginTop: "77px" }}>
+    <div
+      className="min-h-screen bg-gray-50 pt-8 pb-28"
+      style={{ marginTop: "77px" }}
+    >
       <div className="container mx-auto px-4 sm:px-4 lg:px-4">
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{t("saved.title")}</h1>
-              <p className="text-gray-600 mt-1">{t("saved.subtitle", { count: items.length })}</p>
+              <h1 className="text-2xl font-bold text-gray-900">
+                {t("saved.title")}
+              </h1>
+              <p className="text-gray-600 mt-1">
+                {t("saved.subtitle", { count: items.length })}
+              </p>
             </div>
             <IoHeart className="w-8 h-8 text-red-500" />
           </div>
@@ -135,16 +158,34 @@ const SavedPage: React.FC = () => {
           <>
             <div className="flex justify-start mb-8 gap-3 flex-wrap">
               {[
-                { key: "all" as const, label: t("saved.filters.all"), count: items.length },
-                { key: "offer" as const, label: t("saved.filters.offers"), count: items.filter((i) => i.type === "offer").length },
-                { key: "card" as const, label: t("saved.filters.cards"), count: items.filter((i) => i.type === "card").length },
-                { key: "coupon" as const, label: t("saved.types.coupon"), count: items.filter((i) => i.type === "coupon").length },
+                {
+                  key: "all" as const,
+                  label: t("saved.filters.all"),
+                  count: items.length,
+                },
+                {
+                  key: "offer" as const,
+                  label: t("saved.filters.offers"),
+                  count: items.filter((i) => i.type === "offer").length,
+                },
+                {
+                  key: "card" as const,
+                  label: t("saved.filters.cards"),
+                  count: items.filter((i) => i.type === "card").length,
+                },
+                {
+                  key: "coupon" as const,
+                  label: t("saved.types.coupon"),
+                  count: items.filter((i) => i.type === "coupon").length,
+                },
               ].map((opt) => (
                 <button
                   key={opt.key}
                   onClick={() => setFilter(opt.key)}
                   className={`px-5 py-3 rounded-full font-medium text-sm shadow-md transition-all duration-300 ${
-                    filter === opt.key ? "bg-[#400198] text-white shadow-lg" : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
+                    filter === opt.key
+                      ? "bg-[#400198] text-white shadow-lg"
+                      : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
                   }`}
                 >
                   {opt.label} ({opt.count})
@@ -164,7 +205,10 @@ const SavedPage: React.FC = () => {
                       tabIndex={isClickable ? 0 : undefined}
                       onClick={() => isClickable && handleItemClick(item)}
                       onKeyDown={(e) => {
-                        if (isClickable && (e.key === "Enter" || e.key === " ")) {
+                        if (
+                          isClickable &&
+                          (e.key === "Enter" || e.key === " ")
+                        ) {
                           e.preventDefault();
                           handleItemClick(item);
                         }
@@ -173,12 +217,17 @@ const SavedPage: React.FC = () => {
                     >
                       <div className="relative">
                         <img
-                          src={item.image || "https://via.placeholder.com/300x200?text=Image"}
+                          src={
+                            item.image ||
+                            "https://via.placeholder.com/300x200?text=Image"
+                          }
                           alt={item.title[isRTL ? "ar" : "en"]}
                           className="w-full h-48 object-cover"
                         />
                         <div className="absolute top-3 left-3">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(item.type)}`}>
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(item.type)}`}
+                          >
                             {getTypeLabel(item.type)}
                           </span>
                         </div>
@@ -204,19 +253,26 @@ const SavedPage: React.FC = () => {
                             {item.price != null && (
                               <span className="text-lg font-bold text-[#440798] flex items-center gap-1">
                                 {item.price}
-                                <CurrencyIcon size={16} className="text-[#440798]" />
+                                <CurrencyIcon
+                                  size={16}
+                                  className="text-[#440798]"
+                                />
                               </span>
                             )}
                             {item.originalPrice != null && (
                               <span className="text-sm text-gray-500 line-through flex items-center gap-1">
                                 {item.originalPrice}
-                                <CurrencyIcon size={14} className="text-gray-500" />
+                                <CurrencyIcon
+                                  size={14}
+                                  className="text-gray-500"
+                                />
                               </span>
                             )}
                           </div>
                         )}
                         <div className="mt-3 text-xs text-gray-500">
-                          {t("saved.saved_since")} {new Date(item.savedAt).toLocaleDateString("ar-SA")}
+                          {t("saved.saved_since")}{" "}
+                          {new Date(item.savedAt).toLocaleDateString("ar-SA")}
                         </div>
                         {isClickable && (
                           <span className="mt-2 inline-block text-sm text-[#440798] hover:underline">
@@ -232,9 +288,15 @@ const SavedPage: React.FC = () => {
               <div className="bg-white rounded-lg shadow-sm p-12 text-center">
                 <IoHeartOutline className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  {filter === "all" ? t("saved.empty.title") : t("saved.empty.title_filtered", { type: getTypeLabel(filter) })}
+                  {filter === "all"
+                    ? t("saved.empty.title")
+                    : t("saved.empty.title_filtered", {
+                        type: getTypeLabel(filter),
+                      })}
                 </h3>
-                <p className="text-gray-600 mb-6">{t("saved.empty.description")}</p>
+                <p className="text-gray-600 mb-6">
+                  {t("saved.empty.description")}
+                </p>
                 <Link
                   to="/offers"
                   className="bg-[#440798] text-white px-6 py-2 rounded-md hover:bg-[#440798c9] transition-colors inline-block"
