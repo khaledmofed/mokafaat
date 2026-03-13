@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import OwlCarousel from "react-owl-carousel";
 import {
@@ -14,23 +14,41 @@ import CategoryCard from "@components/CategoryCard";
 import { useIsRTL } from "@hooks";
 import { useWebHome } from "@hooks/api/useMokafaatQueries";
 
+/** من هنا فما فوق = دسكتوب: شبكة 6 أعمدة بدون سلايدر، محاذاة للوسط */
+const DESKTOP_BREAKPOINT_PX = 1024;
+
+type CategoryItem = {
+  id: number;
+  icon: string;
+  title: string;
+  alt: string;
+  key: string;
+};
+
 const CategorySection: React.FC = () => {
   const { t } = useTranslation();
   const isRTL = useIsRTL();
   const { data: webHomeResponse, isLoading, error } = useWebHome();
+  const [isDesktop, setIsDesktop] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      window.matchMedia(`(min-width: ${DESKTOP_BREAKPOINT_PX}px)`).matches,
+  );
 
-  // Debug: طباعة الـ response للتأكد من الشكل
+  useEffect(() => {
+    const mq = window.matchMedia(`(min-width: ${DESKTOP_BREAKPOINT_PX}px)`);
+    const onChange = () => setIsDesktop(mq.matches);
+    onChange();
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
   React.useEffect(() => {
-    if (webHomeResponse) {
-      console.log("Web Home API Response:", webHomeResponse);
-    }
-    if (error) {
-      console.error("Web Home API Error:", error);
-    }
+    if (webHomeResponse) console.log("Web Home API Response:", webHomeResponse);
+    if (error) console.error("Web Home API Error:", error);
   }, [webHomeResponse, error]);
 
-  // Fallback categories (من الترجمة) إذا الـ API ما رجع بيانات
-  const fallbackCategories = useMemo(
+  const fallbackCategories = useMemo<CategoryItem[]>(
     () => [
       {
         id: 1,
@@ -85,66 +103,40 @@ const CategorySection: React.FC = () => {
     [t],
   );
 
-  // استخراج categories من الـ API response
-  // الـ response من /api/web/home يكون: { status, errNum, msg, data: { categories: [...] } }
   const apiCategories = useMemo(() => {
-    if (!webHomeResponse) {
-      console.log("No web home response");
-      return [];
-    }
-
-    console.log("Processing web home response:", webHomeResponse);
-
-    // استخراج categories من response.data.categories
+    if (!webHomeResponse) return [];
     const res = webHomeResponse as Record<string, unknown>;
     const data = res?.data as Record<string, unknown> | undefined;
     const cats = data?.categories as Array<Record<string, unknown>> | undefined;
+    if (!Array.isArray(cats) || cats.length === 0) return [];
 
-    if (!Array.isArray(cats) || cats.length === 0) {
-      console.log("No categories array found in response.data.categories");
-      return [];
-    }
-
-    console.log("Found categories array:", cats);
-
-    const mapped = cats
+    return cats
       .map((cat) => {
         const id = cat.id;
         const name = String(cat.name ?? cat.title ?? "");
         const slug = String(cat.slug ?? "");
         let image = String(cat.image ?? cat.image_url ?? "");
-
-        // إصلاح URL مكرر في الصور (مثل: https://mokafat.ivadso.com/storage/https://mokafat.ivadso.com/storage/...)
         if (image && image.includes("/storage/https://")) {
           const storageIndex = image.indexOf("/storage/https://");
           image =
             image.substring(0, storageIndex + "/storage".length) +
             image.substring(storageIndex + "/storage/https://".length);
         }
-
-        if (!name || !slug) {
-          console.warn("Category missing name or slug:", cat);
-          return null;
-        }
-
+        if (!name || !slug) return null;
         return {
           id: typeof id === "number" ? id : 0,
-          icon: image || RestaurantIcon, // إذا image موجود من API نستخدمه، وإلا أيقونة افتراضية
+          icon: image || RestaurantIcon,
           title: name,
           alt: name,
           key: slug,
         };
       })
       .filter((c): c is NonNullable<typeof c> => c !== null);
-
-    console.log("Mapped categories:", mapped);
-    return mapped;
   }, [webHomeResponse]);
 
-  const categories =
+  const categories: CategoryItem[] =
     apiCategories.length > 0 ? apiCategories : fallbackCategories;
 
-  // بالعربي نعكس ترتيب التصنيفات عشان أول واحد يظهر على اليمين والسكرول لليمين
   const categoriesForDisplay = useMemo(
     () => (isRTL ? [...categories].reverse() : categories),
     [isRTL, categories],
@@ -154,69 +146,165 @@ const CategorySection: React.FC = () => {
     [isRTL, fallbackCategories],
   );
 
-  const owlCarouselOptions = useMemo(
+  /** سلايدر للموبايل/تابلت فقط — بدون صف 7 على الشاشات الصغيرة */
+  const mobileOwlOptions = useMemo(
     () => ({
-      loop: categories.length > 4,
-      margin: 0,
+      loop: categories.length > 2,
+      margin: 8,
       nav: true,
       dots: false,
       autoplay: true,
       autoplayTimeout: 4000,
       autoplayHoverPause: true,
-      rtl: isRTL && categories.length < 4 ? "true" : "false",
+      rtl: false,
       responsive: {
         0: { items: 2 },
         640: { items: 3 },
-        1024: { items: 7 },
       },
     }),
-    [isRTL, categories.length],
+    [categories.length],
   );
 
-  const loadingCarouselOptions = useMemo(
+  const loadingMobileOwlOptions = useMemo(
     () => ({
       loop: true,
-      margin: 0,
+      margin: 8,
       nav: true,
       dots: false,
       autoplay: true,
       autoplayTimeout: 4000,
       autoplayHoverPause: true,
-      rtl: isRTL && fallbackCategories.length < 4 ? "true" : "false",
+      rtl: false,
       responsive: {
         0: { items: 2 },
         640: { items: 3 },
-        1024: { items: 7 },
       },
     }),
-    [isRTL, fallbackCategories.length],
+    [],
   );
 
-  // عرض loading state إذا كان الـ API ما زال يحمل
+  const DESKTOP_COLS = 6;
+
+  /**
+   * دسكتوب: 6 بالصف، بدون فرض LTR — العربي dir=rtl والترتيب كما من الـ API (أول عنصر يمين).
+   * الموبايل وحده يستخدم categoriesForDisplay (عكس) لأن السلايدر LTR.
+   */
+  const renderDesktopGrid = (list: CategoryItem[]) => {
+    const n = list.length;
+    const remainder = n % DESKTOP_COLS;
+    const lastRowStart = remainder === 0 ? n : n - remainder;
+    const fullRowItems = list.slice(0, lastRowStart);
+    const lastRowItems = remainder > 0 ? list.slice(lastRowStart) : [];
+
+    const cellClass =
+      "min-w-0 shrink-0 w-[calc((100%-2.5rem)/6)] sm:w-[calc((100%-3.75rem)/6)]";
+
+    return (
+      <div
+        className="w-full max-w-5xl mx-auto"
+        dir={isRTL ? "rtl" : "ltr"}
+        style={{ direction: isRTL ? "rtl" : "ltr" }}
+      >
+        {fullRowItems.length > 0 && (
+          <div className="grid grid-cols-6 gap-2 sm:gap-3 w-full justify-items-stretch">
+            {fullRowItems.map((category) => (
+              <div key={category.id} className="min-w-0">
+                <CategoryCard
+                  icon={category.icon}
+                  title={category.title}
+                  alt={category.alt}
+                  categoryKey={category.key}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+        {lastRowItems.length > 0 && (
+          <div
+            className={`flex flex-wrap justify-center items-stretch gap-2 sm:gap-3 w-full ${fullRowItems.length ? "mt-2 sm:mt-3" : ""}`}
+          >
+            {lastRowItems.map((category) => (
+              <div key={category.id} className={cellClass}>
+                <CategoryCard
+                  icon={category.icon}
+                  title={category.title}
+                  alt={category.alt}
+                  categoryKey={category.key}
+                />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   if (isLoading) {
     return (
       <section className="relative container mx-auto px-4 py-8 z-10">
         <div
           className="w-full max-w-6xl px-4 z-10 mx-auto"
-          style={{
-            marginTop: "-80px",
-          }}
+          style={{ marginTop: "-80px" }}
         >
+          {isDesktop ? (
+            renderDesktopGrid(fallbackCategories)
+          ) : (
+            <div
+              className="relative OffersCarousel PropertiesCarousel CategoryCarousel"
+              dir="ltr"
+              style={{ direction: "ltr" }}
+            >
+              <OwlCarousel
+                className="owl-theme"
+                {...loadingMobileOwlOptions}
+                dir="ltr"
+                style={{ direction: "ltr" }}
+              >
+                {fallbackForDisplay.map((category) => (
+                  <div key={category.id} className="item">
+                    <CategoryCard
+                      icon={category.icon}
+                      title={category.title}
+                      alt={category.alt}
+                      categoryKey={category.key}
+                    />
+                  </div>
+                ))}
+              </OwlCarousel>
+            </div>
+          )}
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="relative container mx-auto px-4 py-8 z-10">
+      <div
+        className="w-full max-w-6xl px-4 z-10 mx-auto"
+        style={{ marginTop: "-80px" }}
+      >
+        {error && (
+          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+            خطأ في تحميل التصنيفات. يتم عرض البيانات الافتراضية.
+          </div>
+        )}
+        {isDesktop ? (
+          renderDesktopGrid(categories)
+        ) : (
           <div
             className="relative OffersCarousel PropertiesCarousel CategoryCarousel"
-            style={{
-              direction: isRTL && fallbackCategories.length < 4 ? "rtl" : "ltr",
-            }}
+            dir="ltr"
+            style={{ direction: "ltr" }}
           >
             <OwlCarousel
+              key={`categories-mobile-${categories.length}-${isRTL ? "rtl" : "ltr"}`}
               className="owl-theme"
-              {...loadingCarouselOptions}
-              style={{
-                direction:
-                  isRTL && fallbackCategories.length < 4 ? "rtl" : "ltr",
-              }}
+              {...mobileOwlOptions}
+              dir="ltr"
+              style={{ direction: "ltr" }}
             >
-              {fallbackForDisplay.map((category) => (
+              {categoriesForDisplay.map((category) => (
                 <div key={category.id} className="item">
                   <CategoryCard
                     icon={category.icon}
@@ -228,50 +316,7 @@ const CategorySection: React.FC = () => {
               ))}
             </OwlCarousel>
           </div>
-        </div>
-      </section>
-    );
-  }
-
-  return (
-    <section className="relative container mx-auto px-4 py-8 z-10">
-      <div
-        className="w-full max-w-6xl px-4 z-10 mx-auto"
-        style={{
-          marginTop: "-80px",
-        }}
-      >
-        {error && (
-          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
-            خطأ في تحميل التصنيفات. يتم عرض البيانات الافتراضية.
-          </div>
         )}
-        <div
-          className="relative OffersCarousel PropertiesCarousel CategoryCarousel"
-          style={{
-            direction: isRTL && categories.length < 4 ? "rtl" : "ltr",
-          }}
-        >
-          <OwlCarousel
-            key={`categories-${categories.length}`}
-            className="owl-theme"
-            {...owlCarouselOptions}
-            style={{
-              direction: isRTL && categories.length < 4 ? "rtl" : "ltr",
-            }}
-          >
-            {categoriesForDisplay.map((category) => (
-              <div key={category.id} className="item">
-                <CategoryCard
-                  icon={category.icon}
-                  title={category.title}
-                  alt={category.alt}
-                  categoryKey={category.key}
-                />
-              </div>
-            ))}
-          </OwlCarousel>
-        </div>
       </div>
     </section>
   );

@@ -29,16 +29,13 @@ export function isUserSubscribed(subscriptionStatusData: unknown): boolean {
   if (data.status === "active" || data.status === "subscribed") return true;
 
   if (sub && (sub.is_active === true || sub.status === "active")) return true;
-  if (sub && typeof sub === "object" && (sub.id != null || sub.plan_id != null)) {
-    if (expiresAt) {
-      try {
-        const exp = new Date(expiresAt).getTime();
-        if (!Number.isNaN(exp) && exp > Date.now()) return true;
-      } catch {
-        // ignore
-      }
-    } else {
-      return true;
+  // لا نعتبر المشتركاً فقط لأن sub فيه id/plan_id — قد يكون منتهياً؛ لازم expires_at مستقبلي أو علَم فعال أعلاه
+  if (sub && typeof sub === "object" && expiresAt) {
+    try {
+      const exp = new Date(expiresAt).getTime();
+      if (!Number.isNaN(exp) && exp > Date.now()) return true;
+    } catch {
+      // ignore
     }
   }
 

@@ -13,13 +13,17 @@ export interface VerifyOtpParams {
   otp_code: string;
 }
 
+/** مطابقة لـ complete-profile في الباكند */
 export interface CompleteProfileParams {
-  name: string;
+  first_name: string;
+  last_name: string;
+  id_number: string;
+  phone: string;
+  country_code: string;
   email: string;
-  account_type: "individual" | "company";
-  company_id?: string;
-  job_title?: string;
-  avatar?: File;
+  city_id: string | number;
+  gender: string;
+  avatar?: File | null;
 }
 
 export const authService = {
@@ -41,12 +45,17 @@ export const authService = {
 
   completeProfile: (data: CompleteProfileParams) => {
     const formData = new FormData();
-    formData.append("name", data.name);
+    formData.append("first_name", data.first_name);
+    formData.append("last_name", data.last_name);
+    formData.append("id_number", data.id_number);
+    formData.append("phone", data.phone);
+    formData.append("country_code", String(data.country_code));
     formData.append("email", data.email);
-    formData.append("account_type", data.account_type);
-    if (data.company_id) formData.append("company_id", data.company_id);
-    if (data.job_title) formData.append("job_title", data.job_title);
-    if (data.avatar) formData.append("avatar", data.avatar);
+    formData.append("city_id", String(data.city_id));
+    formData.append("gender", data.gender);
+    if (data.avatar && data.avatar instanceof File) {
+      formData.append("avatar", data.avatar);
+    }
     return api.post(API_ENDPOINTS.auth.completeProfile, formData, {
       headers: { "Content-Type": "multipart/form-data" },
     });

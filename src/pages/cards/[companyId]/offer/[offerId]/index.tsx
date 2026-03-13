@@ -195,7 +195,13 @@ const CardOfferDetailPage = () => {
       <SubscribersOnlyModal
         isOpen={subscribersOnlyModalOpen}
         onClose={() => setSubscribersOnlyModalOpen(false)}
-        onSubscribe={() => navigate("/subscription/plans")}
+        onSubscribe={() =>
+          navigate("/subscription/plans", {
+            state: {
+              from: `${location.pathname}${location.search}`,
+            },
+          })
+        }
         onBackToOffer={() => setSubscribersOnlyModalOpen(false)}
       />
       <Helmet>

@@ -536,7 +536,13 @@ const PaymentPage: React.FC = () => {
                       {errorMsg}
                       <button
                         type="button"
-                        onClick={() => navigate("/subscription/plans")}
+                        onClick={() =>
+                          navigate("/subscription/plans", {
+                            state: {
+                              from: `${location.pathname}${location.search}`,
+                            },
+                          })
+                        }
                         className="mt-3 text-[#400198] font-medium underline hover:no-underline block"
                       >
                         {isRTL ? "الذهاب لصفحة الاشتراك" : "Go to subscription page"}

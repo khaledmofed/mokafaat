@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useTranslation } from "react-i18next";
 import { useIsRTL } from "@hooks";
 import { useSubscriptionPlans } from "@hooks/api/useMokafaatQueries";
 import { IoClose } from "react-icons/io5";
+import { TbPackage } from "react-icons/tb";
 import { AxiosError } from "axios";
 import CurrencyIcon from "@components/CurrencyIcon";
 import { LoadingSpinner } from "@components/LoadingSpinner";
@@ -49,7 +50,27 @@ function getPlanFeatures(plan: PlanItem, isRTL: boolean): string[] {
 const SubscriptionPlansPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const isRTL = useIsRTL();
+
+  const handleClose = () => {
+    const st = location.state as { from?: string } | null | undefined;
+    const from = st?.from?.trim();
+    if (
+      from &&
+      from.startsWith("/") &&
+      !from.startsWith("//") &&
+      from !== "/subscription/plans"
+    ) {
+      navigate(from, { replace: true });
+      return;
+    }
+    if (window.history.length > 1) {
+      navigate(-1);
+      return;
+    }
+    navigate("/", { replace: true });
+  };
   const [subscribeErrorMsg, setSubscribeErrorMsg] = useState<string | null>(null);
 
   const { data: plansData, isLoading, isError, error, refetch } = useSubscriptionPlans();
@@ -81,7 +102,7 @@ const SubscriptionPlansPage: React.FC = () => {
         <div className="max-w-4xl mx-auto">
           <button
             type="button"
-            onClick={() => navigate(-1)}
+            onClick={handleClose}
             className={`absolute top-4 ${isRTL ? "right-4" : "left-4"} text-white hover:text-purple-300 flex items-center gap-2`}
           >
             <IoClose className="text-2xl" />
@@ -89,7 +110,16 @@ const SubscriptionPlansPage: React.FC = () => {
           </button>
 
           <div className="text-center mb-8">
-            <div className="w-16 h-16 rounded-xl bg-white/10 mx-auto mb-4" aria-hidden />
+            <div
+              className="w-16 h-16 rounded-xl bg-white/10 mx-auto mb-4 flex items-center justify-center shadow-inner border border-white/10"
+              aria-hidden
+            >
+              <TbPackage
+                className="w-9 h-9 text-[#fd671a]"
+                strokeWidth={1.75}
+                aria-hidden
+              />
+            </div>
             <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
               {t("home.subscription.choosePlan")}
             </h1>

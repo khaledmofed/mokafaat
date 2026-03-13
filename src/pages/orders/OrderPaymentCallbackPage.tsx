@@ -5,10 +5,7 @@ import { usePaymentCallback } from "@hooks/api/useMokafaatQueries";
 
 /**
  * صفحة وسيطة: ميسر يوجّه المتصفح هنا بعد الدفع، ثم نستدعي API الكول باك عندنا
- * وبحسب النتيجة نوجّه لصفحة النجاح أو الفشل عندنا.
- *
- * ملاحظة: الباكند قد يرد بصفحة HTML (تمت العملية بنجاح) بدل JSON.
- * نتعامل مع الرد: إن كان JSON نستخرج order_id وغيرها، وإن كان HTML نعتمد على معاملات الرابط (id, status) فقط.
+ * وبحسب النتيجة نوجّه لصفحة النجاح أو الفشل (طلب عرض أو اشتراك حسب type).
  */
 const OrderPaymentCallbackPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -25,27 +22,62 @@ const OrderPaymentCallbackPage: React.FC = () => {
   const typeFromQuery = searchParams.get("type") ?? undefined;
   const categoryFromQuery = searchParams.get("category") ?? undefined;
   const restaurantIdFromQuery = searchParams.get("restaurant_id") ?? undefined;
+  const planIdFromQuery = searchParams.get("plan_id") ?? undefined;
+
+  const isSubscription = typeFromQuery === "subscription";
+
+  const buildParams = React.useCallback(() => {
+    const params = new URLSearchParams();
+    params.set("id", id ?? "");
+    params.set("status", status ?? "");
+    if (message) params.set("message", message);
+    if (orderIdFromQuery) params.set("order_id", orderIdFromQuery);
+    if (typeFromQuery) params.set("type", typeFromQuery);
+    if (categoryFromQuery) params.set("category", categoryFromQuery);
+    if (restaurantIdFromQuery)
+      params.set("restaurant_id", restaurantIdFromQuery);
+    if (planIdFromQuery) params.set("plan_id", planIdFromQuery);
+    return params;
+  }, [
+    id,
+    status,
+    message,
+    orderIdFromQuery,
+    typeFromQuery,
+    categoryFromQuery,
+    restaurantIdFromQuery,
+    planIdFromQuery,
+  ]);
 
   const redirectToResult = React.useCallback(
     (isPaid: boolean) => {
       if (redirectedRef.current) return;
       redirectedRef.current = true;
-      const params = new URLSearchParams();
-      params.set("id", id ?? "");
-      params.set("status", status ?? "");
-      if (message) params.set("message", message);
-      if (orderIdFromQuery) params.set("order_id", orderIdFromQuery);
-      if (typeFromQuery) params.set("type", typeFromQuery);
-      if (categoryFromQuery) params.set("category", categoryFromQuery);
-      if (restaurantIdFromQuery) params.set("restaurant_id", restaurantIdFromQuery);
-      navigate(isPaid ? `/orders/success?${params.toString()}` : `/orders/failure?${params.toString()}`, { replace: true });
+      const params = buildParams();
+      if (isSubscription) {
+        navigate(
+          isPaid
+            ? `/subscription/success?${params.toString()}`
+            : `/subscription/failed?${params.toString()}`,
+          { replace: true },
+        );
+      } else {
+        navigate(
+          isPaid
+            ? `/orders/success?${params.toString()}`
+            : `/orders/failure?${params.toString()}`,
+          { replace: true },
+        );
+      }
     },
-    [id, status, message, navigate, orderIdFromQuery, typeFromQuery, categoryFromQuery, restaurantIdFromQuery]
+    [buildParams, navigate, isSubscription],
   );
 
   useEffect(() => {
     if (!id || !status) {
-      navigate("/orders", { replace: true });
+      navigate(isSubscription ? "/subscription/plans" : "/orders", {
+        replace: true,
+      });
       return;
     }
     if (calledRef.current) return;
@@ -53,7 +85,6 @@ const OrderPaymentCallbackPage: React.FC = () => {
 
     const isPaid = status?.toLowerCase() === "paid";
 
-    // مهلة: إن لم يرد الـ API خلال 8 ثوانٍ نوجّه حسب status من الرابط
     const timeoutId = window.setTimeout(() => {
       if (redirectedRef.current) return;
       redirectToResult(isPaid);
@@ -67,15 +98,21 @@ const OrderPaymentCallbackPage: React.FC = () => {
         let type: string | undefined = typeFromQuery;
         let category: string | undefined = categoryFromQuery;
         let restaurantId: string | undefined = restaurantIdFromQuery;
+        let planId: string | undefined = planIdFromQuery;
 
-        // الباكند قد يرد بـ HTML (نص) أو JSON — إن كان كائناً نستخرج order_id وغيرها
         if (res != null && typeof res === "object" && !Array.isArray(res)) {
           const data = (res as Record<string, unknown>)?.data ?? res;
           const root = (data as Record<string, unknown>) ?? {};
-          orderId = (root.order_id ?? (root.order as Record<string, unknown>)?.id ?? orderId) as string | number | undefined;
+          orderId = (root.order_id ??
+            (root.order as Record<string, unknown>)?.id ??
+            orderId) as string | number | undefined;
           if (root.type != null) type = (root.type as string) ?? type;
-          if (root.category != null) category = (root.category as string) ?? category;
-          if (root.restaurant_id != null) restaurantId = (root.restaurant_id as string) ?? restaurantId;
+          if (root.category != null)
+            category = (root.category as string) ?? category;
+          if (root.restaurant_id != null)
+            restaurantId = (root.restaurant_id as string) ?? restaurantId;
+          if (root.plan_id != null)
+            planId = String(root.plan_id ?? planId);
         }
 
         const params = new URLSearchParams();
@@ -86,10 +123,25 @@ const OrderPaymentCallbackPage: React.FC = () => {
         if (type) params.set("type", type);
         if (category) params.set("category", category);
         if (restaurantId) params.set("restaurant_id", restaurantId);
+        if (planId) params.set("plan_id", planId);
 
         redirectedRef.current = true;
         window.clearTimeout(timeoutId);
-        navigate(isPaid ? `/orders/success?${params.toString()}` : `/orders/failure?${params.toString()}`, { replace: true });
+        if (type === "subscription" || isSubscription) {
+          navigate(
+            isPaid
+              ? `/subscription/success?${params.toString()}`
+              : `/subscription/failed?${params.toString()}`,
+            { replace: true },
+          );
+        } else {
+          navigate(
+            isPaid
+              ? `/orders/success?${params.toString()}`
+              : `/orders/failure?${params.toString()}`,
+            { replace: true },
+          );
+        }
       })
       .catch(() => {
         if (redirectedRef.current) return;
@@ -100,7 +152,20 @@ const OrderPaymentCallbackPage: React.FC = () => {
     return () => {
       window.clearTimeout(timeoutId);
     };
-  }, [id, status, message, navigate, paymentCallback, searchParams, redirectToResult]);
+  }, [
+    id,
+    status,
+    message,
+    navigate,
+    paymentCallback,
+    redirectToResult,
+    isSubscription,
+    typeFromQuery,
+    orderIdFromQuery,
+    categoryFromQuery,
+    restaurantIdFromQuery,
+    planIdFromQuery,
+  ]);
 
   return (
     <div className="min-h-screen bg-[#1D0843] flex flex-col items-center justify-center px-4">

@@ -321,29 +321,76 @@ export function useAppConfig() {
 }
 
 // ========== Locations ==========
+/** الـ API يرجع { data: { countries|regions|cities: [...] } } وليس مصفوفة مباشرة */
+export function normalizeLocationListResponse(
+  payload: unknown,
+  listKey: "countries" | "regions" | "cities",
+): { id: number | string; name?: string; code?: string }[] {
+  if (payload == null) return [];
+  if (Array.isArray(payload)) {
+    return payload as { id: number | string; name?: string; code?: string }[];
+  }
+  if (typeof payload !== "object") return [];
+  const o = payload as Record<string, unknown>;
+  if (Array.isArray(o[listKey])) {
+    return o[listKey] as { id: number | string; name?: string; code?: string }[];
+  }
+  const inner = o.data;
+  if (inner && typeof inner === "object") {
+    const d = inner as Record<string, unknown>;
+    if (Array.isArray(d[listKey])) {
+      return d[listKey] as {
+        id: number | string;
+        name?: string;
+        code?: string;
+      }[];
+    }
+  }
+  if (Array.isArray(inner)) {
+    return inner as { id: number | string; name?: string; code?: string }[];
+  }
+  return [];
+}
+
 export function useCountries() {
   const lang = useQueryLang();
   return useQuery({
     queryKey: [...mokafaatKeys.countries, lang],
-    queryFn: () => locationsApi.countries().then((r) => r.data),
+    queryFn: () =>
+      locationsApi
+        .countries()
+        .then((r) => normalizeLocationListResponse(r.data, "countries")),
   });
 }
 
-export function useRegions(id: string | number) {
+/** تفعيل الطلب حتى لو id === 0 (!!0 كان يعطي false ويكسر المناطق/المدن) */
+function locationQueryEnabled(id: string | number | null | undefined) {
+  if (id == null) return false;
+  if (typeof id === "string") return id.length > 0;
+  return true;
+}
+
+export function useRegions(id: string | number | null) {
   const lang = useQueryLang();
   return useQuery({
-    queryKey: [...mokafaatKeys.regions(id), lang],
-    queryFn: () => locationsApi.regions(id).then((r) => r.data),
-    enabled: !!id,
+    queryKey: [...mokafaatKeys.regions(id ?? 0), lang],
+    queryFn: () =>
+      locationsApi
+        .regions(id as string | number)
+        .then((r) => normalizeLocationListResponse(r.data, "regions")),
+    enabled: locationQueryEnabled(id),
   });
 }
 
-export function useCities(id: string | number) {
+export function useCities(id: string | number | null) {
   const lang = useQueryLang();
   return useQuery({
-    queryKey: [...mokafaatKeys.cities(id), lang],
-    queryFn: () => locationsApi.cities(id).then((r) => r.data),
-    enabled: !!id,
+    queryKey: [...mokafaatKeys.cities(id ?? 0), lang],
+    queryFn: () =>
+      locationsApi
+        .cities(id as string | number)
+        .then((r) => normalizeLocationListResponse(r.data, "cities")),
+    enabled: locationQueryEnabled(id),
   });
 }
 

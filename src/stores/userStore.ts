@@ -1,6 +1,9 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { authService } from "@network/services/authService";
+import {
+  authService,
+  type CompleteProfileParams,
+} from "@network/services/authService";
 
 // واجهة المستخدم
 export interface User {
@@ -65,6 +68,8 @@ interface UserState {
   loading: boolean;
   error: string | null;
   otpSent: boolean;
+  /** بعد verify-otp: إذا true يجب إكمال البروفايل قبل استخدام النظام */
+  needsProfileCompletion: boolean;
 
   // المفضلة
   savedItems: SavedItem[];
@@ -87,19 +92,33 @@ interface UserState {
   ) => Promise<{
     status: boolean;
     msg: string;
-    data?: { user: User; token: string; is_profile_completed: boolean };
+    data?: {
+      user: User;
+      token: string;
+      is_profile_completed: boolean;
+      needs_profile_completion?: boolean;
+    };
   }>;
   completeRegistration: (
-    userData: Partial<User>,
-  ) => Promise<{ status: boolean; msg: string }>;
+    payload: CompleteProfileParams,
+  ) => Promise<{ status: boolean; msg: string; errNum?: string }>;
 
   // الإجراءات القديمة (للتوافق)
   login: (email: string, password: string) => Promise<boolean>;
   register: (userData: Partial<User>) => Promise<boolean>;
   logout: () => void;
-  updateProfile: (
-    userData: Partial<User>,
-  ) => Promise<{ status: boolean; msg: string }>;
+  updateProfile: (userData: {
+    name?: string;
+    email?: string;
+    phone?: string;
+    first_name?: string;
+    last_name?: string;
+    id_number?: string;
+    country_code?: string;
+    city_id?: string | number;
+    gender?: string;
+    avatar?: File | string | null;
+  }) => Promise<{ status: boolean; msg: string }>;
 
   // المفضلة
   addToSaved: (item: Omit<SavedItem, "id" | "savedAt">) => void;
@@ -165,6 +184,7 @@ export const useUserStore = create<UserState>()(
       loading: false,
       error: null,
       otpSent: false,
+      needsProfileCompletion: false,
       savedItems: [
         // بيانات وهمية للمحفوظات
         {
@@ -578,6 +598,7 @@ export const useUserStore = create<UserState>()(
             status?: boolean;
             msg?: string;
             message?: string;
+            errNum?: string;
             data?: Record<string, unknown> & {
               user?: Record<string, unknown>;
               token?: string;
@@ -585,7 +606,11 @@ export const useUserStore = create<UserState>()(
             };
             user_meta?: Record<string, unknown>;
           };
-          if (data?.status === false) {
+          const verifyFailed =
+            data?.status === false ||
+            (typeof data?.errNum === "string" &&
+              data.errNum.startsWith("E"));
+          if (verifyFailed) {
             const errorMsg =
               (data?.message as string) ??
               (data?.msg as string) ??
@@ -612,9 +637,12 @@ export const useUserStore = create<UserState>()(
             set({ loading: false, error: "Invalid response from server" });
             return { status: false, msg: "Invalid response from server" };
           }
-          const isProfileCompleted = Boolean(
-            apiUser.is_profile_completed ?? inner?.is_profile_completed ?? true,
-          );
+          // من الـ API: is_profile_completed داخل data.user — false = يجب فتح فورم إكمال التسجيل
+          const isProfileCompleted =
+            apiUser.is_profile_completed === true ||
+            inner?.is_profile_completed === true;
+          const needsProfileCompletion =
+            apiUser.is_profile_completed === false;
           const rawName = apiUser.name;
           const userName =
             rawName != null && rawName !== ""
@@ -643,6 +671,7 @@ export const useUserStore = create<UserState>()(
             token,
             isAuthenticated: true,
             otpSent: false,
+            needsProfileCompletion,
             loading: false,
             error: null,
           });
@@ -652,7 +681,12 @@ export const useUserStore = create<UserState>()(
           return {
             status: true,
             msg,
-            data: { user, token, is_profile_completed: isProfileCompleted },
+            data: {
+              user,
+              token,
+              is_profile_completed: isProfileCompleted,
+              needs_profile_completion: needsProfileCompletion,
+            },
           };
         } catch (err: unknown) {
           const errData = (
@@ -666,39 +700,77 @@ export const useUserStore = create<UserState>()(
       },
 
       // إكمال التسجيل عبر API مكافآت (POST /api/auth/complete-profile مع FormData)
-      completeRegistration: async (userData: Partial<User>) => {
+      completeRegistration: async (payload: CompleteProfileParams) => {
         set({ loading: true, error: null });
         try {
-          const res = await authService.completeProfile({
-            name: userData.name ?? "",
-            email: userData.email ?? "",
-            account_type: "individual",
-            job_title: userData.preferences ? undefined : undefined,
-          });
-          const data = res.data as {
+          const res = await authService.completeProfile(payload);
+          const root = res.data as Record<string, unknown>;
+          const inner = root?.data as Record<string, unknown> | undefined;
+          /** دمج الجذر مع data الداخلية حتى لا يضيع status/msg/errNum */
+          const data = {
+            ...root,
+            ...(typeof inner === "object" && inner != null ? inner : {}),
+          } as {
             status?: boolean;
             message?: string;
             msg?: string;
+            errNum?: string;
             user?: Record<string, unknown>;
             data?: { user?: Record<string, unknown> };
           };
-          if (data?.status === false) {
-            const errorMsg =
-              data?.message ?? data?.msg ?? "Error updating data";
-            set({ loading: false, error: errorMsg });
-            return { status: false, msg: errorMsg };
+          const errNum =
+            (data.errNum as string | undefined) ??
+            (inner?.errNum as string | undefined);
+          const apiMsg =
+            (data.msg as string | undefined) ??
+            (data.message as string | undefined) ??
+            (inner?.msg as string | undefined) ??
+            (inner?.message as string | undefined);
+          const completeFailed =
+            data?.status === false ||
+            (typeof errNum === "string" && errNum.startsWith("E"));
+          if (completeFailed) {
+            const errorMsg = apiMsg ?? "Error updating data";
+            // أخطاء حقول (E001 بريد…) لا نملأ error العام ليظهر توست عام
+            const isFieldError = errNum === "E001";
+            set({
+              loading: false,
+              error: isFieldError ? null : errorMsg,
+            });
+            return { status: false, msg: errorMsg, errNum };
           }
-          const apiUser = data?.user ?? data?.data?.user;
+          const innerPayload = (data as { data?: unknown })?.data as
+            | Record<string, unknown>
+            | undefined;
+          const apiUser =
+            (data?.user as Record<string, unknown>) ??
+            (innerPayload?.user as Record<string, unknown>) ??
+            (typeof innerPayload === "object" &&
+            innerPayload &&
+            "id" in innerPayload
+              ? innerPayload
+              : undefined);
           const { user: currentUser } = get();
+          const displayName =
+            `${payload.first_name} ${payload.last_name}`.trim() || "User";
           const mergedUser = currentUser
-            ? { ...currentUser, ...userData }
+            ? {
+                ...currentUser,
+                name: displayName,
+                email: payload.email,
+                phone: payload.phone,
+              }
             : null;
           if (apiUser) {
             const updatedUser: User = {
               id: String(apiUser?.id ?? mergedUser?.id ?? "user_unknown"),
               email: String(apiUser?.email ?? mergedUser?.email ?? ""),
-              name: String(apiUser?.name ?? mergedUser?.name ?? "User"),
-              phone: String(apiUser?.phone ?? mergedUser?.phone ?? ""),
+              name: String(
+                apiUser?.name ?? mergedUser?.name ?? displayName ?? "User",
+              ),
+              phone: String(
+                apiUser?.phone ?? mergedUser?.phone ?? payload.phone ?? "",
+              ),
               avatar: (apiUser?.avatar ?? mergedUser?.avatar) as
                 | string
                 | undefined,
@@ -714,21 +786,45 @@ export const useUserStore = create<UserState>()(
                 emailUpdates: true,
               },
             };
-            set({ user: updatedUser, loading: false, error: null });
+            set({
+              user: updatedUser,
+              needsProfileCompletion: false,
+              loading: false,
+              error: null,
+            });
           } else if (mergedUser) {
-            set({ user: mergedUser, loading: false, error: null });
+            set({
+              user: mergedUser,
+              needsProfileCompletion: false,
+              loading: false,
+              error: null,
+            });
           } else {
-            set({ loading: false });
+            set({ loading: false, needsProfileCompletion: false });
           }
           const msg = data?.message ?? data?.msg ?? "Data updated successfully";
           return { status: true, msg };
         } catch (err: unknown) {
           const errData = (
-            err as { response?: { data?: { message?: string } } }
+            err as {
+              response?: {
+                data?: {
+                  message?: string;
+                  msg?: string;
+                  errNum?: string;
+                };
+              };
+            }
           )?.response?.data;
-          const errorMsg = errData?.message ?? "Error updating data";
-          set({ error: errorMsg, loading: false });
-          return { status: false, msg: errorMsg };
+          const errorMsg =
+            errData?.msg ?? errData?.message ?? "Error updating data";
+          const errNum = errData?.errNum;
+          const isFieldError = errNum === "E001";
+          set({
+            error: isFieldError ? null : errorMsg,
+            loading: false,
+          });
+          return { status: false, msg: errorMsg, errNum };
         }
       },
 
@@ -796,21 +892,46 @@ export const useUserStore = create<UserState>()(
           user: null,
           token: null,
           isAuthenticated: false,
+          needsProfileCompletion: false,
           cartItems: [],
         });
       },
 
       // تحديث البروفايل عبر API (POST /api/auth/complete-profile)
-      updateProfile: async (userData: Partial<User>) => {
+      updateProfile: async (userData: {
+        name?: string;
+        email?: string;
+        phone?: string;
+        first_name?: string;
+        last_name?: string;
+        id_number?: string;
+        country_code?: string;
+        city_id?: string | number;
+        gender?: string;
+        avatar?: File | string | null;
+      }) => {
         const { user } = get();
         if (!user) {
           return { status: false, msg: "Not authenticated" };
         }
+        const parts = (userData.name ?? user.name ?? "").trim().split(/\s+/);
+        const first =
+          userData.first_name ?? parts[0] ?? "";
+        const last =
+          userData.last_name ?? parts.slice(1).join(" ") ?? "";
+        const avatarFile =
+          userData.avatar instanceof File ? userData.avatar : null;
         try {
           const res = await authService.completeProfile({
-            name: userData.name ?? user.name,
+            first_name: first,
+            last_name: last,
+            id_number: String(userData.id_number ?? ""),
+            phone: userData.phone ?? user.phone ?? "",
+            country_code: String(userData.country_code ?? "966"),
             email: userData.email ?? user.email,
-            account_type: "individual",
+            city_id: userData.city_id ?? 0,
+            gender: String(userData.gender ?? "male"),
+            avatar: avatarFile,
           });
           const data = res.data as {
             status?: boolean;
@@ -840,7 +961,18 @@ export const useUserStore = create<UserState>()(
             };
             set({ user: updatedUser });
           } else {
-            set({ user: { ...user, ...userData } });
+            set({
+              user: {
+                ...user,
+                name: userData.name ?? user.name,
+                email: userData.email ?? user.email,
+                phone: userData.phone ?? user.phone,
+                avatar:
+                  typeof userData.avatar === "string"
+                    ? userData.avatar
+                    : user.avatar,
+              },
+            });
           }
           const msg =
             data?.message ?? data?.msg ?? "Profile updated successfully";
@@ -1003,10 +1135,20 @@ export const useUserStore = create<UserState>()(
         user: state.user,
         token: state.token,
         isAuthenticated: state.isAuthenticated,
+        needsProfileCompletion: state.needsProfileCompletion,
         savedItems: state.savedItems,
         cartItems: state.cartItems,
         orders: state.orders,
       }),
+      merge: (persisted, current) => {
+        const p = persisted as Partial<UserState>;
+        return {
+          ...current,
+          ...p,
+          needsProfileCompletion: Boolean(p.needsProfileCompletion),
+          otpSent: false,
+        };
+      },
     },
   ),
 );

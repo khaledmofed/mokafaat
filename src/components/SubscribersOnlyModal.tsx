@@ -1,6 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { IoClose } from "react-icons/io5";
+import { TbPackage } from "react-icons/tb";
 
 export interface SubscribersOnlyModalProps {
   isOpen: boolean;
@@ -52,9 +53,13 @@ const SubscribersOnlyModal: React.FC<SubscribersOnlyModalProps> = ({
           <IoClose className="text-2xl" />
         </button>
 
-        {/* Placeholder for icon */}
         <div className="flex justify-center pt-6">
-          <div className="w-14 h-14 rounded-xl bg-gray-200 flex-shrink-0" aria-hidden />
+          <div
+            className="w-14 h-14 rounded-xl bg-[#fd671a]/10 flex items-center justify-center flex-shrink-0 text-[#fd671a]"
+            aria-hidden
+          >
+            <TbPackage className="w-8 h-8" aria-hidden />
+          </div>
         </div>
 
         <div className="p-6 text-center">

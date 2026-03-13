@@ -32,12 +32,14 @@ import {
   AboutPattern,
 } from "@assets";
 import { useUserStore } from "@stores/userStore";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   useWebOfferDetail,
   useSubscriptionStatus,
   useFavorites,
   useFavoriteToggle,
   useCreateOrder,
+  mokafaatKeys,
 } from "@hooks/api/useMokafaatQueries";
 import {
   mapApiOfferToModel,
@@ -94,6 +96,7 @@ const OfferDetailPage = () => {
   const token = useUserStore((s) => s.token);
   const { data: webOfferDetailData, isLoading: isOfferLoading } =
     useWebOfferDetail(offerId);
+  const queryClient = useQueryClient();
   const createOrder = useCreateOrder();
   const { data: subscriptionStatusData } = useSubscriptionStatus(!!token);
   const isSubscribed = isUserSubscribed(subscriptionStatusData);
@@ -304,6 +307,27 @@ const OfferDetailPage = () => {
           const raw = res as { data?: unknown };
           const data = raw?.data ?? raw;
           const root = (data as Record<string, unknown>) ?? {};
+          if (root.status === false) {
+            const errNum = root.errNum as string | undefined;
+            if (errNum === "E005") {
+              void queryClient.invalidateQueries({
+                queryKey: mokafaatKeys.subscriptionStatus,
+              });
+              setSubscribersOnlyModalOpen(true);
+              toast.error(
+                (root.msg as string) ||
+                  (isRTL
+                    ? "يجب أن يكون لديك اشتراك فعال"
+                    : "Active subscription required"),
+              );
+              return;
+            }
+            toast.error(
+              (root.msg as string) ||
+                (isRTL ? "تعذّر إنشاء الطلب" : "Could not create order"),
+            );
+            return;
+          }
           const inner = (root.data ?? root) as Record<string, unknown>;
           const order = (inner?.order ?? root.order) as
             | Record<string, unknown>
@@ -513,7 +537,13 @@ const OfferDetailPage = () => {
       <SubscribersOnlyModal
         isOpen={subscribersOnlyModalOpen}
         onClose={() => setSubscribersOnlyModalOpen(false)}
-        onSubscribe={() => navigate("/subscription/plans")}
+        onSubscribe={() =>
+          navigate("/subscription/plans", {
+            state: {
+              from: `${location.pathname}${location.search}`,
+            },
+          })
+        }
         onBackToOffer={() => setSubscribersOnlyModalOpen(false)}
       />
       <Helmet>
