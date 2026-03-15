@@ -57,17 +57,23 @@ const CardsPage = () => {
   }, [data]);
 
   const latestCards = useMemo((): CardOfferWithCompanyId[] => {
-    const arr = data?.latest_cards as Array<Record<string, unknown>> | undefined;
+    const arr = data?.latest_cards as
+      | Array<Record<string, unknown>>
+      | undefined;
     return mapApiHomeCardsToOffers(Array.isArray(arr) ? arr : []);
   }, [data]);
 
   const topSellingCards = useMemo((): CardOfferWithCompanyId[] => {
-    const arr = data?.top_selling_cards as Array<Record<string, unknown>> | undefined;
+    const arr = data?.top_selling_cards as
+      | Array<Record<string, unknown>>
+      | undefined;
     return mapApiHomeCardsToOffers(Array.isArray(arr) ? arr : []);
   }, [data]);
 
   const mostViewedCards = useMemo((): CardOfferWithCompanyId[] => {
-    const arr = data?.most_viewed_cards as Array<Record<string, unknown>> | undefined;
+    const arr = data?.most_viewed_cards as
+      | Array<Record<string, unknown>>
+      | undefined;
     return mapApiHomeCardsToOffers(Array.isArray(arr) ? arr : []);
   }, [data]);
 
@@ -126,15 +132,13 @@ const CardsPage = () => {
       />
 
       {merchants.length > 0 && (
-        <section className="container mx-auto px-4 py-10">
+        <section className="container mx-auto px-4 pb-10">
           <div className="text-start mb-4">
             <h2 className="text-[#400198] text-3xl font-bold">
               {isRTL ? "التجار" : "Merchants"}
             </h2>
             <p className="text-md text-gray-700 leading-relaxed">
-              {isRTL
-                ? "تصفح البطاقات حسب التاجر"
-                : "Browse cards by merchant"}
+              {isRTL ? "تصفح البطاقات حسب التاجر" : "Browse cards by merchant"}
             </p>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
