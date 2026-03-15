@@ -1,5 +1,8 @@
 import React, { useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { IoIosArrowRoundForward } from "react-icons/io";
+import { FiStar, FiEye, FiDownload, FiClock, FiGift, FiShoppingBag } from "react-icons/fi";
+import { BsHeart, BsHeartFill, BsShare } from "react-icons/bs";
 import { useIsRTL } from "@hooks";
 import {
   type Offer,
@@ -9,19 +12,18 @@ import {
 } from "@data/offers";
 import { API_BASE_URL } from "@config/api";
 import CurrencyIcon from "@components/CurrencyIcon";
-import { FiEye, FiShoppingBag } from "react-icons/fi";
-import { BsHeart, BsHeartFill, BsShare } from "react-icons/bs";
 import { useUserStore } from "@stores/userStore";
 import { useFavorites, useFavoriteToggle } from "@hooks/api/useMokafaatQueries";
 import { normalizeFavoritesList } from "@utils/favorites";
 import { toast } from "react-toastify";
+import { stripHtml } from "@utils/stripHtml";
 
 interface OfferCardProps {
   offer: Offer;
-  onOfferClick: (offer: Offer) => void;
+  onOfferClick?: (offer: Offer) => void;
 }
 
-const OfferCard: React.FC<OfferCardProps> = ({ offer, onOfferClick }) => {
+const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
   const isRTL = useIsRTL();
   const navigate = useNavigate();
   const isAuthenticated = useUserStore((s) => !!s.token);
@@ -42,6 +44,7 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer, onOfferClick }) => {
   );
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     if (!isAuthenticated) {
       navigate(
@@ -68,18 +71,10 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer, onOfferClick }) => {
     );
   };
 
-  // Remove HTML tags from text
-  const stripHtml = (html: string): string => {
-    return html.replace(/<[^>]*>/g, "").trim();
-  };
-
-  // Get company and category data - prefer API data if available
   const company = getRestaurantById(offer.companyId);
   const categoryInfo = offerCategories.find(
     (cat) => cat.key === offer.category,
   );
-
-  // Use API data if available, otherwise fallback to static data
   const displayCategoryName =
     offer.categoryName ||
     (categoryInfo ? (isRTL ? categoryInfo.ar : categoryInfo.en) : "");
@@ -87,7 +82,6 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer, onOfferClick }) => {
     offer.merchantName ||
     (company ? (isRTL ? company.name.ar : company.name.en) : "");
 
-  // صورة المتجر/المطعم: من API (merchantLogo) أو من البيانات الثابتة (company.logo)
   const storeImageUrl = useMemo(() => {
     if (offer.merchantLogo) {
       let url = offer.merchantLogo.trim();
@@ -108,31 +102,68 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer, onOfferClick }) => {
     return null;
   }, [offer.merchantLogo, company?.logo]);
 
-  const handleCategoryClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent triggering the card click
-    navigate(`/offers/${offer.category}`);
+  const validityText = offer.validity?.[isRTL ? "ar" : "en"] || "";
+
+  const getOfferTypeIcon = () => {
+    if (offer.isBestSeller) {
+      return <FiGift className="w-3 h-3 text-white" />;
+    }
+    if (offer.isNew) {
+      return <FiClock className="w-3 h-3 text-white" />;
+    }
+    return <FiGift className="w-3 h-3 text-white" />;
   };
 
-  const handleCompanyClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent triggering the card click
-    navigate(`/offers/${offer.category}/${offer.companyId}`);
+  const getOfferTypeText = () => {
+    if (offer.isBestSeller) {
+      return isRTL ? "الأكثر مبيعاً" : "Best Seller";
+    }
+    if (offer.isNew) {
+      return isRTL ? "جديد" : "New";
+    }
+    return isRTL ? "عرض" : "Offer";
   };
 
-  return (
-    <div
-      className="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl cursor-pointer flex flex-col h-full"
-      onClick={() => onOfferClick(offer)}
-    >
-      {/* Image Section */}
-      <div className="relative h-48 overflow-hidden flex-shrink-0">
+  const getOfferTypeColor = () => {
+    if (offer.isBestSeller) {
+      return "bg-orange-500";
+    }
+    if (offer.isNew) {
+      return "bg-green-500";
+    }
+    return "bg-purple-500";
+  };
+
+  const visitButtonText = isRTL ? "عرض التفاصيل" : "View Details";
+  const purchaseText = isRTL
+    ? `${offer.purchases} عملية شراء`
+    : `${offer.purchases} purchases`;
+  const featuresMoreText =
+    offer.features.length > 3
+      ? isRTL
+        ? `+${offer.features.length - 3} مميزات أخرى`
+        : `+${offer.features.length - 3} more features`
+      : "";
+
+  const offerDetailPath = `/offers/${offer.category}/${offer.companyId}/offer/${offer.id}`;
+
+  const cardContent = (
+    <>
+      {/* Image Section - مثل كارد البطاقات */}
+      <div className="relative h-[185px] overflow-hidden">
         <img
           src={getOfferImage(offer.image)}
           alt={offer.title[isRTL ? "ar" : "en"]}
           className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
         />
+
         <div className="absolute top-3 right-3 flex gap-2">
           <button
-            // onClick={() => onShareClick?.(offer.id)}
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
             className="w-8 h-8 bg-white bg-opacity-90 rounded-full flex items-center justify-center text-gray-700 hover:bg-opacity-100 transition-all duration-200"
           >
             <BsShare className="text-sm" />
@@ -140,7 +171,7 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer, onOfferClick }) => {
           <button
             type="button"
             onClick={handleFavoriteClick}
-            className="w-8 h-8 bg-white bg-opacity-90 rounded-full flex items-center justify-center text-gray-700 hover:bg-opacity-100 transition-all duration-200 disabled:opacity-50"
+            className="w-8 h-8 bg-white bg-opacity-90 rounded-full flex items-center justify-center text-gray-700 hover:bg-opacity-100 transition-all disabled:opacity-50"
             disabled={toggleFavorite.isPending}
           >
             {isFavorite ? (
@@ -150,149 +181,172 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer, onOfferClick }) => {
             )}
           </button>
         </div>
-        {/* Discount Badge */}
+
+        {/* نوع العرض - يسار الصورة */}
         <div className="absolute top-3 left-3">
-          <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">
-            {offer.discountPercentage}% {isRTL ? "خصم" : "OFF"}
-          </span>
+          <div
+            className={`${getOfferTypeColor()} text-white px-2 py-1 rounded text-xs font-medium`}
+          >
+            {getOfferTypeText()}
+          </div>
         </div>
 
-        {/* Status Badges */}
+        {/* خصم أو صلاحية - أسفل يسار الصورة */}
         <div className="absolute bottom-3 left-3 flex gap-2">
-          {offer.isNew && (
-            <span className="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
-              {isRTL ? "جديد" : "NEW"}
+          {offer.discountPercentage > 0 && (
+            <span className="bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">
+              {offer.discountPercentage}% {isRTL ? "خصم" : "OFF"}
             </span>
           )}
-          {offer.isBestSeller && (
-            <span className="bg-purple-500 text-white px-2 py-1 rounded-full text-xs font-medium">
-              {isRTL ? "الأكثر مبيعاً" : "BEST SELLER"}
+          {validityText && (
+            <span className="bg-white/20 text-white px-2 py-1 rounded text-xs font-medium">
+              {validityText}
             </span>
           )}
         </div>
       </div>
 
-      {/* Content Section - نفس الارتفاع بين كل الكاردات، السعر والزر يثبتان في الأسفل */}
-      <div className="p-4 flex flex-col flex-1 min-h-0">
-        <div className="flex flex-col flex-1 min-h-0">
-          <h3 className="text-lg font-bold text-gray-800 mb-1 line-clamp-2">
-            {offer.title[isRTL ? "ar" : "en"]}
-          </h3>
-
-          <p className="text-sm text-gray-600 mb-1.5 line-clamp-1">
-            {stripHtml(offer.description[isRTL ? "ar" : "en"])}
-          </p>
-
-          {/* Features */}
-          <div className="mb-2">
-            <div className="flex flex-wrap gap-1">
-              {offer.features.slice(0, 2).map((feature, index) => (
-                <span
-                  key={index}
-                  className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full"
-                >
-                  {feature}
-                </span>
-              ))}
-              {offer.features.length > 2 && (
-                <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                  +{offer.features.length - 2} {isRTL ? "أخرى" : "more"}
-                </span>
-              )}
-            </div>
+      {/* Content Section - نفس هيكل كارد البطاقات */}
+      <div className="px-4 py-6">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="w-5 h-5 bg-[#fd671a] rounded-full flex items-center justify-center">
+            {getOfferTypeIcon()}
           </div>
+          <span className="text-sm text-[#fd671a] font-medium">
+            {getOfferTypeText()}
+          </span>
+        </div>
 
-          {/* Breadcrumb Navigation - مع صور صغيرة للتصنيف والمتجر */}
-          <div className="mb-2">
-            <div className="flex flex-wrap items-center gap-1.5 text-xs">
-              {displayCategoryName && (
-                <>
-                  <button
-                    onClick={handleCategoryClick}
-                    className="flex items-center gap-1.5 text-[#400198] hover:text-[#3000a0] font-medium transition-colors hover:underline"
-                  >
-                    {categoryInfo?.icon != null && (
-                      <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center overflow-hidden rounded bg-[#400198]/10">
-                        {typeof categoryInfo.icon === "string" ? (
-                          <img
-                            src={categoryInfo.icon}
-                            alt=""
-                            className="h-full w-full object-contain"
-                          />
-                        ) : (
-                          React.createElement(
-                            categoryInfo.icon as unknown as React.ComponentType<{
-                              className?: string;
-                            }>,
-                            { className: "h-3 w-3 text-[#400198]" },
-                          )
-                        )}
-                      </span>
+        <h3 className="text-md font-bold text-gray-900 mb-2 line-clamp-2">
+          {offer.title[isRTL ? "ar" : "en"]}
+        </h3>
+
+        <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+          {stripHtml(offer.description[isRTL ? "ar" : "en"])}
+        </p>
+
+        {/* التصنيف والمتجر - مع الأيقونة وصورة المتجر */}
+        {(displayCategoryName || displayMerchantName) && (
+          <div className="mb-3 flex flex-wrap items-center gap-1.5 text-xs">
+            {displayCategoryName && (
+              <span className="flex items-center gap-1.5 text-gray-600 font-medium">
+                {categoryInfo?.icon != null && (
+                  <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center overflow-hidden rounded bg-[#400198]/10">
+                    {typeof categoryInfo.icon === "string" ? (
+                      <img
+                        src={categoryInfo.icon}
+                        alt=""
+                        className="h-full w-full object-contain"
+                      />
+                    ) : (
+                      React.createElement(
+                        categoryInfo.icon as React.ComponentType<{ className?: string }>,
+                        { className: "h-3 w-3 text-[#400198]" },
+                      )
                     )}
-                    <span>{displayCategoryName}</span>
-                  </button>
-                  {displayMerchantName && (
-                    <>
-                      <span className="text-gray-300">•</span>
-                      <button
-                        onClick={handleCompanyClick}
-                        className="flex items-center gap-1.5 text-[#400198] hover:text-[#3000a0] font-medium transition-colors hover:underline"
-                      >
-                        {storeImageUrl ? (
-                          <span className="relative h-5 w-5 flex-shrink-0 overflow-hidden rounded-full bg-gray-100 ring-1 ring-gray-200">
-                            <img
-                              src={storeImageUrl}
-                              alt=""
-                              className="h-full w-full object-cover"
-                            />
-                          </span>
-                        ) : (
-                          <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[#400198]/10">
-                            <FiShoppingBag className="h-3 w-3 text-[#400198]" />
-                          </span>
-                        )}
-                        <span>{displayMerchantName}</span>
-                      </button>
-                    </>
-                  )}
-                </>
-              )}
-            </div>
+                  </span>
+                )}
+                <span>{displayCategoryName}</span>
+              </span>
+            )}
+            {displayCategoryName && displayMerchantName && (
+              <span className="text-gray-300">•</span>
+            )}
+            {displayMerchantName && (
+              <span className="flex items-center gap-1.5 text-gray-600 font-medium">
+                {storeImageUrl ? (
+                  <span className="relative h-5 w-5 flex-shrink-0 overflow-hidden rounded-full bg-gray-100 ring-1 ring-gray-200">
+                    <img
+                      src={storeImageUrl}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                  </span>
+                ) : (
+                  <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-[#400198]/10">
+                    <FiShoppingBag className="h-3 w-3 text-[#400198]" />
+                  </span>
+                )}
+                <span>{displayMerchantName}</span>
+              </span>
+            )}
           </div>
+        )}
 
-          {/* Stats */}
-          <div className="flex items-center justify-between mb-2 text-sm text-gray-500">
-            <div className="flex items-center gap-1">
-              <span className="text-yellow-500">★</span>
-              <span>{offer.rating}</span>
-              <span>({offer.reviewsCount})</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <FiEye />
-              <span>{offer.views}</span>
-            </div>
+        {/* المميزات - pills */}
+        <div className="mb-4">
+          <div className="flex flex-wrap gap-2">
+            {offer.features.slice(0, 3).map((feature, index) => (
+              <div
+                key={index}
+                className="flex items-center gap-1 text-xs text-gray-600 bg-gray-100 px-2 py-1 rounded-full"
+              >
+                <div className="w-1 h-1 bg-purple-500 rounded-full" />
+                <span>{feature}</span>
+              </div>
+            ))}
+            {offer.features.length > 3 && (
+              <div className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                {featuresMoreText}
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Price - يثبت في أسفل منطقة المحتوى */}
-        <div className="flex items-center justify-between mt-auto pt-1">
+        {/* الإحصائيات */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1">
+              <FiStar className="w-4 h-4 text-[#B3B3B3]" />
+              <span className="text-sm text-[#B3B3B3]">{offer.rating}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <FiEye className="w-4 h-4 text-[#B3B3B3]" />
+              <span className="text-sm text-[#B3B3B3]">{offer.views}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <FiDownload className="w-4 h-4 text-[#B3B3B3]" />
+              <span className="text-sm text-[#B3B3B3]">{offer.downloads}</span>
+            </div>
+          </div>
+          <div className="text-xs text-gray-500">{purchaseText}</div>
+        </div>
+
+        <hr className="my-4 border-t border-[#e6e6e6]" />
+
+        {/* السعر والزر */}
+        <div className="flex items-center justify-between gap-1">
           <div className="flex items-center gap-2">
-            <span className="text-xl font-bold text-orange-500 flex items-center gap-1">
+            <span className="text-lg font-bold text-[#400198] flex items-center gap-1">
               {offer.discountPrice}
-              <CurrencyIcon className="text-orange-500" size={16} />
+              <CurrencyIcon className="text-[#400198]" size={16} />
             </span>
             <span className="text-sm text-gray-500 line-through flex items-center gap-1">
               {offer.originalPrice}
               <CurrencyIcon className="text-gray-500" size={12} />
             </span>
           </div>
-
-          <button className="text-orange-500 font-semibold text-sm hover:text-orange-600 transition-colors">
-            {isRTL ? "عرض التفاصيل" : "View Details"}
-          </button>
+          <span className="flex items-center gap-1 text-sm font-semibold text-[#400198] cursor-pointer hover:text-[#fd671a] transition-colors">
+            {visitButtonText}
+            <IoIosArrowRoundForward
+              className={`text-2xl transform ${
+                isRTL ? "rotate-[225deg]" : "-rotate-45"
+              }`}
+            />
+          </span>
         </div>
       </div>
-    </div>
+    </>
+  );
+
+  return (
+    <Link
+      to={offerDetailPath}
+      className="block bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl cursor-pointer flex flex-col h-full no-underline text-inherit"
+      style={{ direction: isRTL ? "rtl" : "ltr" }}
+    >
+      {cardContent}
+    </Link>
   );
 };
 

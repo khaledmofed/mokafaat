@@ -24,6 +24,7 @@ import {
   walletApi,
   profileApi,
   filtersApi,
+  membershipApi,
 } from "@network/services/mokafaatService";
 
 /** لغة حالية للـ query key (يعيد طلب البيانات عند تغيير اللغة) */
@@ -53,6 +54,10 @@ export const mokafaatKeys = {
   orderDetail: (id: string | number) => ["mokafaat", "orders", id] as const,
   couponsHome: ["mokafaat", "coupons", "home"] as const,
   cardsHome: ["mokafaat", "cards", "home"] as const,
+  cardDetail: (id: string | number) =>
+    ["mokafaat", "cards", "detail", id] as const,
+  cardsByMerchant: (id: string | number, params?: Record<string, unknown>) =>
+    ["mokafaat", "cards", "byMerchant", id, params] as const,
   webCards: (params?: Record<string, unknown>) =>
     ["mokafaat", "web", "cards", params] as const,
   webOffers: (params?: Record<string, unknown>) =>
@@ -78,6 +83,8 @@ export const mokafaatKeys = {
   walletBalance: ["mokafaat", "wallet", "balance"] as const,
   walletHistory: ["mokafaat", "wallet", "history"] as const,
   profile: ["mokafaat", "profile"] as const,
+  membershipVerify: (membershipNumber: string) =>
+    ["mokafaat", "membership", "verify", membershipNumber] as const,
 };
 
 // ========== Home ==========
@@ -270,6 +277,30 @@ export function useCardsHome() {
   });
 }
 
+/** GET /api/cards/:id — تفاصيل البطاقة (لصفحة البطاقة) */
+export function useCardDetail(cardId: string | undefined) {
+  return useQuery({
+    queryKey: cardId ? mokafaatKeys.cardDetail(cardId) : ["mokafaat", "cards", "detail", "skip"],
+    queryFn: () => cardsApi.detail(cardId!).then((r) => r.data),
+    enabled: !!cardId,
+  });
+}
+
+/** GET /api/cards/by-merchant/:id — تفاصيل التاجر وبطاقاته */
+export function useCardsByMerchant(
+  merchantId: string | undefined,
+  params?: Record<string, unknown>
+) {
+  const lang = useQueryLang();
+  return useQuery({
+    queryKey: merchantId
+      ? [...mokafaatKeys.cardsByMerchant(merchantId, params), lang]
+      : ["mokafaat", "cards", "byMerchant", "skip"],
+    queryFn: () => cardsApi.byMerchant(merchantId!, params).then((r) => r.data),
+    enabled: !!merchantId,
+  });
+}
+
 // ========== Web (للوحة الويب) ==========
 export function useWebCards(params?: Record<string, unknown>) {
   const lang = useQueryLang();
@@ -416,6 +447,18 @@ export function useSubscriptionHistory() {
   return useQuery({
     queryKey: [...mokafaatKeys.subscriptionHistory, lang],
     queryFn: () => subscriptionApi.history().then((r) => r.data),
+  });
+}
+
+/** GET /api/membership/verify/{membership_number} — للتحقق من العضوية (صفحة مسح QR، بدون توكن) */
+export function useMembershipVerify(membershipNumber: string | undefined) {
+  return useQuery({
+    queryKey: membershipNumber
+      ? mokafaatKeys.membershipVerify(membershipNumber)
+      : ["mokafaat", "membership", "verify", "skip"],
+    queryFn: () =>
+      membershipApi.verify(membershipNumber!).then((r) => r.data),
+    enabled: !!membershipNumber && membershipNumber.length > 0,
   });
 }
 

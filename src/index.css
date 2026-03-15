@@ -1009,6 +1009,12 @@ html[lang="ar"] .PropertiesCarousel .owl-theme .owl-nav button.owl-next {
   left: 0 !important;
   right: auto !important;
 }
+
+/* صفحة البطاقات: توسيط سلايدر التصنيفات */
+.CardsCategorySectionCarousel.CategoryCarousel .owl-stage {
+  justify-content: center !important;
+}
+
 .CategoryCarousel.PropertiesCarousel .owl-theme .owl-nav button.owl-next {
   left: 47px !important;
   right: auto !important;

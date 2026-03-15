@@ -1,0 +1,139 @@
+import React, { useMemo, useRef, useEffect, useState } from "react";
+import OwlCarousel from "react-owl-carousel";
+import { useIsRTL } from "@hooks";
+import { Pattern } from "@assets";
+import OfferCard from "@pages/cards/[companyId]/components/OfferCard";
+import type { CardOfferWithCompanyId } from "@network/mappers/cardsMapper";
+
+interface CategoryItem {
+  id: number;
+  name: string;
+  image?: string;
+}
+
+interface CardsSliderSectionProps {
+  title: string;
+  subtitle: string;
+  cards: CardOfferWithCompanyId[];
+  isLoading?: boolean;
+  categories?: CategoryItem[];
+}
+
+const SkeletonCard = () => (
+  <div className="bg-white rounded-xl shadow-lg overflow-hidden animate-pulse">
+    <div className="h-48 bg-gray-200" />
+    <div className="p-4">
+      <div className="h-6 bg-gray-200 rounded mb-2" />
+      <div className="h-4 bg-gray-200 rounded mb-3 w-3/4" />
+      <div className="flex gap-1 mb-4">
+        <div className="h-6 bg-gray-200 rounded-full w-16" />
+        <div className="h-6 bg-gray-200 rounded-full w-20" />
+      </div>
+      <div className="h-4 bg-gray-200 rounded mb-4 w-1/2" />
+      <div className="flex justify-between items-center">
+        <div className="h-6 bg-gray-200 rounded w-20" />
+        <div className="h-6 bg-gray-200 rounded w-24" />
+      </div>
+    </div>
+  </div>
+);
+
+const CardsSliderSection: React.FC<CardsSliderSectionProps> = ({
+  title,
+  subtitle,
+  cards,
+  isLoading = false,
+  categories,
+}) => {
+  const isRTL = useIsRTL();
+  const [carouselKey, setCarouselKey] = useState(0);
+  const owlCarouselRef = useRef<OwlCarousel | null>(null);
+
+  useEffect(() => {
+    setCarouselKey((prev) => prev + 1);
+  }, [isRTL]);
+
+  const owlCarouselOptions = useMemo(
+    () => ({
+      loop: cards.length > 4,
+      margin: 10,
+      nav: cards.length > 4,
+      dots: false,
+      autoplay: cards.length > 4,
+      autoplayTimeout: 5000,
+      autoplayHoverPause: true,
+      rtl: isRTL && cards.length < 4 ? "true" : "false",
+      responsive: {
+        0: { items: 1 },
+        600: { items: 2 },
+        1000: { items: 4 },
+      },
+    }),
+    [cards.length, isRTL],
+  );
+
+  return (
+    <section className="container mx-auto px-4 py-10 relative z-1">
+      <div
+        className={`absolute -top-20 w-1/2 sm:w-1/1 ${
+          isRTL ? "-left-10" : "-right-10"
+        } z-0 hidden sm:block`}
+        style={{ transform: "rotate(-20deg)" }}
+      >
+        <img src={Pattern} alt="" className="h-auto animate-float" />
+      </div>
+      <div className="text-start mb-4">
+        <h2 className="text-[#400198] text-3xl font-bold">{title}</h2>
+        <p className="text-md text-gray-700 leading-relaxed">{subtitle}</p>
+      </div>
+
+      <div
+        className="relative OffersCarousel PropertiesCarousel"
+        style={{
+          direction: isRTL && cards.length < 4 ? "rtl" : "ltr",
+        }}
+      >
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <SkeletonCard key={index} />
+            ))}
+          </div>
+        ) : (
+          cards.length > 0 && (
+            <OwlCarousel
+              key={carouselKey}
+              ref={owlCarouselRef}
+              className="owl-theme"
+              {...owlCarouselOptions}
+              style={{
+                direction: isRTL && cards.length < 4 ? "rtl" : "ltr",
+              }}
+            >
+              {cards.map((offer) => (
+                <div
+                  key={offer.id}
+                  className="item h-full"
+                  style={{ direction: isRTL ? "rtl" : "ltr" }}
+                >
+                  <OfferCard
+                    offer={offer}
+                    companyId={offer.companyId}
+                    categories={categories}
+                  />
+                </div>
+              ))}
+            </OwlCarousel>
+          )
+        )}
+        {!isLoading && cards.length === 0 && (
+          <div className="text-center py-12 text-gray-500">
+            {isRTL ? "لا توجد بطاقات متاحة حالياً" : "No cards available at the moment"}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+};
+
+export default CardsSliderSection;

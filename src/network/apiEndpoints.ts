@@ -73,6 +73,12 @@ export const API_ENDPOINTS = {
     status: `${API}/subscription/status`,
     history: `${API}/subscription/history`,
   },
+
+  // ========== Membership (تحقق من العضوية — عام، بدون توكن) ==========
+  membership: {
+    verify: (membershipNumber: string) =>
+      `${API}/membership/verify/${encodeURIComponent(membershipNumber)}`,
+  },
   // ========== Payment (callback after gateway redirect) ==========
   paymentCallback: `${API}/payment/callback`,
 

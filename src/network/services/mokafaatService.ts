@@ -167,6 +167,12 @@ export const subscriptionApi = {
   history: () => api.get(API_ENDPOINTS.subscription.history),
 };
 
+// ========== Membership verify (عام — بدون توكن، للتحقق من العضوية عند مسح QR) ==========
+export const membershipApi = {
+  verify: (membershipNumber: string) =>
+    api.get(API_ENDPOINTS.membership.verify(membershipNumber)),
+};
+
 // ========== Payment callback (بعد العودة من بوابة الدفع) ==========
 // الباكند قد يرد بصفحة HTML — نطلب النص فقط حتى لا يفشل التحويل لـ JSON
 export const paymentApi = {

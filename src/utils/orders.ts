@@ -30,8 +30,13 @@ export interface NormalizedOrder {
   /** من الـ API للتفاصيل والـ voucher */
   activationCode?: string;
   qrCodeUrl?: string;
+  barcodeUrl?: string;
+  /** رموز البطاقة (لطلبات البطاقات) */
+  cardCodes?: string[];
   voucherUrl?: string;
   usedAt?: string;
+  activatedAt?: string;
+  expiresAt?: string;
   item?: Record<string, unknown>;
   merchant?: Record<string, unknown>;
 }
@@ -99,6 +104,7 @@ function normalizeOrderRow(row: unknown): NormalizedOrder | null {
   }
   if (items.length === 0 && r.item && typeof r.item === "object") {
     const itemObj = r.item as Record<string, unknown>;
+    const price = itemObj.price ?? itemObj.price_after ?? r.total_price ?? r.unit_price ?? r.price ?? 0;
     items.push(
       normalizeOrderItem(
         {
@@ -106,7 +112,7 @@ function normalizeOrderRow(row: unknown): NormalizedOrder | null {
           name_ar: itemObj.name,
           name_en: itemObj.name,
           image: itemObj.image ?? "",
-          price: itemObj.price_after ?? r.total_price ?? r.price ?? 0,
+          price: typeof price === "number" ? price : parseFloat(String(price)) || 0,
           quantity: r.quantity ?? 1,
         },
         0
@@ -132,8 +138,12 @@ function normalizeOrderRow(row: unknown): NormalizedOrder | null {
     completedAt: completedAt != null ? String(completedAt) : undefined,
     activationCode: r.activation_code != null ? String(r.activation_code) : undefined,
     qrCodeUrl: typeof r.qr_code_url === "string" ? r.qr_code_url : undefined,
+    barcodeUrl: typeof r.barcode_url === "string" ? r.barcode_url : undefined,
+    cardCodes: Array.isArray(r.card_codes) ? (r.card_codes as string[]) : undefined,
     voucherUrl: typeof r.voucher_url === "string" ? r.voucher_url : undefined,
     usedAt: r.used_at != null ? String(r.used_at) : undefined,
+    activatedAt: r.activated_at != null ? String(r.activated_at) : undefined,
+    expiresAt: r.expires_at != null ? String(r.expires_at) : undefined,
     item: r.item && typeof r.item === "object" ? (r.item as Record<string, unknown>) : undefined,
     merchant: r.merchant && typeof r.merchant === "object" ? (r.merchant as Record<string, unknown>) : undefined,
   };

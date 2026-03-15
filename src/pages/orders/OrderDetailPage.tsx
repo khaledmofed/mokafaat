@@ -14,7 +14,7 @@ import { LoadingSpinner } from "@components/LoadingSpinner";
 import { normalizeOrdersList, type NormalizedOrder } from "@utils/orders";
 import { downloadVoucher } from "@utils/voucherDownload";
 
-/** شكل الطلب الخام من API تفاصيل الطلب */
+/** شكل الطلب الخام من API تفاصيل الطلب (عرض أو بطاقة) */
 interface RawOrder {
   id?: number;
   order_number?: string;
@@ -22,6 +22,7 @@ interface RawOrder {
   activation_code?: string;
   qr_code_url?: string;
   barcode_url?: string;
+  card_codes?: string[];
   created_at?: string;
   expires_at?: string;
   activated_at?: string;
@@ -35,10 +36,17 @@ interface RawOrder {
     name?: string;
     description?: string;
     image?: string;
+    price?: string;
+    old_price?: string;
     price_after?: string;
     price_before?: string;
     discount_percent?: string;
+    discount_percentage?: number | null;
     terms?: string;
+    features?: string;
+    validity_type?: string;
+    is_renewable?: boolean;
+    merchant?: { id?: number; name?: string; logo?: string; phone?: string };
   };
   merchant?: {
     id?: number;
@@ -174,6 +182,11 @@ const OrderDetailPage: React.FC = () => {
       : (order?.totalAmount ?? 0);
   const terms = rawOrderData?.item?.terms;
   const hasVoucher = !!(rawOrderData?.voucher_url ?? order?.voucherUrl);
+  const isCardOrder = (rawOrderData?.order_type ?? order?.orderType) === "card";
+  const barcodeUrl = rawOrderData?.barcode_url ?? order?.barcodeUrl;
+  const cardCodes = rawOrderData?.card_codes ?? order?.cardCodes ?? [];
+  const orderItem = rawOrderData?.item;
+  const orderMerchant = rawOrderData?.item?.merchant ?? rawOrderData?.merchant;
 
   return (
     <>
@@ -220,25 +233,57 @@ const OrderDetailPage: React.FC = () => {
             </div>
 
             {/* QR */}
-            {order.qrCodeUrl && (
+            {(order.qrCodeUrl || rawOrderData?.qr_code_url) && (
               <div className="flex justify-center mb-6">
                 <img
-                  src={order.qrCodeUrl}
+                  src={order.qrCodeUrl || rawOrderData?.qr_code_url || ""}
                   alt={isRTL ? "رمز الاستجابة السريعة" : "QR Code"}
                   className="w-48 h-48 object-contain"
                 />
               </div>
             )}
 
-            {/* رقم القسيمة */}
+            {/* باركود البطاقة */}
+            {barcodeUrl && (
+              <div className="flex justify-center mb-6">
+                <img
+                  src={barcodeUrl}
+                  alt={isRTL ? "الباركود" : "Barcode"}
+                  className="max-w-full h-16 object-contain"
+                />
+              </div>
+            )}
+
+            {/* رقم التفعيل / القسيمة */}
             {voucherNumber && (
               <div className="text-center mb-2">
                 <p className="text-2xl font-bold text-gray-900 tracking-widest font-mono">
                   {formatVoucherNumber(voucherNumber)}
                 </p>
                 <p className="text-sm text-gray-500 mt-1">
-                  {isRTL ? "رقم القسيمة" : "Voucher Number"}
+                  {isCardOrder
+                    ? (isRTL ? "رمز التفعيل" : "Activation Code")
+                    : (isRTL ? "رقم القسيمة" : "Voucher Number")}
                 </p>
+              </div>
+            )}
+
+            {/* رموز البطاقة (card_codes) */}
+            {cardCodes.length > 0 && (
+              <div className="mb-6">
+                <p className="text-sm text-gray-500 mb-2">
+                  {isRTL ? "رموز البطاقة" : "Card Code(s)"}
+                </p>
+                <ul className="space-y-1">
+                  {cardCodes.map((code, i) => (
+                    <li
+                      key={i}
+                      className="text-center font-mono font-semibold text-gray-900 bg-gray-50 py-2 px-3 rounded-lg"
+                    >
+                      {code}
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
 
@@ -257,16 +302,18 @@ const OrderDetailPage: React.FC = () => {
                   {isRTL ? "تاريخ الشراء" : "Purchase Date"}
                 </span>
               </div>
-              <div
-                className={`flex justify-between items-center text-sm gap-4 ${isRTL ? "flex-row-reverse" : ""}`}
-              >
-                <span className="text-gray-900 font-medium">
-                  {formatOrderDate(rawOrderData?.expires_at, isRTL)}
-                </span>
-                <span className="text-gray-500">
-                  {isRTL ? "انتهاء الكوبون" : "Coupon Expiry"}
-                </span>
-              </div>
+              {!isCardOrder && (
+                <div
+                  className={`flex justify-between items-center text-sm gap-4 ${isRTL ? "flex-row-reverse" : ""}`}
+                >
+                  <span className="text-gray-900 font-medium">
+                    {formatOrderDate(rawOrderData?.expires_at, isRTL)}
+                  </span>
+                  <span className="text-gray-500">
+                    {isRTL ? "انتهاء الكوبون" : "Coupon Expiry"}
+                  </span>
+                </div>
+              )}
               {order.items?.[0] && (
                 <div
                   className={`flex justify-between items-center text-sm gap-4 ${isRTL ? "flex-row-reverse" : ""}`}
@@ -275,7 +322,7 @@ const OrderDetailPage: React.FC = () => {
                     {order.items[0].title[isRTL ? "ar" : "en"]}
                   </span>
                   <span className="text-gray-500">
-                    {isRTL ? "العرض" : "Offer"}
+                    {isCardOrder ? (isRTL ? "البطاقة" : "Card") : (isRTL ? "العرض" : "Offer")}
                   </span>
                 </div>
               )}
@@ -287,7 +334,51 @@ const OrderDetailPage: React.FC = () => {
                     {rawOrderData.item.name}
                   </span>
                   <span className="text-gray-500">
-                    {isRTL ? "العرض" : "Offer"}
+                    {isCardOrder ? (isRTL ? "البطاقة" : "Card") : (isRTL ? "العرض" : "Offer")}
+                  </span>
+                </div>
+              )}
+              {/* التاجر (للبطاقات) */}
+              {orderMerchant && (orderMerchant as { name?: string }).name && (
+                <div
+                  className={`flex justify-between items-center text-sm gap-4 ${isRTL ? "flex-row-reverse" : ""}`}
+                >
+                  <span className="text-gray-900 font-medium flex items-center gap-2">
+                    {(orderMerchant as { logo?: string }).logo && (
+                      <img
+                        src={(orderMerchant as { logo?: string }).logo}
+                        alt=""
+                        className="w-6 h-6 rounded-full object-cover"
+                      />
+                    )}
+                    {(orderMerchant as { name?: string }).name}
+                  </span>
+                  <span className="text-gray-500">
+                    {isRTL ? "التاجر" : "Merchant"}
+                  </span>
+                </div>
+              )}
+              {rawOrderData?.activated_at && (
+                <div
+                  className={`flex justify-between items-center text-sm gap-4 ${isRTL ? "flex-row-reverse" : ""}`}
+                >
+                  <span className="text-gray-900 font-medium">
+                    {formatOrderDate(rawOrderData.activated_at, isRTL)}
+                  </span>
+                  <span className="text-gray-500">
+                    {isRTL ? "تاريخ التفعيل" : "Activated At"}
+                  </span>
+                </div>
+              )}
+              {rawOrderData?.expires_at && (
+                <div
+                  className={`flex justify-between items-center text-sm gap-4 ${isRTL ? "flex-row-reverse" : ""}`}
+                >
+                  <span className="text-gray-900 font-medium">
+                    {formatOrderDate(rawOrderData.expires_at, isRTL)}
+                  </span>
+                  <span className="text-gray-500">
+                    {isRTL ? "انتهاء الصلاحية" : "Expires At"}
                   </span>
                 </div>
               )}
@@ -295,14 +386,33 @@ const OrderDetailPage: React.FC = () => {
                 className={`flex justify-between items-center text-sm gap-4 ${isRTL ? "flex-row-reverse" : ""}`}
               >
                 <span className="text-gray-900 font-medium">
-                  {isRTL
-                    ? `${order.items?.reduce((s, i) => s + i.quantity, 0) ?? rawOrderData?.quantity ?? 1} صفقة`
-                    : `${order.items?.reduce((s, i) => s + i.quantity, 0) ?? rawOrderData?.quantity ?? 1} deal(s)`}
+                  {order.items?.reduce((s, i) => s + i.quantity, 0) ?? rawOrderData?.quantity ?? 1}
                 </span>
                 <span className="text-gray-500">
-                  {isRTL ? "عدد الصفقات المشتراة" : "Number of Deals Purchased"}
+                  {isCardOrder
+                    ? (isRTL ? "الكمية" : "Quantity")
+                    : (isRTL ? "عدد الصفقات المشتراة" : "Number of Deals Purchased")}
                 </span>
               </div>
+              {/* نوع الصلاحية (للبطاقات) */}
+              {isCardOrder && orderItem?.validity_type && (
+                <div
+                  className={`flex justify-between items-center text-sm gap-4 ${isRTL ? "flex-row-reverse" : ""}`}
+                >
+                  <span className="text-gray-900 font-medium">
+                    {orderItem.validity_type === "annual"
+                      ? (isRTL ? "سنوي" : "Annual")
+                      : orderItem.validity_type === "monthly"
+                        ? (isRTL ? "شهري" : "Monthly")
+                        : orderItem.validity_type === "quarterly"
+                          ? (isRTL ? "ربع سنوي" : "Quarterly")
+                          : orderItem.validity_type}
+                  </span>
+                  <span className="text-gray-500">
+                    {isRTL ? "نوع الصلاحية" : "Validity"}
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* خط متقطع ثم السعر الإجمالي */}

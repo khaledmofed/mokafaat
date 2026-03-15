@@ -31,6 +31,7 @@ import {
   SubscriptionSuccessPage,
   SubscriptionFailedPage,
 } from "@pages/Website";
+import { MembershipVerifyPage } from "@pages/membership";
 // لوحة المستخدم (App / الموبايل)
 import {
   ProfilePage,
@@ -300,6 +301,11 @@ export const routes: AppRouter[] = [
   {
     path: "/subscription/failed",
     element: SubscriptionFailedPage,
+    inLayout: false,
+  },
+  {
+    path: "/membership/:membershipNumber",
+    element: MembershipVerifyPage,
     inLayout: false,
   },
   {

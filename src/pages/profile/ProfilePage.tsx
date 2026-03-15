@@ -32,16 +32,19 @@ function formatDigitsSpaced(raw: string) {
   return parts.join(" ");
 }
 
-/** بطاقة تعريفية — مطابقة التصميم المرجعي */
+/** بطاقة تعريفية — مطابقة التصميم المرجعي (فعالة أخضر / منتهية رمادي) */
 function ProfileMembershipCard({
   fullName,
   membershipNumber,
   idNumber,
+  isActive = true,
 }: {
   fullName: string;
   membershipNumber: string;
   /** يظهر في سطر «رقم إثبات»؛ إن لم يُمرَّر يُستخدم رقم العضوية */
   idNumber?: string;
+  /** إن false تُعرض «الحالة منتهية» بتصميم رمادي */
+  isActive?: boolean;
 }) {
   const proofLine = String(idNumber || membershipNumber || "").trim();
   const qrValue = useMemo(
@@ -136,7 +139,7 @@ function ProfileMembershipCard({
           </p>
 
           <p
-            className="mb-5 font-mono text-2xl font-bold leading-snug   sm:mb-5 sm:text-2xl "
+            className="mb-5 font-mono text-2xl font-bold leading-snug sm:mb-5 sm:text-2xl "
             style={{
               wordBreak: "break-word",
               color: purpleDeep,
@@ -145,39 +148,67 @@ function ProfileMembershipCard({
             {displayBig}
           </p>
 
-          {/* حالة البطاقة — بطاقة خضراء فاتحة + درع + فعالة بلون رمادي داكن */}
+          {/* حالة البطاقة — فعالة (أخضر) أو منتهية (رمادي) */}
           <div
-            className="mx-auto flex max-w-[150px] flex-col items-center gap-1 rounded-2xl px-5 py-4"
-            style={{ backgroundColor: "#EAF8EE" }}
+            className={`mx-auto flex max-w-[150px] flex-col items-center gap-1 rounded-2xl px-5 py-4 ${
+              isActive ? "" : "bg-gray-100"
+            }`}
+            style={isActive ? { backgroundColor: "#EAF8EE" } : undefined}
           >
             <div
-              className="flex items-center justify-center rounded-xl p-2 sm:p-2"
-              style={{ backgroundColor: "rgb(4 120 87 / 15%)" }}
+              className={`flex items-center justify-center rounded-xl p-2 sm:p-2 ${
+                isActive ? "" : "bg-gray-200"
+              }`}
+              style={
+                isActive
+                  ? { backgroundColor: "rgb(4 120 87 / 15%)" }
+                  : undefined
+              }
             >
-              <svg
-                className="h-8 w-8 sm:h-8 sm:w-8"
-                viewBox="0 0 32 32"
-                fill="none"
-                aria-hidden
-              >
-                <path
-                  d="M16 2.5L5.5 6.2v7.8c0 6.2 4.3 12 10.5 13.5 6.2-1.5 10.5-7.3 10.5-13.5V6.2L16 2.5z"
-                  fill="#047857"
-                />
-                <path
-                  d="M14 16.2l2.2 2.2 4.8-4.8"
-                  stroke="white"
-                  strokeWidth="2.2"
+              {isActive ? (
+                <svg
+                  className="h-8 w-8 sm:h-8 sm:w-8"
+                  viewBox="0 0 32 32"
+                  fill="none"
+                  aria-hidden
+                >
+                  <path
+                    d="M16 2.5L5.5 6.2v7.8c0 6.2 4.3 12 10.5 13.5 6.2-1.5 10.5-7.3 10.5-13.5V6.2L16 2.5z"
+                    fill="#047857"
+                  />
+                  <path
+                    d="M14 16.2l2.2 2.2 4.8-4.8"
+                    stroke="white"
+                    strokeWidth="2.2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  className="h-8 w-8 sm:h-8 sm:w-8 text-gray-500"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                />
-              </svg>
+                  aria-hidden
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M12 6v6l4 2" />
+                </svg>
+              )}
             </div>
             <span className="text-[11px] text-gray-500 sm:text-xs">
               حالة البطاقة
             </span>
-            <span className="text-base font-bold text-gray-900 sm:text-lg">
-              فعالة
+            <span
+              className={`text-base font-bold sm:text-lg ${
+                isActive ? "text-gray-900" : "text-gray-600"
+              }`}
+            >
+              {isActive ? "فعالة" : "الحالة منتهية"}
             </span>
           </div>
         </div>
