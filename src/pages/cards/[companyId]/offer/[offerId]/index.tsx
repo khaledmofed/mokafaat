@@ -34,7 +34,6 @@ const validityLabel: Record<string, string> = {
 
 function mapApiRelatedToCardOffer(raw: Record<string, unknown>): CardOffer & { companyId: string } {
   const merchant = (raw.merchant as Record<string, unknown>) || {};
-  const category = (raw.category as Record<string, unknown>) || {};
   const id = String(raw.id ?? "");
   const companyId = String(merchant.id ?? raw.merchant_id ?? id);
   return {
@@ -58,9 +57,7 @@ function mapApiRelatedToCardOffer(raw: Record<string, unknown>): CardOffer & { c
     views: Number(raw.views_count ?? 0),
     downloads: 0,
     bookmarks: 0,
-    originalPrice: raw.old_price != null ? String(raw.old_price) : undefined,
-    discountPrice: String(raw.final_price ?? raw.price ?? "0"),
-    discountPercentage: raw.discount_percentage != null ? Number(raw.discount_percentage) : undefined,
+    originalPrice: raw.old_price != null ? Number(raw.old_price) : undefined,
   };
 }
 
@@ -87,11 +84,6 @@ const CardOfferDetailPage = () => {
     const data = raw?.data ?? raw;
     const c = (data as Record<string, unknown>)?.card as Record<string, unknown> | undefined;
     return c ?? null;
-  }, [cardDetailData]);
-
-  const userMeta = useMemo(() => {
-    const raw = cardDetailData as Record<string, unknown> | undefined;
-    return (raw?.user_meta ?? (raw?.data as Record<string, unknown>)?.user_meta) as Record<string, unknown> | undefined;
   }, [cardDetailData]);
 
   const relatedCards = useMemo((): (CardOffer & { companyId: string })[] => {
@@ -494,8 +486,8 @@ const CardOfferDetailPage = () => {
                     key={related.id}
                     offer={related}
                     companyId={related.companyId}
-                    onOfferClick={(o) =>
-                      navigate(`/cards/${o.companyId}/offer/${o.id}`)
+                    onOfferClick={() =>
+                      navigate(`/cards/${related.companyId}/offer/${related.id}`)
                     }
                   />
                 ))}
