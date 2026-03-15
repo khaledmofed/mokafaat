@@ -38,6 +38,7 @@ function ProfileMembershipCard({
   membershipNumber,
   idNumber,
   isActive = true,
+  membershipQrUrl,
 }: {
   fullName: string;
   membershipNumber: string;
@@ -45,6 +46,8 @@ function ProfileMembershipCard({
   idNumber?: string;
   /** إن false تُعرض «الحالة منتهية» بتصميم رمادي */
   isActive?: boolean;
+  /** رابط صورة QR من API البروفايل (membership_qr_url) — يُستخدم عند توفره */
+  membershipQrUrl?: string | null;
 }) {
   const proofLine = String(idNumber || membershipNumber || "").trim();
   const qrValue = useMemo(
@@ -55,10 +58,11 @@ function ProfileMembershipCard({
       }),
     [membershipNumber],
   );
-  const qrSrc = useMemo(() => {
+  const qrSrcFallback = useMemo(() => {
     const enc = encodeURIComponent(qrValue);
     return `https://api.qrserver.com/v1/create-qr-code/?size=200x200&ecc=M&data=${enc}`;
   }, [qrValue]);
+  const qrSrc = membershipQrUrl?.trim() || qrSrcFallback;
   const displayBig = formatDigitsSpaced(membershipNumber);
   /** تدرج خلفية: فوق #6A0DAD → تحت #4B0082 */
   const cardGradient = "linear-gradient(180deg, #6A0DAD 0%, #4B0082 100%)";
@@ -751,6 +755,11 @@ const ProfilePage: React.FC = () => {
                 fullName={cardFullName}
                 membershipNumber={membershipNumber}
                 idNumber={String(profileUserObj?.id_number ?? "").trim()}
+                membershipQrUrl={
+                  profileUserObj?.membership_qr_url != null
+                    ? String(profileUserObj.membership_qr_url)
+                    : undefined
+                }
               />
             )}
           </div>
