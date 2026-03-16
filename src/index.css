@@ -441,11 +441,11 @@ img.slider-1 {
 
 /* Background flip for Arabic */
 html[lang="ar"] .bg-cover {
-  transform: scaleX(-1);
+  /* transform: scaleX(-1); */
 }
 
 [data-lang="ar"] .bg-cover {
-  transform: scaleX(-1);
+  /* transform: scaleX(-1); */
 }
 
 body {
