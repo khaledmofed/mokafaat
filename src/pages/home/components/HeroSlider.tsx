@@ -38,10 +38,17 @@ const HeroSlider = () => {
 
   const { data: webHomeResponse, isSuccess } = useWebHome();
   const { data: appConfigResponse } = useAppConfig();
-  const social = (appConfigResponse as { data?: { config?: { social?: Record<string, string> } } })?.data?.config?.social;
+  const social = (
+    appConfigResponse as {
+      data?: { config?: { social?: Record<string, string> } };
+    }
+  )?.data?.config?.social;
 
   /** ترتيب وعرض كل روابط السوشيال من API - يمكن إضافة أي شبكة جديدة هنا */
-  const SOCIAL_ICONS: Record<string, { Icon: React.ComponentType<{ className?: string }>; label: string }> = {
+  const SOCIAL_ICONS: Record<
+    string,
+    { Icon: React.ComponentType<{ className?: string }>; label: string }
+  > = {
     facebook: { Icon: FaFacebook, label: "Facebook" },
     instagram: { Icon: FaInstagram, label: "Instagram" },
     twitter: { Icon: FaXTwitter, label: "Twitter" },
@@ -75,7 +82,7 @@ const HeroSlider = () => {
         gradient: DEFAULT_GRADIENTS[2],
       },
     ],
-    [t]
+    [t],
   );
 
   const apiSlides = useMemo(() => {
@@ -197,6 +204,7 @@ const HeroSlider = () => {
         style={{
           marginTop: "77px",
           height: "calc(70vh - 76px)",
+          minHeight: "477px",
         }}
         role="region"
         aria-label="Hero section"
