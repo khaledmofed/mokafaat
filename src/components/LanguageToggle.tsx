@@ -17,7 +17,7 @@ const LanguageToggle: React.FC<LanguageToggleProps> = ({
   const isRTL = useIsRTL();
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"languages" | "countries">(
-    "languages"
+    "languages",
   );
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -41,7 +41,18 @@ const LanguageToggle: React.FC<LanguageToggleProps> = ({
   ];
 
   const { data: appConfig } = useAppConfig() as {
-    data?: { data?: { config?: { countries?: Array<{ id: number; name: string; code: string; flag?: string }> } } };
+    data?: {
+      data?: {
+        config?: {
+          countries?: Array<{
+            id: number;
+            name: string;
+            code: string;
+            flag?: string;
+          }>;
+        };
+      };
+    };
   };
   const apiCountries = appConfig?.data?.config?.countries ?? [];
   const countries = apiCountries.map((c) => ({
@@ -49,7 +60,9 @@ const LanguageToggle: React.FC<LanguageToggleProps> = ({
     code: c.code,
     name: c.name,
     image: c.flag
-      ? (c.flag.startsWith("http") ? c.flag : `${API_BASE_URL}/storage/${c.flag}`)
+      ? c.flag.startsWith("http")
+        ? c.flag
+        : `${API_BASE_URL}/storage/${c.flag}`
       : undefined,
   }));
 
@@ -151,7 +164,7 @@ const LanguageToggle: React.FC<LanguageToggleProps> = ({
         <div
           className={`absolute top-full mt-2 w-96 bg-white rounded-xl shadow-lg border border-gray-200 z-50 overflow-hidden p-6 ${
             // Align dropdown with trigger depending on direction
-            isRTL ? "right-0" : "left-0"
+            isRTL ? "left-0" : "right-0"
           }`}
         >
           {/* Header Tabs */}
