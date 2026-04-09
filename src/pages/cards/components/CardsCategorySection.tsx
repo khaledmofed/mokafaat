@@ -152,22 +152,44 @@ const CardsCategorySection: React.FC<CardsCategorySectionProps> = ({
         className="w-full max-w-6xl px-4 z-10 mx-auto"
         style={{ marginTop: "-80px" }}
       >
-        <div
-          className="relative OffersCarousel PropertiesCarousel CategoryCarousel CardsCategorySectionCarousel"
-          style={{
-            direction: isRTL && displayCategories.length < 4 ? "rtl" : "ltr",
-          }}
-        >
-          <OwlCarousel
-            key={`cards-categories-${carouselKey}-${displayCategories.length}`}
-            className="owl-theme"
-            {...owlCarouselOptions}
+        {displayCategories.length >= 7 ? (
+          <div
+            className="relative OffersCarousel PropertiesCarousel CategoryCarousel CardsCategorySectionCarousel"
             style={{
               direction: isRTL && displayCategories.length < 4 ? "rtl" : "ltr",
             }}
           >
+            <OwlCarousel
+              key={`cards-categories-${carouselKey}-${displayCategories.length}`}
+              className="owl-theme"
+              {...owlCarouselOptions}
+              style={{
+                direction: isRTL && displayCategories.length < 4 ? "rtl" : "ltr",
+              }}
+            >
+              {displayCategories.map((cat) => (
+                <div key={String(cat.id)} className="item">
+                  <CardsCategoryCard
+                    image={cat.image ?? ""}
+                    title={cat.name}
+                    alt={cat.name}
+                    selected={selectedCategoryId === String(cat.id)}
+                    onClick={() => onSelectCategory(String(cat.id))}
+                  />
+                </div>
+              ))}
+            </OwlCarousel>
+          </div>
+        ) : (
+          <div
+            className="flex flex-wrap justify-center gap-3"
+            style={{ direction: isRTL ? "rtl" : "ltr" }}
+          >
             {displayCategories.map((cat) => (
-              <div key={String(cat.id)} className="item">
+              <div
+                key={String(cat.id)}
+                className="min-w-[120px] w-[140px] sm:w-[150px]"
+              >
                 <CardsCategoryCard
                   image={cat.image ?? ""}
                   title={cat.name}
@@ -177,8 +199,8 @@ const CardsCategorySection: React.FC<CardsCategorySectionProps> = ({
                 />
               </div>
             ))}
-          </OwlCarousel>
-        </div>
+          </div>
+        )}
       </div>
     </section>
   );

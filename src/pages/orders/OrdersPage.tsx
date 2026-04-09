@@ -135,11 +135,18 @@ const OrdersPage: React.FC = () => {
     cancelOrderMutation.mutate(cancelTargetId, {
       onSuccess: (res) => {
         const payload = (res as { data?: unknown })?.data ?? res;
+        const p = payload as Record<string, unknown>;
+        const nestedMessage =
+          (
+            (p?.data as Record<string, unknown> | undefined)?.order as
+              | Record<string, unknown>
+              | undefined
+          )?.message ?? p?.message;
         const msg =
-          (payload as Record<string, unknown>)?.msg ??
-          (payload as Record<string, unknown>)?.message ??
-          (isRTL ? "تم إلغاء الطلب" : "Order cancelled");
-        toast.success(String(msg));
+          (nestedMessage as string | undefined) ||
+          (p?.msg as string | undefined) ||
+          (isRTL ? "تم إلغاء الطلب بنجاح" : "Order cancelled successfully");
+        toast.success(msg);
         closeCancelModal();
       },
       onError: (err) => {

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Helmet } from "react-helmet-async";
@@ -6,6 +6,7 @@ import { IoCalendarOutline, IoFlashOutline } from "react-icons/io5";
 import { BsHeart, BsHeartFill } from "react-icons/bs";
 import { FaTag, FaPercent, FaUtensils } from "react-icons/fa";
 import { FiGrid, FiList } from "react-icons/fi";
+import OwlCarousel from "react-owl-carousel";
 import { copon1, copon2, copon3, copon4, cutCopon } from "@assets";
 import CouponsHero from "./components/CouponsHero";
 import GetStartedSection from "@pages/home/components/GetStartedSection";
@@ -21,6 +22,7 @@ import { useUserStore } from "@stores/userStore";
 import { useFavorites, useFavoriteToggle } from "@hooks/api/useMokafaatQueries";
 import { normalizeFavoritesList } from "@utils/favorites";
 import { toast } from "react-toastify";
+import CategoryCard from "@components/CategoryCard";
 
 type CouponDisplay = {
   id: string;
@@ -95,6 +97,7 @@ const CouponsPage = () => {
     null,
   );
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
+  const [categoriesCarouselKey, setCategoriesCarouselKey] = useState(0);
   const perPage = 9;
 
   const { data: couponsHomeResponse, isLoading: isLoadingCoupons } =
@@ -113,6 +116,51 @@ const CouponsPage = () => {
       | undefined;
     return Array.isArray(list) ? list : [];
   }, [homeData]);
+
+  const categoriesCarouselItems = useMemo(() => {
+    const normalized = categoriesList
+      .map((c) => {
+        const id = c?.id != null ? String(c.id) : "";
+        const name =
+          (c?.name as string | undefined) ??
+          (c?.title as string | undefined) ??
+          "";
+        const icon =
+          (c?.icon as string | undefined) ??
+          (c?.image as string | undefined) ??
+          (c?.logo as string | undefined) ??
+          "";
+        if (!id || !name) return null;
+        return { id, name, icon };
+      })
+      .filter(Boolean) as Array<{ id: string; name: string; icon: string }>;
+
+    // Match CardsCategorySection behavior: reverse items for RTL
+    return isRTL ? [...normalized].reverse() : normalized;
+  }, [categoriesList, isRTL]);
+
+  useEffect(() => {
+    setCategoriesCarouselKey((prev) => prev + 1);
+  }, [isRTL]);
+
+  const categoriesOwlCarouselOptions = useMemo(
+    () => ({
+      loop: categoriesCarouselItems.length > 4,
+      margin: 0,
+      nav: true,
+      dots: false,
+      autoplay: true,
+      autoplayTimeout: 4000,
+      autoplayHoverPause: true,
+      rtl: isRTL && categoriesCarouselItems.length < 4 ? "true" : "false",
+      responsive: {
+        0: { items: 2 },
+        640: { items: 3 },
+        1024: { items: 7 },
+      },
+    }),
+    [isRTL, categoriesCarouselItems.length],
+  );
 
   const allCouponsRaw = useMemo(() => {
     if (!homeData) return [];
@@ -306,7 +354,127 @@ const CouponsPage = () => {
           <LoadingSpinner />
         </div>
       ) : (
-        <section className="container mx-auto md:p-10 p-6 portfolio-mobile">
+        <>
+          {/* Categories (>=7 => slider, <7 => centered grid) */}
+          {categoriesCarouselItems.length > 0 && (
+            <section className="relative container mx-auto px-4 py-8 z-10">
+              <div
+                className="w-full max-w-6xl px-4 z-10 mx-auto"
+                style={{ marginTop: "-80px" }}
+              >
+                {categoriesCarouselItems.length >= 7 ? (
+                  <div
+                    className="relative OffersCarousel PropertiesCarousel CategoryCarousel"
+                    style={{
+                      direction:
+                        isRTL && categoriesCarouselItems.length < 4
+                          ? "rtl"
+                          : "ltr",
+                    }}
+                  >
+                    <OwlCarousel
+                      key={`coupons-categories-${categoriesCarouselKey}-${categoriesCarouselItems.length}`}
+                      className="owl-theme"
+                      {...categoriesOwlCarouselOptions}
+                      style={{
+                        direction:
+                          isRTL && categoriesCarouselItems.length < 4
+                            ? "rtl"
+                            : "ltr",
+                      }}
+                    >
+                      {/* All categories */}
+                      <div key="all" className="item">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedCategoryId("");
+                            setCurrentPage(1);
+                          }}
+                          className="w-full"
+                        >
+                          <CategoryCard
+                            icon="https://api.iconify.design/mdi:shape-outline.svg?color=%23400198"
+                            title={isRTL ? "كل التصنيفات" : "All categories"}
+                            alt={isRTL ? "كل التصنيفات" : "All categories"}
+                            selected={!selectedCategoryId}
+                          />
+                        </button>
+                      </div>
+
+                      {categoriesCarouselItems.map((cat) => (
+                        <div key={cat.id} className="item">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedCategoryId(cat.id);
+                              setCurrentPage(1);
+                            }}
+                            className="w-full"
+                          >
+                            <CategoryCard
+                              icon={
+                                cat.icon ||
+                                "https://api.iconify.design/mdi:shape-outline.svg?color=%23400198"
+                              }
+                              title={cat.name}
+                              alt={cat.name}
+                              selected={selectedCategoryId === cat.id}
+                            />
+                          </button>
+                        </div>
+                      ))}
+                    </OwlCarousel>
+                  </div>
+                ) : (
+                  <div
+                    className="flex flex-wrap justify-center gap-2"
+                    style={{ direction: isRTL ? "rtl" : "ltr" }}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedCategoryId("");
+                        setCurrentPage(1);
+                      }}
+                      className="rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-[#400198]/30 min-w-[120px]"
+                    >
+                      <CategoryCard
+                        icon="https://api.iconify.design/mdi:shape-outline.svg?color=%23400198"
+                        title={isRTL ? "كل التصنيفات" : "All categories"}
+                        alt={isRTL ? "كل التصنيفات" : "All categories"}
+                        selected={!selectedCategoryId}
+                      />
+                    </button>
+
+                    {categoriesCarouselItems.map((cat) => (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedCategoryId(cat.id);
+                          setCurrentPage(1);
+                        }}
+                        className="rounded-xl transition-all focus:outline-none focus:ring-2 focus:ring-[#400198]/30 min-w-[120px]"
+                      >
+                        <CategoryCard
+                          icon={
+                            cat.icon ||
+                            "https://api.iconify.design/mdi:shape-outline.svg?color=%23400198"
+                          }
+                          title={cat.name}
+                          alt={cat.name}
+                          selected={selectedCategoryId === cat.id}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </section>
+          )}
+
+          <section className="container mx-auto md:p-10 p-6 portfolio-mobile">
           {/* Filters + Search + View Mode */}
           <div className="flex items-center justify-between flex-wrap gap-4 mb-8">
             <div className="flex items-center gap-3 style-portfolio-button-mobile-container">
@@ -339,34 +507,6 @@ const CouponsPage = () => {
             </div>
 
             <div className="flex items-center gap-3">
-              {/* Category Filter (API) */}
-              <div className="w-full md:w-56">
-                <select
-                  value={selectedCategoryId}
-                  onChange={(e) => {
-                    setSelectedCategoryId(e.target.value);
-                    setCurrentPage(1);
-                  }}
-                  className="w-full px-5 py-3 rounded-full font-medium text-sm shadow-md transition-all duration-300 bg-white text-gray-700 hover:bg-gray-100 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#400198] focus:border-transparent"
-                >
-                  <option value="">
-                    {isRTL ? "كل التصنيفات" : "All categories"}
-                  </option>
-                  {categoriesList.map((c) => {
-                    const id = c?.id != null ? String(c.id) : "";
-                    const name =
-                      (c?.name as string | undefined) ??
-                      (c?.title as string | undefined) ??
-                      "";
-                    if (!id || !name) return null;
-                    return (
-                      <option key={id} value={id}>
-                        {name}
-                      </option>
-                    );
-                  })}
-                </select>
-              </div>
               {/* Search Input */}
               <div className="w-full md:w-64">
                 <input
@@ -712,7 +852,8 @@ const CouponsPage = () => {
               })}
             </div>
           )}
-        </section>
+          </section>
+        </>
       )}
 
       <GetStartedSection className="mt-16 mb-28" />
