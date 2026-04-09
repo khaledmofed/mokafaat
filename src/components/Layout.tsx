@@ -7,6 +7,7 @@ import {
   Navbar,
   ScrollToTop,
   ScrollToTopButton,
+  WhatsAppButton,
   // TopNav,
   // Splash,
   GlobalStyles,
@@ -46,6 +47,7 @@ const Layout = () => {
         <Navbar />
         <ScrollToTop />
         <Outlet />
+        <WhatsAppButton />
         <ScrollToTopButton />
         <Footer />
         <ToastContainer />

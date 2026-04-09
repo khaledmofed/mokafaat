@@ -6,135 +6,111 @@ import { Pattern, PatternNewProperty } from "../../../assets";
 import OwlCarousel from "react-owl-carousel";
 import { useIsRTL } from "../../../hooks";
 import { type Offer } from "@data/offers";
-import { useWebHome } from "@hooks/api/useMokafaatQueries";
+import { useWebOffers } from "@hooks/api/useMokafaatQueries";
 import { mapApiOffersToModels } from "@network/mappers/offersMapper";
+
+function extractOffersArray(res: unknown): Array<Record<string, unknown>> {
+  const root = (res as Record<string, unknown>) ?? {};
+  const data =
+    (root.data as Record<string, unknown>) ?? (root as Record<string, unknown>);
+  const offers = (data.offers ?? data.data ?? data) as unknown;
+  return Array.isArray(offers)
+    ? (offers as Array<Record<string, unknown>>)
+    : [];
+}
 
 const OffersSection: React.FC = () => {
   const { t, i18n } = useTranslation();
   const isRTL = useIsRTL();
   const navigate = useNavigate();
-  const [activeFilter, setActiveFilter] = useState("all");
+  const [activeFilter, setActiveFilter] = useState<
+    "latest" | "free" | "paid" | "suggested"
+  >("latest");
   const [carouselKey, setCarouselKey] = useState(0);
   const owlCarouselRef = useRef<OwlCarousel | null>(null);
 
-  // Fetch offers from API
-  const { data: webHomeResponse, isLoading: apiLoading } = useWebHome();
+  // Fetch offers from API: /api/web/offers?category_id&price_min&price_max&pricing_type&search&sort_by
+  const { data: latestRes, isLoading: latestLoading } = useWebOffers({
+    sort_by: "latest",
+    per_page: 50,
+  });
+  const { data: freeRes, isLoading: freeLoading } = useWebOffers({
+    sort_by: "latest",
+    per_page: 50,
+  });
+  const { data: paidRes, isLoading: paidLoading } = useWebOffers({
+    sort_by: "latest",
+    per_page: 50,
+  });
+  const { data: suggestedRes, isLoading: suggestedLoading } = useWebOffers({
+    sort_by: "best_selling",
+    per_page: 50,
+  });
 
   // Force re-render when language or direction changes
   useEffect(() => {
     setCarouselKey((prev) => prev + 1);
   }, [i18n.language, isRTL]);
 
-  // Extract offers from API response
-  const apiOffers = useMemo(() => {
-    if (!webHomeResponse) return { today: [], new: [], best_selling: [] };
-    const res = webHomeResponse as Record<string, unknown>;
-    const data = res?.data as Record<string, unknown> | undefined;
-    const offers = data?.offers as
-      | Record<string, Array<Record<string, unknown>>>
-      | undefined;
-    if (!offers) return { today: [], new: [], best_selling: [] };
-    return {
-      today: Array.isArray(offers.today) ? offers.today : [],
-      new: Array.isArray(offers.new) ? offers.new : [],
-      best_selling: Array.isArray(offers.best_selling)
-        ? offers.best_selling
-        : [],
-    };
-  }, [webHomeResponse]);
-
-  // Map API offers to frontend models
-  const mappedOffers = useMemo(() => {
-    return {
-      today: mapApiOffersToModels(apiOffers.today),
-      new: mapApiOffersToModels(apiOffers.new),
-      best_selling: mapApiOffersToModels(apiOffers.best_selling),
-    };
-  }, [apiOffers]);
-
-  // Get filtered offers based on active filter
-  const displayOffers = useMemo(() => {
-    switch (activeFilter) {
-      case "today":
-        return mappedOffers.today;
-      case "new":
-        return mappedOffers.new;
-      case "bestseller":
-        return mappedOffers.best_selling;
-      case "all":
-      default: {
-        // Combine all offers, removing duplicates by id
-        const allOffers = [
-          ...mappedOffers.today,
-          ...mappedOffers.new,
-          ...mappedOffers.best_selling,
-        ];
-        const uniqueOffers = allOffers.filter(
-          (offer, index, self) =>
-            index === self.findIndex((o) => o.id === offer.id)
-        );
-        return uniqueOffers;
-      }
-    }
-  }, [activeFilter, mappedOffers]);
-
-  const filters = [
-    {
-      key: "all",
-      label: t("home.offers.filters.all"),
-      count:
-        mappedOffers.today.length +
-        mappedOffers.new.length +
-        mappedOffers.best_selling.length,
-    },
-    {
-      key: "today",
-      label: t("home.offers.filters.today"),
-      count: mappedOffers.today.length,
-    },
-    {
-      key: "new",
-      label: t("home.offers.filters.new"),
-      count: mappedOffers.new.length,
-    },
-    {
-      key: "bestseller",
-      label: t("home.offers.filters.bestseller"),
-      count: mappedOffers.best_selling.length,
-    },
-  ];
-
-  // OwlCarousel options
-  const owlCarouselOptions = useMemo(
-    () => ({
-      loop: displayOffers.length > 4, // Only loop if there are more than 4 items
-      margin: 10,
-      nav: displayOffers.length > 4, // Only show navigation if there are more than 4 items
-      dots: false,
-      autoplay: displayOffers.length > 4, // Only autoplay if there are more than 4 items
-      autoplayTimeout: 5000,
-      autoplayHoverPause: true,
-      rtl: (isRTL && displayOffers.length < 4) ? "true" : "false",
-      responsive: {
-        0: {
-          items: 1,
-        },
-        600: {
-          items: 2,
-        },
-        1000: {
-          items: 4,
-        },
-      },
-    }),
-    [displayOffers.length, isRTL]
+  const latestOffers = useMemo(
+    () => mapApiOffersToModels(extractOffersArray(latestRes)),
+    [latestRes],
+  );
+  const freeOffers = useMemo(
+    () =>
+      mapApiOffersToModels(extractOffersArray(freeRes)).filter(
+        (o) => Number(o.platformPrice ?? 0) <= 0,
+      ),
+    [freeRes],
+  );
+  const paidOffers = useMemo(
+    () =>
+      mapApiOffersToModels(extractOffersArray(paidRes)).filter(
+        (o) => Number(o.platformPrice ?? 0) > 0,
+      ),
+    [paidRes],
+  );
+  const suggestedOffers = useMemo(
+    () => mapApiOffersToModels(extractOffersArray(suggestedRes)),
+    [suggestedRes],
   );
 
-  const handleFilterChange = (filterKey: string) => {
-    setActiveFilter(filterKey);
-    // Force re-render of carousel by changing key
-    setCarouselKey((prev) => prev + 1);
-  };
+  const displayOffers = useMemo(() => {
+    switch (activeFilter) {
+      case "free":
+        return freeOffers;
+      case "paid":
+        return paidOffers;
+      case "suggested":
+        return suggestedOffers;
+      case "latest":
+      default:
+        return latestOffers;
+    }
+  }, [activeFilter, freeOffers, paidOffers, suggestedOffers, latestOffers]);
+
+  const apiLoading =
+    latestLoading || freeLoading || paidLoading || suggestedLoading;
+
+  const makeOwlOptions = useMemo(
+    () => (len: number) => ({
+      loop: len > 1,
+      margin: 10,
+      nav: len > 1,
+      dots: len > 1,
+      autoplay: len > 1,
+      autoplayTimeout: 5000,
+      autoplayHoverPause: true,
+      // عند استخدام OwlCarousel نجعل الاتجاه دائماً LTR
+      rtl: false,
+      responsive: {
+        0: { items: 1 },
+        600: { items: 2 },
+        1000: { items: 4 },
+      },
+    }),
+    [],
+  );
 
   const handleOfferClick = (offer: Offer) => {
     navigate(`/offers/${offer.category}/${offer.companyId}/offer/${offer.id}`);
@@ -158,6 +134,42 @@ const OffersSection: React.FC = () => {
       </div>
     </div>
   );
+
+  const owlOptions = useMemo(
+    () => makeOwlOptions(displayOffers.length),
+    [displayOffers.length, makeOwlOptions],
+  );
+  const filters = useMemo(
+    () => [
+      {
+        key: "latest" as const,
+        label: isRTL ? "أحدث العروض" : "Latest",
+        count: latestOffers.length,
+      },
+      {
+        key: "free" as const,
+        label: isRTL ? "عروض مجانية" : "Free",
+        count: freeOffers.length,
+      },
+      {
+        key: "paid" as const,
+        label: isRTL ? "عروض مدفوعة" : "Paid",
+        count: paidOffers.length,
+      },
+      {
+        key: "suggested" as const,
+        label: isRTL ? "نقترحها عليك" : "Suggested",
+        count: suggestedOffers.length,
+      },
+    ],
+    [
+      isRTL,
+      latestOffers.length,
+      freeOffers.length,
+      paidOffers.length,
+      suggestedOffers.length,
+    ],
+  );
   return (
     <section
       className="pb-24 pt-40 relative overflow-hidden z-1"
@@ -171,7 +183,7 @@ const OffersSection: React.FC = () => {
       >
         <img src={Pattern} alt="offers" className="h-auto animate-float" />
       </div>
-      <div className="container mx-auto px-4 pt-16">
+      <div className="container mx-auto px-4 pt-16 relative z-10">
         {/* Section Header */}
         <div className="text-start mb-4">
           <h2 className="text-[#400198] text-3xl font-bold">
@@ -183,11 +195,18 @@ const OffersSection: React.FC = () => {
         </div>
 
         {/* Filter Tabs */}
-        <div className="flex justify-start mb-8 gap-3 relative z-10 w-1/2">
+        <div
+          className="flex justify-start mb-8 gap-3 relative z-10 flex-wrap"
+          style={{ width: "90%" }}
+        >
           {filters.map((filter) => (
             <button
               key={filter.key}
-              onClick={() => handleFilterChange(filter.key)}
+              type="button"
+              onClick={() => {
+                setActiveFilter(filter.key);
+                setCarouselKey((prev) => prev + 1);
+              }}
               className={`px-5 py-3 rounded-full font-medium text-sm shadow-md transition-all duration-300 ${
                 activeFilter === filter.key
                   ? "bg-[#400198] text-white shadow-lg"
@@ -202,36 +221,41 @@ const OffersSection: React.FC = () => {
         {/* Products Carousel */}
         <div
           className="relative OffersCarousel PropertiesCarousel"
-          style={{
-            direction: isRTL && displayOffers.length < 4 ? "rtl" : "ltr",
-          }}
+          style={{ direction: "ltr" }}
         >
           {apiLoading ? (
-            // Loading skeleton
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pb-10">
               {Array.from({ length: 4 }).map((_, index) => (
                 <SkeletonCard key={index} />
               ))}
             </div>
           ) : displayOffers.length === 0 ? (
-            // No offers message
-            <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">
-                {isRTL
-                  ? "لا توجد عروض متاحة حالياً"
-                  : "No offers available at the moment"}
+            <div className="text-center py-10">
+              <p className="text-gray-500">
+                {isRTL ? "لا توجد عروض" : "No offers"}
               </p>
             </div>
+          ) : isRTL && displayOffers.length < 4 ? (
+            // في العربية ومع عدد عناصر أقل من 4: لا نستخدم OwlCarousel ونطبق RTL
+            <div
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pb-10"
+              style={{ direction: "rtl" }}
+            >
+              {displayOffers.map((offer) => (
+                <OfferCard
+                  key={offer.id}
+                  offer={offer}
+                  onOfferClick={handleOfferClick}
+                />
+              ))}
+            </div>
           ) : (
-            // Products Carousel with key to force re-render
             <OwlCarousel
-              key={carouselKey}
+              key={`${carouselKey}-${activeFilter}`}
               ref={owlCarouselRef}
               className="owl-theme"
-              {...owlCarouselOptions}
-              style={{
-                direction: isRTL && displayOffers.length < 4 ? "rtl" : "ltr",
-              }}
+              {...owlOptions}
+              style={{ direction: "ltr" }}
             >
               {displayOffers.map((offer) => (
                 <div
@@ -249,6 +273,7 @@ const OffersSection: React.FC = () => {
         {/* View More Button */}
         <div className="text-center mt-2 z-10 relative">
           <button
+            type="button"
             onClick={() => (window.location.href = "/offers")}
             className="bg-[#400198] lg:mx-auto hover:scale-105 transition-transform duration-300 text-base sm:text-base px-8 sm:px-8 lg:px-8 py-4 sm:py-4 font-semibold rounded-full text-white flex items-center gap-2"
           >
@@ -267,7 +292,6 @@ const OffersSection: React.FC = () => {
           className="h-auto animate-float"
         />
       </div>
-
     </section>
   );
 };

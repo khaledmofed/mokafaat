@@ -5,8 +5,16 @@ import { type Offer } from "@data/offers";
 import OfferCard from "./OfferCard";
 import OwlCarousel from "react-owl-carousel";
 import { Pattern } from "@assets";
-import { useWebHome } from "@hooks/api/useMokafaatQueries";
+import { useWebOffers } from "@hooks/api/useMokafaatQueries";
 import { mapApiOffersToModels } from "@network/mappers/offersMapper";
+
+function extractOffersArray(res: unknown): Array<Record<string, unknown>> {
+  const root = (res as Record<string, unknown>) ?? {};
+  const data =
+    (root.data as Record<string, unknown>) ?? (root as Record<string, unknown>);
+  const offers = (data.offers ?? data.data ?? data) as unknown;
+  return Array.isArray(offers) ? (offers as Array<Record<string, unknown>>) : [];
+}
 
 const LatestOffersSection: React.FC = () => {
   const isRTL = useIsRTL();
@@ -14,26 +22,14 @@ const LatestOffersSection: React.FC = () => {
   const [carouselKey, setCarouselKey] = useState(0);
   const owlCarouselRef = useRef<OwlCarousel | null>(null);
 
-  const { data: webHomeResponse, isLoading: apiLoading } = useWebHome();
+  const { data: latestRes, isLoading: apiLoading } = useWebOffers({
+    sort_by: "latest",
+  });
 
-  const latestOffers = useMemo(() => {
-    if (!webHomeResponse) return [];
-    const res = webHomeResponse as Record<string, unknown>;
-    const data = res?.data as Record<string, unknown> | undefined;
-    const offers = data?.offers as
-      | Record<string, Array<Record<string, unknown>>>
-      | undefined;
-    if (!offers) return [];
-    const all = [
-      ...(Array.isArray(offers.today) ? offers.today : []),
-      ...(Array.isArray(offers.new) ? offers.new : []),
-      ...(Array.isArray(offers.best_selling) ? offers.best_selling : []),
-    ];
-    const unique = all.filter(
-      (o, i, arr) => arr.findIndex((x) => String(x?.id) === String(o?.id)) === i
-    );
-    return mapApiOffersToModels(unique).slice(0, 8);
-  }, [webHomeResponse]);
+  const offers = useMemo(
+    () => mapApiOffersToModels(extractOffersArray(latestRes)).slice(0, 8),
+    [latestRes],
+  );
 
   // Force re-render when language or direction changes
   useEffect(() => {
@@ -43,14 +39,14 @@ const LatestOffersSection: React.FC = () => {
   // OwlCarousel options
   const owlCarouselOptions = useMemo(
     () => ({
-      loop: latestOffers.length > 4,
+      loop: offers.length > 4,
       margin: 10,
-      nav: latestOffers.length > 4,
+      nav: offers.length > 4,
       dots: false,
-      autoplay: latestOffers.length > 4,
+      autoplay: offers.length > 4,
       autoplayTimeout: 5000,
       autoplayHoverPause: true,
-      rtl: (isRTL && latestOffers.length < 4) ? "true" : "false",
+      rtl: false,
       responsive: {
         0: {
           items: 1,
@@ -63,7 +59,7 @@ const LatestOffersSection: React.FC = () => {
         },
       },
     }),
-    [latestOffers.length, isRTL]
+    [offers.length]
   );
 
   const handleOfferClick = (offer: Offer) => {
@@ -114,7 +110,7 @@ const LatestOffersSection: React.FC = () => {
       <div
         className="relative OffersCarousel PropertiesCarousel"
         style={{
-          direction: isRTL && latestOffers.length < 4 ? "rtl" : "ltr",
+          direction: "ltr",
         }}
       >
         {apiLoading ? (
@@ -123,18 +119,31 @@ const LatestOffersSection: React.FC = () => {
               <SkeletonCard key={index} />
             ))}
           </div>
+        ) : isRTL && offers.length < 4 ? (
+          <div
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            style={{ direction: "rtl" }}
+          >
+            {offers.map((offer) => (
+              <OfferCard
+                key={offer.id}
+                offer={offer}
+                onOfferClick={handleOfferClick}
+              />
+            ))}
+          </div>
         ) : (
-          latestOffers.length > 0 && (
+          offers.length > 0 && (
             <OwlCarousel
               key={carouselKey}
               ref={owlCarouselRef}
               className="owl-theme"
               {...owlCarouselOptions}
               style={{
-                direction: isRTL && latestOffers.length < 4 ? "rtl" : "ltr",
+                direction: "ltr",
               }}
             >
-              {latestOffers.map((offer) => (
+              {offers.map((offer) => (
                 <div
                   key={offer.id}
                   className="item h-full"
@@ -146,7 +155,7 @@ const LatestOffersSection: React.FC = () => {
             </OwlCarousel>
           )
         )}
-        {!apiLoading && latestOffers.length === 0 && (
+        {!apiLoading && offers.length === 0 && (
           <div className="text-center py-12 text-gray-500">
             {isRTL
               ? "لا توجد عروض متاحة حالياً"

@@ -163,7 +163,7 @@ const CategorySection: React.FC = () => {
       autoplay: true,
       autoplayTimeout: 4000,
       autoplayHoverPause: true,
-      rtl: isRTL && categories.length < 4 ? "true" : "false",
+      rtl: isRTL ? "true" : "false",
       responsive: {
         0: { items: 2 },
         640: { items: 3 },
@@ -182,14 +182,24 @@ const CategorySection: React.FC = () => {
       autoplay: true,
       autoplayTimeout: 4000,
       autoplayHoverPause: true,
-      rtl: isRTL && fallbackCategories.length < 4 ? "true" : "false",
+      rtl: isRTL ? "true" : "false",
       responsive: {
         0: { items: 2 },
         640: { items: 3 },
         1024: { items: 7 },
       },
     }),
-    [isRTL, fallbackCategories.length],
+    [isRTL],
+  );
+
+  const shouldUseStaticOnLarge = categories.length < 7;
+  const staticItems = useMemo(
+    () => categoriesForDisplay.slice(0, 6),
+    [categoriesForDisplay],
+  );
+  const staticFallbackItems = useMemo(
+    () => fallbackForDisplay.slice(0, 6),
+    [fallbackForDisplay],
   );
 
   // عرض loading state إذا كان الـ API ما زال يحمل
@@ -202,18 +212,35 @@ const CategorySection: React.FC = () => {
             marginTop: "-80px",
           }}
         >
+          {/* Large screens: إذا أقل من 7 عناصر، اعرضهم ثابتين وموسطين (بدون سلايدر) */}
           <div
-            className="relative OffersCarousel PropertiesCarousel CategoryCarousel"
+            className={`hidden lg:flex items-stretch justify-center gap-3 ${isRTL ? "flex-row-reverse" : ""}`}
+            dir={isRTL ? "rtl" : "ltr"}
+          >
+            {staticFallbackItems.map((category) => (
+              <div key={category.id} className="w-[160px] xl:w-[170px]">
+                <CategoryCard
+                  icon={category.icon}
+                  title={category.title}
+                  alt={category.alt}
+                  categoryKey={category.key}
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* Small/medium screens: استخدم السلايدر كما هو */}
+          <div
+            className="lg:hidden relative OffersCarousel PropertiesCarousel CategoryCarousel"
             style={{
-              direction: isRTL && fallbackCategories.length < 4 ? "rtl" : "ltr",
+              direction: isRTL ? "rtl" : "ltr",
             }}
           >
             <OwlCarousel
               className="owl-theme"
               {...loadingCarouselOptions}
               style={{
-                direction:
-                  isRTL && fallbackCategories.length < 4 ? "rtl" : "ltr",
+                direction: isRTL ? "rtl" : "ltr",
               }}
             >
               {fallbackForDisplay.map((category) => (
@@ -249,28 +276,53 @@ const CategorySection: React.FC = () => {
         <div
           className="relative OffersCarousel PropertiesCarousel CategoryCarousel"
           style={{
-            direction: isRTL && categories.length < 4 ? "rtl" : "ltr",
+            direction: isRTL ? "rtl" : "ltr",
           }}
         >
-          <OwlCarousel
-            key={`categories-${categories.length}`}
-            className="owl-theme"
-            {...owlCarouselOptions}
-            style={{
-              direction: isRTL && categories.length < 4 ? "rtl" : "ltr",
-            }}
+          {/* Large screens: إذا أقل من 7 عناصر، اعرض 6 عناصر جنب بعض بدون سلايدر ووسّطهم */}
+          {shouldUseStaticOnLarge && (
+            <div
+              className={`hidden lg:flex items-stretch justify-center gap-3 ${isRTL ? "flex-row-reverse" : ""}`}
+              dir={isRTL ? "rtl" : "ltr"}
+            >
+              {staticItems.map((category) => (
+                <div key={category.id} className="w-[160px] xl:w-[170px]">
+                  <CategoryCard
+                    icon={category.icon}
+                    title={category.title}
+                    alt={category.alt}
+                    categoryKey={category.key}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Small/medium screens OR (large with 7+ items): استخدم السلايدر */}
+          <div
+            className={`${shouldUseStaticOnLarge ? "lg:hidden" : ""}`}
+            style={{ direction: isRTL ? "rtl" : "ltr" }}
           >
-            {categoriesForDisplay.map((category) => (
-              <div key={category.id} className="item">
-                <CategoryCard
-                  icon={category.icon}
-                  title={category.title}
-                  alt={category.alt}
-                  categoryKey={category.key}
-                />
-              </div>
-            ))}
-          </OwlCarousel>
+            <OwlCarousel
+              key={`categories-${categories.length}`}
+              className="owl-theme"
+              {...owlCarouselOptions}
+              style={{
+                direction: isRTL ? "rtl" : "ltr",
+              }}
+            >
+              {categoriesForDisplay.map((category) => (
+                <div key={category.id} className="item">
+                  <CategoryCard
+                    icon={category.icon}
+                    title={category.title}
+                    alt={category.alt}
+                    categoryKey={category.key}
+                  />
+                </div>
+              ))}
+            </OwlCarousel>
+          </div>
         </div>
       </div>
     </section>

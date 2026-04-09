@@ -12,6 +12,7 @@ import NavigationLinks from "./NavigationLinks";
 import PrimaryGradientButton from "./PrimaryGradientButton";
 import SocialMediaButton from "./SocialMediaButton";
 import ScrollToTopButton from "./ScrollToTopButton";
+import WhatsAppButton from "./WhatsAppButton";
 import PrimaryButton from "./PrimaryButton";
 import SecondaryButton from "./SecondaryButton";
 import PageHeader from "./PageHeader";
@@ -53,6 +54,7 @@ export {
   PrimaryGradientButton,
   SocialMediaButton,
   ScrollToTopButton,
+  WhatsAppButton,
   PrimaryButton,
   SecondaryButton,
   PageHeader,

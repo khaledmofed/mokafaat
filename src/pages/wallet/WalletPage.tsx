@@ -7,6 +7,7 @@ import {
   usePointsBalance,
   usePointsHistory,
   useWallet,
+  useWalletHistory,
   usePointsRedeem,
 } from "@hooks/api/useMokafaatQueries";
 import { toast } from "react-toastify";
@@ -20,10 +21,47 @@ function getPointsBalance(data: unknown): { points: number; value?: number } {
   return { points, value };
 }
 
-function getWalletBalance(data: unknown): number {
-  const d = (data as Record<string, unknown>)?.data ?? data;
-  const obj = d as Record<string, unknown>;
-  return Number(obj?.balance ?? obj?.amount ?? 0) || 0;
+function getWalletSummary(data: unknown): {
+  walletBalance: number;
+  pointsBalance: number;
+  pointsValueSar: number;
+  walletTransactions: Array<Record<string, unknown>>;
+  pointsTransactions: Array<Record<string, unknown>>;
+} {
+  const root = (data as Record<string, unknown>)?.data ?? data;
+  const rootObj = (root ?? {}) as Record<string, unknown>;
+
+  // Expected shape: { data: { wallet: { ... } } }
+  const wallet =
+    (rootObj?.wallet as Record<string, unknown> | undefined) ??
+    ((rootObj?.data as Record<string, unknown> | undefined)?.wallet as
+      | Record<string, unknown>
+      | undefined) ??
+    {};
+
+  const walletBalance = Number(wallet.wallet_balance ?? 0) || 0;
+  const pointsBalance = Number(wallet.points_balance ?? 0) || 0;
+  const pointsValueSar = Number(wallet.points_value_sar ?? 0) || 0;
+
+  const walletHistory =
+    (wallet.wallet_history as Record<string, unknown> | undefined) ?? {};
+  const pointsHistory =
+    (wallet.points_history as Record<string, unknown> | undefined) ?? {};
+
+  const walletTransactionsRaw = walletHistory.transactions as unknown;
+  const pointsTransactionsRaw = pointsHistory.transactions as unknown;
+
+  return {
+    walletBalance,
+    pointsBalance,
+    pointsValueSar,
+    walletTransactions: Array.isArray(walletTransactionsRaw)
+      ? (walletTransactionsRaw as Array<Record<string, unknown>>)
+      : [],
+    pointsTransactions: Array.isArray(pointsTransactionsRaw)
+      ? (pointsTransactionsRaw as Array<Record<string, unknown>>)
+      : [],
+  };
 }
 
 function getHistoryList(data: unknown): Array<Record<string, unknown>> {
@@ -41,12 +79,24 @@ const WalletPage: React.FC = () => {
   const { data: pointsData, isLoading: pointsLoading, isError: pointsError } = usePointsBalance();
   const { data: pointsHistoryData, isLoading: pointsHistoryLoading } = usePointsHistory();
   const { data: walletData, isLoading: walletLoading, isError: walletError } = useWallet();
+  const { data: walletHistoryData, isLoading: walletHistoryLoading } = useWalletHistory();
   const redeemMutation = usePointsRedeem();
 
-  const { points, value: pointsValue } = getPointsBalance(pointsData);
-  const walletBalance = getWalletBalance(walletData);
-  const pointsList = getHistoryList(pointsHistoryData);
-  const walletList = getHistoryList(walletData);
+  const { points: pointsFromPointsApi, value: pointsValueFromPointsApi } =
+    getPointsBalance(pointsData);
+  const walletSummary = getWalletSummary(walletData);
+
+  const points = walletSummary.pointsBalance || pointsFromPointsApi;
+  const pointsValue =
+    walletSummary.pointsValueSar || pointsValueFromPointsApi;
+
+  const walletBalance = walletSummary.walletBalance;
+
+  // Prefer dedicated endpoints (if any), otherwise fall back to /api/wallet nested history.
+  const pointsList =
+    getHistoryList(pointsHistoryData) || walletSummary.pointsTransactions;
+  const walletList =
+    getHistoryList(walletHistoryData) || walletSummary.walletTransactions;
 
   const onRedeem = () => {
     redeemMutation.mutate(undefined, {
@@ -147,10 +197,10 @@ const WalletPage: React.FC = () => {
 
             <div className="bg-white rounded-lg shadow-sm p-6">
               <h3 className="text-lg font-bold text-gray-900 mb-6">{t("wallet.transaction_log")}</h3>
-              {(activeTab === "points" ? pointsHistoryLoading : walletLoading) && (
+              {(activeTab === "points" ? pointsHistoryLoading : walletHistoryLoading) && (
                 <div className="text-center py-6 text-gray-500">{t("wallet.loading")}</div>
               )}
-              {!pointsHistoryLoading && !walletLoading && (
+              {!pointsHistoryLoading && !walletHistoryLoading && (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {(activeTab === "transactions" ? walletList : pointsList).map((item, idx) => (
                     <WalletTransactionRow

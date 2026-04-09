@@ -5,6 +5,7 @@ import OffersHero from "./components/OffersHero";
 import CategorySection from "./components/CategorySection";
 import LatestOffersSection from "./components/LatestOffersSection";
 import WeeklyDiscountsSection from "./components/WeeklyDiscountsSection";
+import PaidOffersSection from "./components/PaidOffersSection";
 import SuggestedOffersSection from "./components/SuggestedOffersSection";
 import GetStartedSection from "@pages/home/components/GetStartedSection";
 
@@ -25,6 +26,8 @@ const OffersPage = () => {
       <LatestOffersSection />
 
       <WeeklyDiscountsSection />
+
+      <PaidOffersSection />
 
       <SuggestedOffersSection />
 

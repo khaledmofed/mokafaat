@@ -106,6 +106,7 @@ export function mapApiOfferToModel(
       image: fixedImage,
       images: images.length > 0 ? images : undefined,
       originalPrice: priceBefore,
+      // في صفحة التفاصيل نستخدم price_after كسعر العرض (الخصم)
       discountPrice: priceAfter,
       discountPercentage: discountPercent,
       validity: {

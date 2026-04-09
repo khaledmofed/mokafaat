@@ -524,12 +524,8 @@ const OfferDetailPage = () => {
     );
   }
 
-  const unitPrice =
-    Number(
-      offer.platformPrice !== undefined && offer.platformPrice !== null
-        ? offer.platformPrice
-        : offer.discountPrice,
-    ) || 0;
+  // سعر صفحة تفاصيل العرض يجب أن يكون price_after (discountPrice) وليس price
+  const unitPrice = Number(offer.discountPrice) || 0;
   const totalPrice = unitPrice * quantity;
 
   return (

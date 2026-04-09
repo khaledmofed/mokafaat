@@ -355,7 +355,9 @@ const OfferCard: React.FC<OfferCardProps> = ({
               </div>
               <div className="flex items-center gap-1">
                 <FiDownload className="w-4 h-4 text-[#B3B3B3]" />
-                <span className="text-sm text-[#B3B3B3]">{offer.downloads}</span>
+                <span className="text-sm text-[#B3B3B3]">
+                  {offer.downloads}
+                </span>
               </div>
             </div>
             <div className="text-xs text-gray-500">{purchaseText}</div>

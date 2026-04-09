@@ -1,7 +1,14 @@
 import React, { useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { IoIosArrowRoundForward } from "react-icons/io";
-import { FiStar, FiEye, FiDownload, FiClock, FiGift, FiShoppingBag } from "react-icons/fi";
+import {
+  FiStar,
+  FiEye,
+  FiDownload,
+  FiClock,
+  FiGift,
+  FiShoppingBag,
+} from "react-icons/fi";
 import { BsHeart, BsHeartFill, BsShare } from "react-icons/bs";
 import { useIsRTL } from "@hooks";
 import {
@@ -146,6 +153,10 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
       : "";
 
   const offerDetailPath = `/offers/${offer.category}/${offer.companyId}/offer/${offer.id}`;
+  // في كارد العرض نعرض price فقط، ونعامل null كـ 0 (مجاني)
+  const displayPrice = offer.platformPrice ?? 0;
+  const hasPrice = Number.isFinite(displayPrice) && displayPrice > 0;
+  // لا نعرض السعر القديم (originalPrice) في كارد العرض
 
   const cardContent = (
     <>
@@ -240,7 +251,9 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
                       />
                     ) : (
                       React.createElement(
-                        categoryInfo.icon as React.ComponentType<{ className?: string }>,
+                        categoryInfo.icon as React.ComponentType<{
+                          className?: string;
+                        }>,
                         { className: "h-3 w-3 text-[#400198]" },
                       )
                     )}
@@ -317,14 +330,17 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
         {/* السعر والزر */}
         <div className="flex items-center justify-between gap-1">
           <div className="flex items-center gap-2">
-            <span className="text-lg font-bold text-[#400198] flex items-center gap-1">
-              {offer.discountPrice}
-              <CurrencyIcon className="text-[#400198]" size={16} />
-            </span>
-            <span className="text-sm text-gray-500 line-through flex items-center gap-1">
-              {offer.originalPrice}
-              <CurrencyIcon className="text-gray-500" size={12} />
-            </span>
+            {hasPrice ? (
+              <span className="text-lg font-bold text-[#400198] flex items-center gap-1">
+                {displayPrice}
+                <CurrencyIcon className="text-[#400198]" size={16} />
+              </span>
+            ) : (
+              <span className="text-lg font-bold text-green-600">
+                {isRTL ? "مجاني" : "Free"}
+              </span>
+            )}
+            {/* لا نعرض السعر القديم */} 
           </div>
           <span className="flex items-center gap-1 text-sm font-semibold text-[#400198] cursor-pointer hover:text-[#fd671a] transition-colors">
             {visitButtonText}

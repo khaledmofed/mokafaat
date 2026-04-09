@@ -593,116 +593,128 @@ const ProfilePage: React.FC = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Profile Information */}
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow-sm p-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-6">
-                {t("profile.profile_info")}
-              </h2>
-
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <IoPersonOutline className="inline w-4 h-4 ml-1" />
-                    الاسم الكامل
-                  </label>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-[#440798] focus:border-[#440798]"
-                    />
-                  ) : (
-                    <p className="text-gray-900">{displayUser.name}</p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <IoMailOutline className="inline w-4 h-4 ml-1" />
-                    البريد الإلكتروني
-                  </label>
-                  {isEditing ? (
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-[#440798] focus:border-[#440798]"
-                    />
-                  ) : (
-                    <p className="text-gray-900">{displayUser.email}</p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <IoCallOutline className="inline w-4 h-4 ml-1" />
-                    رقم الهاتف
-                  </label>
-                  {isEditing ? (
-                    <input
-                      type="tel"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-[#440798] focus:border-[#440798]"
-                    />
-                  ) : (
-                    <p className="text-gray-900">
-                      {displayUser.phone || "غير محدد"}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <IoCalendarOutline className="inline w-4 h-4 ml-1" />
-                    تاريخ الانضمام
-                  </label>
-                  <p className="text-gray-900">
-                    {displayUser.createdAt
-                      ? new Date(displayUser.createdAt).toLocaleDateString(
-                          "ar-SA",
-                        )
-                      : "—"}
-                  </p>
-                </div>
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+          {/* Main content */}
+          <div className="lg:col-span-8">
+            {/* Profile Information */}
+            <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden" dir="rtl">
+              <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between gap-3">
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900">
+                  {t("profile.profile_info")}
+                </h2>
+                {!isEditing ? (
+                  <span className="text-xs sm:text-sm text-gray-500">
+                    {t("profile.profile_info")}
+                  </span>
+                ) : (
+                  <span className="text-xs sm:text-sm text-[#440798] font-semibold">
+                    وضع التعديل
+                  </span>
+                )}
               </div>
 
-              {isEditing && (
-                <div className="flex space-x-4 space-x-reverse mt-6">
-                  <button
-                    onClick={handleSave}
-                    disabled={isLoading}
-                    className="bg-[#440798] text-white px-6 py-2 rounded-md hover:bg-[#440798c9] transition-colors disabled:opacity-50"
-                  >
-                    {isLoading ? "جاري الحفظ..." : "حفظ التغييرات"}
-                  </button>
-                  <button
-                    onClick={handleCancel}
-                    className="bg-gray-300 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-400 transition-colors"
-                  >
-                    إلغاء
-                  </button>
+              <div className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-4">
+                    <label className="block text-xs font-semibold text-gray-600 mb-2">
+                      <IoPersonOutline className="inline w-4 h-4 ml-1" />
+                      الاسم الكامل
+                    </label>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-[#440798] focus:border-[#440798]"
+                      />
+                    ) : (
+                      <p className="text-gray-900 font-semibold">{displayUser.name}</p>
+                    )}
+                  </div>
+
+                  <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-4">
+                    <label className="block text-xs font-semibold text-gray-600 mb-2">
+                      <IoMailOutline className="inline w-4 h-4 ml-1" />
+                      البريد الإلكتروني
+                    </label>
+                    {isEditing ? (
+                      <input
+                        type="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-[#440798] focus:border-[#440798]"
+                      />
+                    ) : (
+                      <p className="text-gray-900">{displayUser.email}</p>
+                    )}
+                  </div>
+
+                  <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-4">
+                    <label className="block text-xs font-semibold text-gray-600 mb-2">
+                      <IoCallOutline className="inline w-4 h-4 ml-1" />
+                      رقم الهاتف
+                    </label>
+                    {isEditing ? (
+                      <input
+                        type="tel"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-[#440798] focus:border-[#440798]"
+                      />
+                    ) : (
+                      <p className="text-gray-900">{displayUser.phone || "غير محدد"}</p>
+                    )}
+                  </div>
+
+                  <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-4">
+                    <label className="block text-xs font-semibold text-gray-600 mb-2">
+                      <IoCalendarOutline className="inline w-4 h-4 ml-1" />
+                      تاريخ الانضمام
+                    </label>
+                    <p className="text-gray-900">
+                      {displayUser.createdAt
+                        ? new Date(displayUser.createdAt).toLocaleDateString("ar-SA")
+                        : "—"}
+                    </p>
+                  </div>
                 </div>
-              )}
+
+                {isEditing && (
+                  <div className="mt-6 flex flex-col sm:flex-row gap-3 sm:gap-4 sm:justify-end">
+                    <button
+                      onClick={handleSave}
+                      disabled={isLoading}
+                      className="bg-[#440798] text-white px-6 py-3 rounded-xl hover:bg-[#350775] transition-colors disabled:opacity-50 font-bold"
+                    >
+                      {isLoading ? "جاري الحفظ..." : "حفظ التغييرات"}
+                    </button>
+                    <button
+                      onClick={handleCancel}
+                      className="bg-gray-100 text-gray-800 px-6 py-3 rounded-xl hover:bg-gray-200 transition-colors font-bold border border-gray-200"
+                    >
+                      إلغاء
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
-          {/* Subscription & Preferences */}
-          <div className="lg:col-span-1">
-            {/* Subscription status card */}
-            <div
-              className={`rounded-xl shadow-sm p-5 mb-6 border-2 ${
-                isSubscribed
-                  ? "bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200"
-                  : "bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200"
-              }`}
-            >
+          {/* Sidebar */}
+          <div className="lg:col-span-4">
+            <div className="lg:sticky lg:top-[96px] space-y-6">
+              {/* Subscription status card */}
+              <div
+                className={`rounded-2xl shadow-sm p-5 border-2 ${
+                  isSubscribed
+                    ? "bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200"
+                    : "bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200"
+                }`}
+                dir="rtl"
+              >
               <div className="flex items-start gap-4">
                 <div
                   className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
@@ -748,20 +760,21 @@ const ProfilePage: React.FC = () => {
                   )}
                 </div>
               </div>
-            </div>
+              </div>
 
-            {showMembershipCard && membershipNumber && (
-              <ProfileMembershipCard
-                fullName={cardFullName}
-                membershipNumber={membershipNumber}
-                idNumber={String(profileUserObj?.id_number ?? "").trim()}
-                membershipQrUrl={
-                  profileUserObj?.membership_qr_url != null
-                    ? String(profileUserObj.membership_qr_url)
-                    : undefined
-                }
-              />
-            )}
+              {showMembershipCard && membershipNumber && (
+                <ProfileMembershipCard
+                  fullName={cardFullName}
+                  membershipNumber={membershipNumber}
+                  idNumber={String(profileUserObj?.id_number ?? "").trim()}
+                  membershipQrUrl={
+                    profileUserObj?.membership_qr_url != null
+                      ? String(profileUserObj.membership_qr_url)
+                      : undefined
+                  }
+                />
+              )}
+            </div>
           </div>
         </div>
       </div>

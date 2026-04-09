@@ -87,10 +87,29 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({
 
   const setLanguage = (lng: string) => {
     console.log("LanguageProvider: Setting language to:", lng);
-    setCurrentLanguage(lng);
-    if (token) {
-      settingsApi.updateLanguage(lng).catch(() => {});
+    if (!lng || lng === currentLanguage) return;
+
+    // Persist immediately so reload boots in correct language.
+    localStorage.setItem("language", lng);
+
+    if (lng === "ar") {
+      document.documentElement.setAttribute("dir", "rtl");
+      document.documentElement.setAttribute("lang", "ar");
+    } else {
+      document.documentElement.setAttribute("dir", "ltr");
+      document.documentElement.setAttribute("lang", lng);
     }
+
+    // Best-effort update backend preference (if logged in).
+    if (token) settingsApi.updateLanguage(lng).catch(() => {});
+
+    // Change i18n language then hard reload (to fully reset UI/layout state).
+    void i18n.changeLanguage(lng).finally(() => {
+      window.location.reload();
+    });
+
+    // Keep state consistent until reload happens.
+    setCurrentLanguage(lng);
   };
 
   return (

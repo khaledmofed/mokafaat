@@ -52,7 +52,56 @@ const CategoryOffersPage = () => {
   );
   const perPage = 9;
 
-  const { data: webHomeResponse } = useWebHome();
+  const { data: webHomeResponse, isLoading: isWebHomeLoading } = useWebHome();
+
+  const SkeletonBlock = ({ className }: { className: string }) => (
+    <div className={`animate-pulse rounded-lg bg-gray-200 ${className}`} />
+  );
+
+  const CategoryPageSkeleton = () => (
+    <div className="min-h-screen bg-gray-50">
+      <section className="relative w-full bg-[#1D0843] overflow-hidden min-h-[200px] flex items-center justify-center">
+        <div className="absolute inset-0 bg-primary opacity-30" />
+        <div className="relative pt-24 pb-10 px-6 mx-auto max-w-screen-xl text-center lg:pt-24 lg:pb-10 lg:px-12 flex flex-col justify-center z-10 w-full">
+          <div className="flex items-center justify-center gap-4 mb-4">
+            <SkeletonBlock className="w-10 h-10" />
+            <SkeletonBlock className="h-9 w-56" />
+          </div>
+          <SkeletonBlock className="h-5 w-80 mx-auto" />
+        </div>
+        <div className="absolute -bottom-10 transform z-9">
+          <img src={AboutPattern} alt="Pattern" className="w-full h-96 animate-float" />
+        </div>
+      </section>
+
+      <section className="container mx-auto md:py-10 py-6 px-4">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <SkeletonBlock className="h-10 w-24 mb-2" />
+            <SkeletonBlock className="h-4 w-48" />
+          </div>
+          <div className="flex items-center gap-3">
+            <SkeletonBlock className="h-12 w-64 rounded-full" />
+            <SkeletonBlock className="h-12 w-28 rounded-full" />
+            <SkeletonBlock className="h-12 w-24 rounded-full" />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="bg-white rounded-xl shadow-lg overflow-hidden">
+              <SkeletonBlock className="h-[185px] w-full" />
+              <div className="p-4">
+                <SkeletonBlock className="h-5 w-3/4 mb-3" />
+                <SkeletonBlock className="h-4 w-full mb-2" />
+                <SkeletonBlock className="h-4 w-2/3" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
 
   // استخراج categoryId من API قبل أي استخدام (مطلوب لـ useFilters)
   const categoryId = useMemo(() => {
@@ -317,6 +366,10 @@ const CategoryOffersPage = () => {
   };
 
   if (!categoryInfo) {
+    // أثناء التنقل بين التصنيفات قد تتأخر بيانات web/home أو categoryInfo لحظياً
+    if (isWebHomeLoading || !webHomeResponse) {
+      return <CategoryPageSkeleton />;
+    }
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

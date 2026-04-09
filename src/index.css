@@ -683,7 +683,7 @@ html[lang="ar"] .content-mobile {
   position: absolute !important;
   top: 50% !important;
   transform: translateY(-50%) !important;
-  z-index: 10 !important;
+  z-index: 9999 !important;
   width: 40px !important;
   height: 40px !important;
   background: #f3f4f6 !important;
@@ -708,6 +708,7 @@ html[lang="ar"] .content-mobile {
 
 .owl-theme .owl-dots {
   margin-top: 20px !important;
+  display: none;
 }
 
 .owl-theme .owl-dots .owl-dot {
@@ -1050,18 +1051,8 @@ html[lang="ar"]
 }
 @media only screen and (max-width: 600px) {
   .mega-menu-offers.mega-menu-this-on-mobile {
-    right: 0;
-    left: 0px;
-    margin-right: auto;
-    margin-left: auto;
-    width: 100%;
-    position: relative;
-    opacity: 1 !important;
-    visibility: visible !important;
-    padding-top: 0;
-    padding-bottom: 0;
-    box-shadow: unset;
-    border-width: 1px 0px 0px 0px;
+    /* إخفاء القوائم الفرعية (الميجا منيو) بالكامل على الموبايل */
+    display: none !important;
   }
   .mega-menu-offers.mega-menu-this-on-mobile .mobile-category-icon {
     display: none;
