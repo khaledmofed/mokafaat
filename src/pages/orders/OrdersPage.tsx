@@ -27,6 +27,8 @@ const OrdersPage: React.FC = () => {
   const { data: ordersData, isLoading, isError, error } = useOrders(undefined, { enabled: !!token });
   const orders = useMemo(() => normalizeOrdersList(ordersData ?? null), [ordersData]);
   const cancelOrderMutation = useCancelOrder();
+  const [cancelModalOpen, setCancelModalOpen] = useState(false);
+  const [cancelTargetId, setCancelTargetId] = useState<string | null>(null);
 
   const [filter, setFilter] = useState<
     "all" | "pending" | "confirmed" | "completed" | "cancelled"
@@ -117,16 +119,20 @@ const OrdersPage: React.FC = () => {
     return true;
   };
 
-  const onCancelOrder = (orderId: string) => {
-    if (cancelOrderMutation.isPending) return;
-    const ok = window.confirm(
-      isRTL
-        ? "هل أنت متأكد من إلغاء هذا الطلب؟"
-        : "Are you sure you want to cancel this order?"
-    );
-    if (!ok) return;
+  const openCancelModal = (orderId: string) => {
+    setCancelTargetId(orderId);
+    setCancelModalOpen(true);
+  };
 
-    cancelOrderMutation.mutate(orderId, {
+  const closeCancelModal = () => {
+    if (cancelOrderMutation.isPending) return;
+    setCancelModalOpen(false);
+    setCancelTargetId(null);
+  };
+
+  const confirmCancelOrder = () => {
+    if (!cancelTargetId || cancelOrderMutation.isPending) return;
+    cancelOrderMutation.mutate(cancelTargetId, {
       onSuccess: (res) => {
         const payload = (res as { data?: unknown })?.data ?? res;
         const msg =
@@ -134,6 +140,7 @@ const OrdersPage: React.FC = () => {
           (payload as Record<string, unknown>)?.message ??
           (isRTL ? "تم إلغاء الطلب" : "Order cancelled");
         toast.success(String(msg));
+        closeCancelModal();
       },
       onError: (err) => {
         const msg =
@@ -195,6 +202,71 @@ const OrdersPage: React.FC = () => {
       style={{ marginTop: "77px" }}
     >
       <div className="container mx-auto px-4 sm:px-4 lg:px-4">
+        {cancelModalOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100] p-4"
+            onClick={closeCancelModal}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="cancel-order-title"
+          >
+            <div
+              className="relative bg-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+              dir={isRTL ? "rtl" : "ltr"}
+            >
+              <button
+                type="button"
+                onClick={closeCancelModal}
+                className="absolute top-4 end-4 p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors z-10"
+                aria-label={isRTL ? "إغلاق" : "Close"}
+                disabled={cancelOrderMutation.isPending}
+              >
+                <IoCloseCircleOutline className="text-2xl" />
+              </button>
+
+              <div className="p-6 text-center">
+                <div className="mx-auto w-14 h-14 rounded-xl bg-red-50 flex items-center justify-center text-red-600 mb-4">
+                  <IoTrashOutline className="w-7 h-7" />
+                </div>
+                <h2
+                  id="cancel-order-title"
+                  className="text-xl font-bold text-gray-900 mb-2"
+                >
+                  {isRTL ? "تأكيد إلغاء الطلب" : "Confirm cancellation"}
+                </h2>
+                <p className="text-gray-600 text-sm leading-relaxed mb-6">
+                  {isRTL
+                    ? "هل أنت متأكد من أنك تريد إلغاء هذا الطلب؟ لا يمكن التراجع عن هذه العملية."
+                    : "Are you sure you want to cancel this order? This action cannot be undone."}
+                </p>
+
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <button
+                    type="button"
+                    onClick={closeCancelModal}
+                    disabled={cancelOrderMutation.isPending}
+                    className="order-2 sm:order-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-full font-bold hover:bg-gray-50 transition-colors disabled:opacity-60"
+                  >
+                    {isRTL ? "رجوع" : "Back"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={confirmCancelOrder}
+                    disabled={cancelOrderMutation.isPending}
+                    className="order-1 sm:order-2 px-6 py-3 bg-red-600 text-white rounded-full font-bold hover:bg-red-700 transition-colors disabled:opacity-60"
+                  >
+                    {cancelOrderMutation.isPending
+                      ? "..."
+                      : isRTL
+                        ? "تأكيد الإلغاء"
+                        : "Cancel order"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         {/* Header */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
           <div className="flex items-center justify-between">
@@ -405,7 +477,7 @@ const OrdersPage: React.FC = () => {
                             {canCancelOrder(order) && (
                               <button
                                 type="button"
-                                onClick={() => onCancelOrder(order.id)}
+                                onClick={() => openCancelModal(order.id)}
                                 disabled={cancelOrderMutation.isPending}
                                 className="text-red-600 hover:text-red-700 transition-colors inline-flex items-center gap-1 disabled:opacity-60"
                               >
