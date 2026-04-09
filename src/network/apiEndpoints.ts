@@ -85,6 +85,7 @@ export const API_ENDPOINTS = {
   // ========== Orders ==========
   orders: `${API}/orders`,
   orderDetail: (id: string | number) => `${API}/orders/${id}`,
+  orderCancel: (id: string | number) => `${API}/orders/${id}/cancel`,
 
   // ========== Coupons (app) ==========
   coupons: {

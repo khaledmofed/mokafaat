@@ -196,6 +196,7 @@ export const ordersApi = {
     /** عند الدفع لطلب مُنشأ مسبقاً (من صفحة الشراء السريع) */
     order_id?: string | number;
   }) => api.post(API_ENDPOINTS.orders, null, { params }),
+  cancel: (id: string | number) => api.post(API_ENDPOINTS.orderCancel(id)),
 };
 
 // ========== Coupons (app - يتطلب توكن للبعض) ==========

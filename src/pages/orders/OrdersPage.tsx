@@ -10,12 +10,14 @@ import {
   IoCloseCircleOutline,
   IoEyeOutline,
   IoDownloadOutline,
+  IoTrashOutline,
 } from "react-icons/io5";
 import CurrencyIcon from "@components/CurrencyIcon";
-import { useOrders } from "@hooks/api/useMokafaatQueries";
+import { useCancelOrder, useOrders } from "@hooks/api/useMokafaatQueries";
 import { normalizeOrdersList } from "@utils/orders";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import { downloadVoucher } from "@utils/voucherDownload";
+import { toast } from "react-toastify";
 
 const OrdersPage: React.FC = () => {
   const { t } = useTranslation();
@@ -24,6 +26,7 @@ const OrdersPage: React.FC = () => {
   const getToken = useUserStore.getState;
   const { data: ordersData, isLoading, isError, error } = useOrders(undefined, { enabled: !!token });
   const orders = useMemo(() => normalizeOrdersList(ordersData ?? null), [ordersData]);
+  const cancelOrderMutation = useCancelOrder();
 
   const [filter, setFilter] = useState<
     "all" | "pending" | "confirmed" | "completed" | "cancelled"
@@ -90,6 +93,58 @@ const OrdersPage: React.FC = () => {
       default:
         return <IoReceiptOutline className="w-4 h-4" />;
     }
+  };
+
+  const canCancelOrder = (order: (typeof orders)[number]) => {
+    // Only offer orders can be cancelled.
+    const isOffer = order.orderType === "offer" || order.items?.[0]?.type === "offer";
+    if (!isOffer) return false;
+
+    // Not used
+    const rawStatus = String(order.rawStatus ?? "").toLowerCase();
+    const isUsed = rawStatus === "used" || rawStatus === "redeemed" || Boolean(order.usedAt);
+    if (isUsed) return false;
+
+    // Not cancelled
+    if (order.status === "cancelled") return false;
+
+    // Not expired (if expiresAt exists and is in the past)
+    if (order.expiresAt) {
+      const exp = new Date(order.expiresAt).getTime();
+      if (!Number.isNaN(exp) && exp < Date.now()) return false;
+    }
+
+    return true;
+  };
+
+  const onCancelOrder = (orderId: string) => {
+    if (cancelOrderMutation.isPending) return;
+    const ok = window.confirm(
+      isRTL
+        ? "هل أنت متأكد من إلغاء هذا الطلب؟"
+        : "Are you sure you want to cancel this order?"
+    );
+    if (!ok) return;
+
+    cancelOrderMutation.mutate(orderId, {
+      onSuccess: (res) => {
+        const payload = (res as { data?: unknown })?.data ?? res;
+        const msg =
+          (payload as Record<string, unknown>)?.msg ??
+          (payload as Record<string, unknown>)?.message ??
+          (isRTL ? "تم إلغاء الطلب" : "Order cancelled");
+        toast.success(String(msg));
+      },
+      onError: (err) => {
+        const msg =
+          (err as { response?: { data?: { msg?: string; message?: string } } })
+            ?.response?.data?.msg ||
+          (err as { response?: { data?: { msg?: string; message?: string } } })
+            ?.response?.data?.message ||
+          (isRTL ? "تعذر إلغاء الطلب" : "Failed to cancel order");
+        toast.error(String(msg));
+      },
+    });
   };
 
   if (!token) {
@@ -345,6 +400,17 @@ const OrdersPage: React.FC = () => {
                               >
                                 <IoDownloadOutline className="w-4 h-4" />
                                 {isRTL ? "تنزيل" : "Download"}
+                              </button>
+                            )}
+                            {canCancelOrder(order) && (
+                              <button
+                                type="button"
+                                onClick={() => onCancelOrder(order.id)}
+                                disabled={cancelOrderMutation.isPending}
+                                className="text-red-600 hover:text-red-700 transition-colors inline-flex items-center gap-1 disabled:opacity-60"
+                              >
+                                <IoTrashOutline className="w-4 h-4" />
+                                {isRTL ? "إلغاء" : "Cancel"}
                               </button>
                             )}
                           </div>

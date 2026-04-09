@@ -524,8 +524,15 @@ const OfferDetailPage = () => {
     );
   }
 
-  // سعر صفحة تفاصيل العرض يجب أن يكون price_after (discountPrice) وليس price
-  const unitPrice = Number(offer.discountPrice) || 0;
+  // Free offers are determined by API `price` (platformPrice), not price_after.
+  const isFree =
+    offer.platformPrice == null || Number(offer.platformPrice) <= 0;
+
+  // Price shown/used for checkout is price_after (discountPrice) unless it's free.
+  const unitPrice = isFree
+    ? 0
+    : Number(offer.discountPrice ?? offer.platformPrice ?? 0) || 0;
+
   const totalPrice = unitPrice * quantity;
 
   return (
@@ -875,7 +882,7 @@ const OfferDetailPage = () => {
                     </div>
                     <div className="mt-2 p-3 bg-primary/5 border border-primary/20 rounded-lg">
                       <p className="text-sm text-gray-700 mb-1">
-                        {unitPrice > 0
+                        {!isFree && unitPrice > 0
                           ? isRTL
                             ? "احصل على العرض الآن مقابل السعر التالي"
                             : "Get this offer now for the price below"
@@ -883,7 +890,7 @@ const OfferDetailPage = () => {
                             ? "احصل على العرض الآن مجاناً"
                             : "Get this offer now for free"}
                       </p>
-                      {unitPrice > 0 ? (
+                      {!isFree && unitPrice > 0 ? (
                         <p className="text-lg font-bold text-primary flex items-center gap-1">
                           {unitPrice}{" "}
                           <CurrencyIcon className="inline" size={18} />

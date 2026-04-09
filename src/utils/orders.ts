@@ -21,6 +21,7 @@ export interface NormalizedOrder {
   id: string;
   orderNumber?: string;
   orderType?: "offer" | "card";
+  rawStatus?: string;
   items: OrderItem[];
   totalAmount: number;
   status: OrderStatus;
@@ -130,6 +131,7 @@ function normalizeOrderRow(row: unknown): NormalizedOrder | null {
     id: String(id),
     orderNumber: r.order_number != null ? String(r.order_number) : undefined,
     orderType: (r.order_type as NormalizedOrder["orderType"]) ?? undefined,
+    rawStatus: r.status != null ? String(r.status) : undefined,
     items,
     totalAmount,
     status: toStatus(r.status),

@@ -259,6 +259,17 @@ export function useCreateOrder() {
   });
 }
 
+export function useCancelOrder() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string | number) => ordersApi.cancel(id),
+    onSuccess: (_res, id) => {
+      queryClient.invalidateQueries({ queryKey: ["mokafaat", "orders"] });
+      queryClient.invalidateQueries({ queryKey: ["mokafaat", "orders", id] });
+    },
+  });
+}
+
 // ========== Coupons ==========
 export function useCouponsHome() {
   const lang = useQueryLang();
