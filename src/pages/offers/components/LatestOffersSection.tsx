@@ -14,7 +14,9 @@ function extractOffersArray(res: unknown): Array<Record<string, unknown>> {
   const data =
     (root.data as Record<string, unknown>) ?? (root as Record<string, unknown>);
   const offers = (data.offers ?? data.data ?? data) as unknown;
-  return Array.isArray(offers) ? (offers as Array<Record<string, unknown>>) : [];
+  return Array.isArray(offers)
+    ? (offers as Array<Record<string, unknown>>)
+    : [];
 }
 
 const LatestOffersSection: React.FC = () => {
@@ -60,7 +62,7 @@ const LatestOffersSection: React.FC = () => {
         },
       },
     }),
-    [offers.length]
+    [offers.length],
   );
 
   const handleOfferClick = (offer: Offer) => {
@@ -122,7 +124,7 @@ const LatestOffersSection: React.FC = () => {
           </div>
         ) : isRTL && offers.length < 4 ? (
           <div
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
             style={{ direction: "rtl" }}
           >
             {offers.map((offer) => (
@@ -164,7 +166,6 @@ const LatestOffersSection: React.FC = () => {
           </div>
         )}
       </div>
-
     </section>
   );
 };

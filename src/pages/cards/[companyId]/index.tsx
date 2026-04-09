@@ -6,8 +6,14 @@ import { FiArrowLeft, FiGrid, FiList } from "react-icons/fi";
 import { AboutPattern } from "@assets";
 import GetStartedSection from "@pages/home/components/GetStartedSection";
 import OfferCard from "./components/OfferCard";
-import { useCardsByMerchant, useCardsHome } from "@hooks/api/useMokafaatQueries";
-import { mapApiHomeCardsToOffers, type CardOfferWithCompanyId } from "@network/mappers/cardsMapper";
+import {
+  useCardsByMerchant,
+  useCardsHome,
+} from "@hooks/api/useMokafaatQueries";
+import {
+  mapApiHomeCardsToOffers,
+  type CardOfferWithCompanyId,
+} from "@network/mappers/cardsMapper";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 
 interface ApiCategory {
@@ -24,9 +30,12 @@ const MerchantCardsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
-  const { data: merchantResponse, isLoading } = useCardsByMerchant(companyId ?? "", {
-    page: currentPage,
-  });
+  const { data: merchantResponse, isLoading } = useCardsByMerchant(
+    companyId ?? "",
+    {
+      page: currentPage,
+    },
+  );
   const { data: cardsHomeResponse } = useCardsHome();
 
   const categories = useMemo((): ApiCategory[] => {
@@ -52,7 +61,9 @@ const MerchantCardsPage = () => {
   }, [data]);
 
   const featuredCards = useMemo((): CardOfferWithCompanyId[] => {
-    const arr = data?.featured_cards as Array<Record<string, unknown>> | undefined;
+    const arr = data?.featured_cards as
+      | Array<Record<string, unknown>>
+      | undefined;
     return mapApiHomeCardsToOffers(Array.isArray(arr) ? arr : []);
   }, [data]);
 
@@ -80,14 +91,22 @@ const MerchantCardsPage = () => {
   const merchantName = merchant ? String(merchant.name ?? "") : "";
   const merchantLogo = merchant ? String(merchant.logo ?? "") : "";
   const coverImage = merchant ? String(merchant.cover_image ?? "") : "";
-  const followersCount = merchant != null ? Number(merchant.followers_count ?? 0) : 0;
-  const avgRating = merchant != null ? (merchant.avg_rating != null ? Number(merchant.avg_rating) : null) : null;
+  const followersCount =
+    merchant != null ? Number(merchant.followers_count ?? 0) : 0;
+  const avgRating =
+    merchant != null
+      ? merchant.avg_rating != null
+        ? Number(merchant.avg_rating)
+        : null
+      : null;
 
   if (isLoading && !merchant) {
     return (
       <>
         <Helmet>
-          <title>{isRTL ? "التاجر" : "Merchant"} - {isRTL ? "البطاقات" : "Cards"}</title>
+          <title>
+            {isRTL ? "التاجر" : "Merchant"} - {isRTL ? "البطاقات" : "Cards"}
+          </title>
         </Helmet>
         <div className="min-h-screen flex items-center justify-center">
           <LoadingSpinner />
@@ -120,7 +139,10 @@ const MerchantCardsPage = () => {
         <title>
           {merchantName} - {isRTL ? "البطاقات" : "Cards"}
         </title>
-        <link rel="canonical" href={`https://mukafaat.com/cards/${companyId}`} />
+        <link
+          rel="canonical"
+          href={`https://mukafaat.com/cards/${companyId}`}
+        />
       </Helmet>
 
       {/* Header - مثل صفحة تصنيف العروض */}
@@ -177,20 +199,32 @@ const MerchantCardsPage = () => {
           </div>
 
           <div className="flex items-center justify-center text-sm md:text-base">
-            <Link to="/" className="text-white hover:text-purple-300 transition-colors cursor-pointer text-xs">
+            <Link
+              to="/"
+              className="text-white hover:text-purple-300 transition-colors cursor-pointer text-xs"
+            >
               {isRTL ? "الرئيسية" : "Home"}
             </Link>
             <span className="text-white text-xs mx-2">|</span>
-            <Link to="/cards" className="text-white hover:text-purple-300 transition-colors cursor-pointer text-xs">
+            <Link
+              to="/cards"
+              className="text-white hover:text-purple-300 transition-colors cursor-pointer text-xs"
+            >
               {isRTL ? "البطاقات" : "Cards"}
             </Link>
             <span className="text-white text-xs mx-2">|</span>
-            <span className="text-[#fd671a] font-medium text-xs">{merchantName}</span>
+            <span className="text-[#fd671a] font-medium text-xs">
+              {merchantName}
+            </span>
           </div>
         </div>
 
         <div className="absolute -bottom-10 transform z-9">
-          <img src={AboutPattern} alt="" className="w-full h-96 animate-float" />
+          <img
+            src={AboutPattern}
+            alt=""
+            className="w-full h-96 animate-float"
+          />
         </div>
       </section>
 
@@ -215,7 +249,9 @@ const MerchantCardsPage = () => {
                 setCurrentPage(1);
               }}
               placeholder={
-                isRTL ? `البحث في بطاقات ${merchantName}...` : `Search ${merchantName} cards...`
+                isRTL
+                  ? `البحث في بطاقات ${merchantName}...`
+                  : `Search ${merchantName} cards...`
               }
               className="flex-1 min-w-[200px] max-w-md px-5 py-3 rounded-full font-medium text-sm shadow-md bg-white text-gray-700 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#400198] focus:border-transparent"
             />
@@ -255,7 +291,7 @@ const MerchantCardsPage = () => {
             <div
               className={
                 viewMode === "grid"
-                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
                   : "grid grid-cols-1 gap-6"
               }
             >
@@ -276,7 +312,7 @@ const MerchantCardsPage = () => {
           <div
             className={
               viewMode === "grid"
-                ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
                 : "grid grid-cols-1 gap-6"
             }
           >

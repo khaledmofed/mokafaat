@@ -100,12 +100,12 @@ const BookingResults: React.FC<BookingResultsProps> = ({
   const isRTL = useIsRTL();
   console.log(
     "🏷️ BookingResults rendered with appliedFilters:",
-    appliedFilters
+    appliedFilters,
   );
   const [sortBy, setSortBy] = useState("price");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [selectedBooking, setSelectedBooking] = useState<BookingItem | null>(
-    null
+    null,
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -167,8 +167,8 @@ const BookingResults: React.FC<BookingResultsProps> = ({
                 ? ` نتيجة تم العثور عليها للبحث`
                 : ` ${getTypeLabel()} متاحة`
               : isFiltered
-              ? ` results found for search`
-              : ` available ${getTypeLabel().toLowerCase()}`}
+                ? ` results found for search`
+                : ` available ${getTypeLabel().toLowerCase()}`}
           </div>
         </div>
 
@@ -196,17 +196,17 @@ const BookingResults: React.FC<BookingResultsProps> = ({
                 ? type === "flights"
                   ? "ابحث عن رحلتك"
                   : type === "hotels"
-                  ? "ابحث عن فندقك"
-                  : type === "cars"
-                  ? "ابحث عن سيارتك"
-                  : "فلاتر متقدمة"
+                    ? "ابحث عن فندقك"
+                    : type === "cars"
+                      ? "ابحث عن سيارتك"
+                      : "فلاتر متقدمة"
                 : type === "flights"
-                ? "Search Your Flight"
-                : type === "hotels"
-                ? "Search Your Hotel"
-                : type === "cars"
-                ? "Search Your Car"
-                : "Advanced Filters"}
+                  ? "Search Your Flight"
+                  : type === "hotels"
+                    ? "Search Your Hotel"
+                    : type === "cars"
+                      ? "Search Your Car"
+                      : "Advanced Filters"}
             </span>
           </button>
 
@@ -220,16 +220,16 @@ const BookingResults: React.FC<BookingResultsProps> = ({
                     ? "السعر (الأقل أولاً)"
                     : "Price (Low to High)"
                   : sortBy === "rating"
-                  ? isRTL
-                    ? "التقييم"
-                    : "Rating"
-                  : sortBy === "popularity"
-                  ? isRTL
-                    ? "الشعبية"
-                    : "Popularity"
-                  : isRTL
-                  ? "الاسم"
-                  : "Name",
+                    ? isRTL
+                      ? "التقييم"
+                      : "Rating"
+                    : sortBy === "popularity"
+                      ? isRTL
+                        ? "الشعبية"
+                        : "Popularity"
+                      : isRTL
+                        ? "الاسم"
+                        : "Name",
             }}
             onChange={(selectedOption) =>
               handleSortChange(selectedOption?.value || "price")
@@ -291,8 +291,8 @@ const BookingResults: React.FC<BookingResultsProps> = ({
                 backgroundColor: state.isSelected
                   ? "#f3f4f6"
                   : state.isFocused
-                  ? "#f9fafb"
-                  : "white",
+                    ? "#f9fafb"
+                    : "white",
                 color: state.isSelected ? "#400198" : "#374151",
                 "&:hover": {
                   backgroundColor: "#f9fafb",
@@ -473,7 +473,7 @@ const BookingResults: React.FC<BookingResultsProps> = ({
                     const newFilters = {
                       ...appliedFilters,
                       airlines: appliedFilters.airlines?.filter(
-                        (a) => a !== airline
+                        (a) => a !== airline,
                       ),
                     };
                     onApplyFilters(newFilters);
@@ -493,14 +493,14 @@ const BookingResults: React.FC<BookingResultsProps> = ({
                     ? "أقل من 3 ساعات"
                     : "Less than 3 hours"
                   : appliedFilters.duration === "medium"
-                  ? isRTL
-                    ? "3-6 ساعات"
-                    : "3-6 hours"
-                  : appliedFilters.duration === "long"
-                  ? isRTL
-                    ? "أكثر من 6 ساعات"
-                    : "More than 6 hours"
-                  : appliedFilters.duration}
+                    ? isRTL
+                      ? "3-6 ساعات"
+                      : "3-6 hours"
+                    : appliedFilters.duration === "long"
+                      ? isRTL
+                        ? "أكثر من 6 ساعات"
+                        : "More than 6 hours"
+                      : appliedFilters.duration}
                 <button
                   onClick={() => {
                     const newFilters = { ...appliedFilters };
@@ -526,7 +526,7 @@ const BookingResults: React.FC<BookingResultsProps> = ({
                     const newFilters = {
                       ...appliedFilters,
                       starRatings: appliedFilters.starRatings?.filter(
-                        (s) => s !== stars
+                        (s) => s !== stars,
                       ),
                     };
                     onApplyFilters(newFilters);
@@ -657,28 +657,28 @@ const BookingResults: React.FC<BookingResultsProps> = ({
                     ? "واي فاي مجاني"
                     : "Free WiFi"
                   : amenity === "Pool"
-                  ? isRTL
-                    ? "مسبح"
-                    : "Pool"
-                  : amenity === "Spa"
-                  ? isRTL
-                    ? "سبا"
-                    : "Spa"
-                  : amenity === "Gym"
-                  ? isRTL
-                    ? "صالة رياضية"
-                    : "Gym"
-                  : amenity === "Parking"
-                  ? isRTL
-                    ? "موقف سيارات"
-                    : "Parking"
-                  : amenity}
+                    ? isRTL
+                      ? "مسبح"
+                      : "Pool"
+                    : amenity === "Spa"
+                      ? isRTL
+                        ? "سبا"
+                        : "Spa"
+                      : amenity === "Gym"
+                        ? isRTL
+                          ? "صالة رياضية"
+                          : "Gym"
+                        : amenity === "Parking"
+                          ? isRTL
+                            ? "موقف سيارات"
+                            : "Parking"
+                          : amenity}
                 <button
                   onClick={() => {
                     const newFilters = {
                       ...appliedFilters,
                       amenities: appliedFilters.amenities?.filter(
-                        (a) => a !== amenity
+                        (a) => a !== amenity,
                       ),
                     };
                     onApplyFilters(newFilters);
@@ -790,26 +790,26 @@ const BookingResults: React.FC<BookingResultsProps> = ({
                     ? "صغيرة"
                     : "Small"
                   : carType === "Sedan"
-                  ? isRTL
-                    ? "سيدان"
-                    : "Sedan"
-                  : carType === "SUV"
-                  ? "SUV"
-                  : carType === "Luxury"
-                  ? isRTL
-                    ? "فاخرة"
-                    : "Luxury"
-                  : carType === "Van"
-                  ? isRTL
-                    ? "فان"
-                    : "Van"
-                  : carType}
+                    ? isRTL
+                      ? "سيدان"
+                      : "Sedan"
+                    : carType === "SUV"
+                      ? "SUV"
+                      : carType === "Luxury"
+                        ? isRTL
+                          ? "فاخرة"
+                          : "Luxury"
+                        : carType === "Van"
+                          ? isRTL
+                            ? "فان"
+                            : "Van"
+                          : carType}
                 <button
                   onClick={() => {
                     const newFilters = {
                       ...appliedFilters,
                       carTypes: appliedFilters.carTypes?.filter(
-                        (t) => t !== carType
+                        (t) => t !== carType,
                       ),
                     };
                     onApplyFilters(newFilters);
@@ -829,10 +829,10 @@ const BookingResults: React.FC<BookingResultsProps> = ({
                     ? "عادي"
                     : "Manual"
                   : appliedFilters.transmission === "Automatic"
-                  ? isRTL
-                    ? "أوتوماتيك"
-                    : "Automatic"
-                  : appliedFilters.transmission}
+                    ? isRTL
+                      ? "أوتوماتيك"
+                      : "Automatic"
+                    : appliedFilters.transmission}
                 <button
                   onClick={() => {
                     const newFilters = { ...appliedFilters };
@@ -907,7 +907,7 @@ const BookingResults: React.FC<BookingResultsProps> = ({
       <div
         className={
           viewMode === "grid"
-            ? "mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            ? "mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
             : "mt-6 grid grid-cols-2 gap-4"
         }
       >

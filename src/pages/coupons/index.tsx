@@ -14,7 +14,10 @@ import CouponModal, {
   type CouponWithIcon,
 } from "@pages/home/components/CouponModal";
 import { LoadingSpinner } from "@components/LoadingSpinner";
-import { useWebCoupons, useWebCouponsHome } from "@hooks/api/useMokafaatQueries";
+import {
+  useWebCoupons,
+  useWebCouponsHome,
+} from "@hooks/api/useMokafaatQueries";
 import { mapApiCouponsToModels } from "@network/mappers/couponsMapper";
 import { stripHtml } from "@utils/stripHtml";
 import { useIsRTL } from "@hooks";
@@ -102,7 +105,10 @@ const CouponsPage = () => {
   const [categoriesCarouselKey, setCategoriesCarouselKey] = useState(0);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const defaultCouponFilters = useMemo(
-    () => ({ merchantIds: [] as string[], couponTypes: [] as Array<"percentage" | "fixed"> }),
+    () => ({
+      merchantIds: [] as string[],
+      couponTypes: [] as Array<"percentage" | "fixed">,
+    }),
     [],
   );
   const [draftCouponFilters, setDraftCouponFilters] = useState<{
@@ -138,7 +144,9 @@ const CouponsPage = () => {
 
   const merchantsList = useMemo(() => {
     if (!homeData) return [];
-    const list = homeData.merchants as Array<Record<string, unknown>> | undefined;
+    const list = homeData.merchants as
+      | Array<Record<string, unknown>>
+      | undefined;
     return Array.isArray(list) ? list : [];
   }, [homeData]);
 
@@ -217,9 +225,8 @@ const CouponsPage = () => {
     ],
   );
 
-  const { data: couponsListRes, isLoading: isLoadingList } = useWebCoupons(
-    listParams,
-  );
+  const { data: couponsListRes, isLoading: isLoadingList } =
+    useWebCoupons(listParams);
 
   const allCouponsRaw = useMemo(() => {
     const root = (couponsListRes as Record<string, unknown>) ?? {};
@@ -240,7 +247,8 @@ const CouponsPage = () => {
       (data.meta as Record<string, unknown> | undefined) ??
       (data as Record<string, unknown>);
     return {
-      currentPage: Number(pg?.current_page ?? pg?.page ?? currentPage) || currentPage,
+      currentPage:
+        Number(pg?.current_page ?? pg?.page ?? currentPage) || currentPage,
       lastPage: Number(pg?.last_page ?? pg?.pages ?? 1) || 1,
       total: Number(pg?.total ?? 0) || 0,
     };
@@ -448,7 +456,10 @@ const CouponsPage = () => {
                         key={opt.key}
                         type="button"
                         onClick={() =>
-                          setDraftCouponFilters((p) => ({ ...p, sortBy: opt.key }))
+                          setDraftCouponFilters((p) => ({
+                            ...p,
+                            sortBy: opt.key,
+                          }))
                         }
                         className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${
                           draftCouponFilters.sortBy === opt.key
@@ -534,11 +545,11 @@ const CouponsPage = () => {
                     </p>
                     <div className="grid grid-cols-2 gap-2">
                       {merchantsList.map((m) => {
-                        const id =
-                          m?.id != null ? String(m.id) : undefined;
+                        const id = m?.id != null ? String(m.id) : undefined;
                         const name = String(m?.name ?? "").trim();
                         if (!id || !name) return null;
-                        const selected = draftCouponFilters.merchantIds.includes(id);
+                        const selected =
+                          draftCouponFilters.merchantIds.includes(id);
                         return (
                           <button
                             key={id}
@@ -716,415 +727,344 @@ const CouponsPage = () => {
           )}
 
           <section className="container mx-auto md:p-10 p-6 portfolio-mobile">
-          {/* Filters + Search + View Mode */}
-          <div className="flex items-center justify-between flex-wrap gap-4 mb-8">
-            <div className="flex items-center gap-3 style-portfolio-button-mobile-container">
-              <button
-                onClick={() => {
-                  setSelectedFilter("latest");
-                  setCurrentPage(1);
-                }}
-                className={`px-5 py-3 rounded-full font-medium text-sm shadow-md transition-all duration-300 ${
-                  selectedFilter === "latest"
-                    ? "bg-[#400198] text-white shadow-lg"
-                    : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
-                }`}
-              >
-                {isRTL ? "الأحدث" : "Latest"}
-              </button>
-              <button
-                onClick={() => {
-                  setSelectedFilter("top_used");
-                  setCurrentPage(1);
-                }}
-                className={`px-5 py-3 rounded-full font-medium text-sm shadow-md transition-all duration-300 ${
-                  selectedFilter === "top_used"
-                    ? "bg-[#400198] text-white shadow-lg"
-                    : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
-                }`}
-              >
-                {t("coupons.filters.most_visited")}
-              </button>
-            </div>
-
-            <div className="flex items-center gap-3">
-              {/* Filter button */}
-              <button
-                type="button"
-                onClick={() => {
-                  setDraftCouponFilters(appliedCouponFilters);
-                  setIsFilterOpen(true);
-                }}
-                className="px-5 py-3 rounded-full font-medium text-sm shadow-md transition-all duration-300 bg-white text-gray-700 hover:bg-gray-100 border border-gray-200 inline-flex items-center gap-2"
-              >
-                <FiFilter size={18} />
-                {isRTL ? "فلترة" : "Filter"}
-              </button>
-              {/* Search Input */}
-              <div className="w-full md:w-64">
-                <input
-                  type="text"
-                  value={search}
-                  onChange={(e) => {
-                    setSearch(e.target.value);
+            {/* Filters + Search + View Mode */}
+            <div className="flex items-center justify-between flex-wrap gap-4 mb-8">
+              <div className="flex items-center gap-3 style-portfolio-button-mobile-container">
+                <button
+                  onClick={() => {
+                    setSelectedFilter("latest");
                     setCurrentPage(1);
                   }}
-                  placeholder={t("coupons.search_placeholder")}
-                  className="w-full px-5 py-3 rounded-full font-medium text-sm shadow-md transition-all duration-300 bg-white text-gray-700 hover:bg-gray-100 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#400198] focus:border-transparent"
-                />
-              </div>
-
-              {/* View Mode Buttons */}
-              <div className="flex items-center bg-white border border-gray-200 rounded-full shadow-md p-1">
-                <button
-                  onClick={() => setViewMode("grid")}
-                  className={`p-2 rounded-full transition-all duration-300 ${
-                    viewMode === "grid"
-                      ? "bg-[#400198] text-white shadow-sm"
-                      : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                  className={`px-5 py-3 rounded-full font-medium text-sm shadow-md transition-all duration-300 ${
+                    selectedFilter === "latest"
+                      ? "bg-[#400198] text-white shadow-lg"
+                      : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
                   }`}
                 >
-                  <FiGrid size={18} />
+                  {isRTL ? "الأحدث" : "Latest"}
                 </button>
                 <button
-                  onClick={() => setViewMode("list")}
-                  className={`p-2 rounded-full transition-all duration-300 ${
-                    viewMode === "list"
-                      ? "bg-[#400198] text-white shadow-sm"
-                      : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                  onClick={() => {
+                    setSelectedFilter("top_used");
+                    setCurrentPage(1);
+                  }}
+                  className={`px-5 py-3 rounded-full font-medium text-sm shadow-md transition-all duration-300 ${
+                    selectedFilter === "top_used"
+                      ? "bg-[#400198] text-white shadow-lg"
+                      : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
                   }`}
                 >
-                  <FiList size={18} />
+                  {t("coupons.filters.most_visited")}
                 </button>
               </div>
+
+              <div className="flex items-center gap-3">
+                {/* Filter button */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDraftCouponFilters(appliedCouponFilters);
+                    setIsFilterOpen(true);
+                  }}
+                  className="px-5 py-3 rounded-full font-medium text-sm shadow-md transition-all duration-300 bg-white text-gray-700 hover:bg-gray-100 border border-gray-200 inline-flex items-center gap-2"
+                >
+                  <FiFilter size={18} />
+                  {isRTL ? "فلترة" : "Filter"}
+                </button>
+                {/* Search Input */}
+                <div className="w-full md:w-64">
+                  <input
+                    type="text"
+                    value={search}
+                    onChange={(e) => {
+                      setSearch(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    placeholder={t("coupons.search_placeholder")}
+                    className="w-full px-5 py-3 rounded-full font-medium text-sm shadow-md transition-all duration-300 bg-white text-gray-700 hover:bg-gray-100 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#400198] focus:border-transparent"
+                  />
+                </div>
+
+                {/* View Mode Buttons */}
+                <div className="flex items-center bg-white border border-gray-200 rounded-full shadow-md p-1">
+                  <button
+                    onClick={() => setViewMode("grid")}
+                    className={`p-2 rounded-full transition-all duration-300 ${
+                      viewMode === "grid"
+                        ? "bg-[#400198] text-white shadow-sm"
+                        : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    <FiGrid size={18} />
+                  </button>
+                  <button
+                    onClick={() => setViewMode("list")}
+                    className={`p-2 rounded-full transition-all duration-300 ${
+                      viewMode === "list"
+                        ? "bg-[#400198] text-white shadow-sm"
+                        : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    <FiList size={18} />
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
 
-          {/* Results Count + Applied Filters Tags (like Offers page) */}
-          <div className="text-sm text-gray-600 mb-6">
-            <div className="flex items-center gap-2 mb-0">
-              <h2 className="text-[#400198] text-3xl font-bold">
-                {pagination.total || paginated.length}
-              </h2>
-              {isRTL ? ` كوبون` : ` coupons`}
-            </div>
+            {/* Results Count + Applied Filters Tags (like Offers page) */}
+            <div className="text-sm text-gray-600 mb-6">
+              <div className="flex items-center gap-2 mb-0">
+                <h2 className="text-[#400198] text-3xl font-bold">
+                  {pagination.total || paginated.length}
+                </h2>
+                {isRTL ? ` كوبون` : ` coupons`}
+              </div>
 
-            <div className="flex flex-wrap gap-2 mt-3">
-              {(() => {
-                const effectiveSort =
-                  appliedCouponFilters.sortBy ??
-                  (selectedFilter === "top_used" ? "most_used" : "newest");
-                const hasAny =
-                  effectiveSort !== "newest" ||
-                  appliedCouponFilters.merchantIds.length > 0 ||
-                  appliedCouponFilters.couponTypes.length > 0 ||
-                  appliedCouponFilters.discountMin != null;
+              <div className="flex flex-wrap gap-2 mt-3">
+                {(() => {
+                  const effectiveSort =
+                    appliedCouponFilters.sortBy ??
+                    (selectedFilter === "top_used" ? "most_used" : "newest");
+                  const hasAny =
+                    effectiveSort !== "newest" ||
+                    appliedCouponFilters.merchantIds.length > 0 ||
+                    appliedCouponFilters.couponTypes.length > 0 ||
+                    appliedCouponFilters.discountMin != null;
 
-                const sortLabel =
-                  effectiveSort === "most_used"
-                    ? isRTL
-                      ? "الأكثر استخدامًا"
-                      : "Most used"
-                    : effectiveSort === "highest_discount"
+                  const sortLabel =
+                    effectiveSort === "most_used"
                       ? isRTL
-                        ? "أعلى خصم"
-                        : "Highest discount"
-                      : isRTL
-                        ? "الأحدث"
-                        : "Newest";
+                        ? "الأكثر استخدامًا"
+                        : "Most used"
+                      : effectiveSort === "highest_discount"
+                        ? isRTL
+                          ? "أعلى خصم"
+                          : "Highest discount"
+                        : isRTL
+                          ? "الأحدث"
+                          : "Newest";
 
-                return (
-                  <>
-                    {effectiveSort !== "newest" && (
-                      <span className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
-                        {sortLabel}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setAppliedCouponFilters((p) => ({ ...p, sortBy: undefined }));
-                            setSelectedFilter("latest");
-                            setCurrentPage(1);
-                          }}
-                          className="ml-1 hover:bg-purple-200 rounded-full p-0.5"
-                        >
-                          ×
-                        </button>
-                      </span>
-                    )}
-
-                    {appliedCouponFilters.couponTypes.map((ct) => (
-                      <span
-                        key={ct}
-                        className="inline-flex items-center gap-1 px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium"
-                      >
-                        {ct === "percentage"
-                          ? isRTL
-                            ? "نسبة"
-                            : "Percentage"
-                          : isRTL
-                            ? "ثابت"
-                            : "Fixed"}
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setAppliedCouponFilters((p) => ({
-                              ...p,
-                              couponTypes: p.couponTypes.filter((x) => x !== ct),
-                            }));
-                            setCurrentPage(1);
-                          }}
-                          className="ml-1 hover:bg-orange-200 rounded-full p-0.5"
-                        >
-                          ×
-                        </button>
-                      </span>
-                    ))}
-
-                    {appliedCouponFilters.merchantIds.map((id) => {
-                      const label =
-                        merchantsList.find((m) => String(m?.id) === String(id))
-                          ?.name ?? id;
-                      return (
-                        <span
-                          key={id}
-                          className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium"
-                        >
-                          {String(label)}
+                  return (
+                    <>
+                      {effectiveSort !== "newest" && (
+                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
+                          {sortLabel}
                           <button
                             type="button"
                             onClick={() => {
                               setAppliedCouponFilters((p) => ({
                                 ...p,
-                                merchantIds: p.merchantIds.filter((x) => x !== id),
+                                sortBy: undefined,
                               }));
+                              setSelectedFilter("latest");
                               setCurrentPage(1);
                             }}
-                            className="ml-1 hover:bg-blue-200 rounded-full p-0.5"
+                            className="ml-1 hover:bg-purple-200 rounded-full p-0.5"
                           >
                             ×
                           </button>
                         </span>
-                      );
-                    })}
+                      )}
 
-                    {appliedCouponFilters.discountMin != null && (
-                      <span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
-                        {isRTL
-                          ? `خصم من ${appliedCouponFilters.discountMin}%`
-                          : `Discount >= ${appliedCouponFilters.discountMin}%`}
+                      {appliedCouponFilters.couponTypes.map((ct) => (
+                        <span
+                          key={ct}
+                          className="inline-flex items-center gap-1 px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium"
+                        >
+                          {ct === "percentage"
+                            ? isRTL
+                              ? "نسبة"
+                              : "Percentage"
+                            : isRTL
+                              ? "ثابت"
+                              : "Fixed"}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setAppliedCouponFilters((p) => ({
+                                ...p,
+                                couponTypes: p.couponTypes.filter(
+                                  (x) => x !== ct,
+                                ),
+                              }));
+                              setCurrentPage(1);
+                            }}
+                            className="ml-1 hover:bg-orange-200 rounded-full p-0.5"
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))}
+
+                      {appliedCouponFilters.merchantIds.map((id) => {
+                        const label =
+                          merchantsList.find(
+                            (m) => String(m?.id) === String(id),
+                          )?.name ?? id;
+                        return (
+                          <span
+                            key={id}
+                            className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium"
+                          >
+                            {String(label)}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setAppliedCouponFilters((p) => ({
+                                  ...p,
+                                  merchantIds: p.merchantIds.filter(
+                                    (x) => x !== id,
+                                  ),
+                                }));
+                                setCurrentPage(1);
+                              }}
+                              className="ml-1 hover:bg-blue-200 rounded-full p-0.5"
+                            >
+                              ×
+                            </button>
+                          </span>
+                        );
+                      })}
+
+                      {appliedCouponFilters.discountMin != null && (
+                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
+                          {isRTL
+                            ? `خصم من ${appliedCouponFilters.discountMin}%`
+                            : `Discount >= ${appliedCouponFilters.discountMin}%`}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setAppliedCouponFilters((p) => ({
+                                ...p,
+                                discountMin: undefined,
+                              }));
+                              setCurrentPage(1);
+                            }}
+                            className="ml-1 hover:bg-gray-200 rounded-full p-0.5"
+                          >
+                            ×
+                          </button>
+                        </span>
+                      )}
+
+                      {hasAny && (
                         <button
                           type="button"
                           onClick={() => {
-                            setAppliedCouponFilters((p) => ({ ...p, discountMin: undefined }));
+                            setAppliedCouponFilters(defaultCouponFilters);
+                            setDraftCouponFilters(defaultCouponFilters);
+                            setSelectedFilter("latest");
                             setCurrentPage(1);
                           }}
-                          className="ml-1 hover:bg-gray-200 rounded-full p-0.5"
+                          className="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium hover:bg-red-200 transition-colors"
                         >
-                          ×
+                          {isRTL ? "مسح الكل" : "Clear All"}
                         </button>
-                      </span>
-                    )}
-
-                    {hasAny && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setAppliedCouponFilters(defaultCouponFilters);
-                          setDraftCouponFilters(defaultCouponFilters);
-                          setSelectedFilter("latest");
-                          setCurrentPage(1);
-                        }}
-                        className="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium hover:bg-red-200 transition-colors"
-                      >
-                        {isRTL ? "مسح الكل" : "Clear All"}
-                      </button>
-                    )}
-                  </>
-                );
-              })()}
+                      )}
+                    </>
+                  );
+                })()}
+              </div>
             </div>
-          </div>
 
-          {/* Coupons Display */}
-          {isLoadingList ? (
-            <div className="container mx-auto md:p-10 p-6 flex justify-center min-h-[200px] items-center">
-              <LoadingSpinner />
-            </div>
-          ) : paginated.length > 0 ? (
-            <div
-              className={
-                viewMode === "grid"
-                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-                  : "space-y-4"
-              }
-            >
-              {paginated.map((coupon) => (
-                <div
-                  key={coupon.id}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => openCouponModal(coupon)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      openCouponModal(coupon);
-                    }
-                  }}
-                  className={`bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer ${
-                    viewMode === "list" ? "flex items-center p-4" : ""
-                  }`}
-                >
-                  {/* Coupon Card */}
-                  <div className={viewMode === "list" ? "flex-1 p-0" : "p-6"}>
-                    {viewMode === "list" ? (
-                      // List View Layout
-                      <div className="flex items-center justify-between w-full">
-                        {/* Left Section - Store Info */}
-                        <div className="flex items-center gap-4">
-                          <div className="w-16 h-16 rounded-lg overflow-hidden">
-                            <img
-                              src={getCouponImage(coupon.logo)}
-                              alt={coupon.storeName}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-
-                          <div>
-                            <h3 className="font-bold text-gray-900 text-base">
-                              {stripHtml(coupon.storeName)}
-                            </h3>
-                            <p className="text-sm text-gray-500">
-                              {stripHtml(coupon.storeCategory)}
-                            </p>
-                            <h4 className="text-sm font-bold text-gray-900 mt-1">
-                              {stripHtml(coupon.offer)}
-                            </h4>
-                          </div>
-                        </div>
-
-                        {/* Middle Section - Usage and Expiry */}
-                        <div className="flex items-center gap-6">
-                          <div className="flex items-center gap-2">
-                            <IoFlashOutline className="text-orange-500 text-xl" />
-                            <div>
-                              <p className="text-xs text-gray-500">
-                                {t("coupons.usage")}
-                              </p>
-                              <p className="text-sm font-semibold text-gray-900">
-                                {coupon.uses} {t("coupons.uses_for_code")}
-                              </p>
-                            </div>
-                          </div>
-                          {coupon.expiry && (
-                            <div className="flex items-center gap-2">
-                              <IoCalendarOutline className="text-orange-500 text-xl" />
-                              <div>
-                                <p className="text-xs text-gray-500">
-                                  {t("coupons.expires")}
-                                </p>
-                                <p className="text-sm font-semibold text-gray-900">
-                                  {coupon.expiry}
-                                </p>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Right Section - Action Button */}
-                        <div className="flex items-center justify-between gap-3 w-1/3">
-                          <div className="relative">
-                            <div
-                              style={{
-                                top: "-3rem",
-                                position: "absolute",
-                                borderRight: "3px dashed rgb(221, 221, 221)",
-                                width: "1px",
-                                height: "108px",
-                              }}
-                            />
-                          </div>
-                          <button className="flex items-center overflow-hidden rounded-full font-medium text-base hover:opacity-90 transition-all duration-200">
-                            {/* Right section - Purple with text */}
-                            <div
-                              className="bg-[#400198] h-[45px] text-white px-4 py-2 flex items-center justify-center"
-                              style={{
-                                borderBottomLeftRadius: "60px",
-                                paddingLeft: "30px",
-                                zIndex: 1,
-                              }}
-                            >
-                              <span
-                                className="font-medium text-sm"
-                                style={{ marginTop: "-4px" }}
-                              >
-                                {t("coupons.show_coupon")}
-                              </span>
-                            </div>
-                            {/* Left section - Gray with number */}
-                            <div
-                              className="bg-[#EBEBEC] h-[45px] text-gray-700 px-6 py-2 flex items-center justify-center"
-                              style={{
-                                paddingRight: "38px",
-                                marginRight: "-48px",
-                              }}
-                            >
-                              <span className="font-bold text-lg">
-                                {coupon.couponCode
-                                  ? coupon.couponCode.slice(0, 3)
-                                  : coupon.uses}
-                              </span>
-                            </div>
-                          </button>
-                          <div className="flex gap-2">
-                            <button
-                              type="button"
-                              onClick={(e) => handleFavoriteClick(e, coupon.id)}
-                              className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-all duration-200 disabled:opacity-50"
-                              disabled={toggleFavorite.isPending}
-                            >
-                              {isCouponFavorite(coupon.id) ? (
-                                <BsHeartFill className="text-sm text-red-500" />
-                              ) : (
-                                <BsHeart className="text-sm" />
-                              )}
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      // Grid View Layout
-                      <>
-                        {/* Header */}
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-lg overflow-hidden">
+            {/* Coupons Display */}
+            {isLoadingList ? (
+              <div className="container mx-auto md:p-10 p-6 flex justify-center min-h-[200px] items-center">
+                <LoadingSpinner />
+              </div>
+            ) : paginated.length > 0 ? (
+              <div
+                className={
+                  viewMode === "grid"
+                    ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+                    : "space-y-4"
+                }
+              >
+                {paginated.map((coupon) => (
+                  <div
+                    key={coupon.id}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => openCouponModal(coupon)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        openCouponModal(coupon);
+                      }
+                    }}
+                    className={`bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer ${
+                      viewMode === "list" ? "flex items-center p-4" : ""
+                    }`}
+                  >
+                    {/* Coupon Card */}
+                    <div className={viewMode === "list" ? "flex-1 p-0" : "p-6"}>
+                      {viewMode === "list" ? (
+                        // List View Layout
+                        <div className="flex items-center justify-between w-full">
+                          {/* Left Section - Store Info */}
+                          <div className="flex items-center gap-4">
+                            <div className="w-16 h-16 rounded-lg overflow-hidden">
                               <img
                                 src={getCouponImage(coupon.logo)}
                                 alt={coupon.storeName}
                                 className="w-full h-full object-cover"
                               />
                             </div>
+
                             <div>
-                              <h3 className="font-bold text-gray-900 text-sm">
+                              <h3 className="font-bold text-gray-900 text-base">
                                 {stripHtml(coupon.storeName)}
                               </h3>
                               <p className="text-sm text-gray-500">
                                 {stripHtml(coupon.storeCategory)}
                               </p>
+                              <h4 className="text-sm font-bold text-gray-900 mt-1">
+                                {stripHtml(coupon.offer)}
+                              </h4>
                             </div>
                           </div>
-                        </div>
 
-                        {/* Offer */}
-                        <div className="mb-4">
-                          <h4 className="text-base font-bold text-gray-900 mb-2">
-                            {stripHtml(coupon.offer)}
-                          </h4>
-                        </div>
+                          {/* Middle Section - Usage and Expiry */}
+                          <div className="flex items-center gap-6">
+                            <div className="flex items-center gap-2">
+                              <IoFlashOutline className="text-orange-500 text-xl" />
+                              <div>
+                                <p className="text-xs text-gray-500">
+                                  {t("coupons.usage")}
+                                </p>
+                                <p className="text-sm font-semibold text-gray-900">
+                                  {coupon.uses} {t("coupons.uses_for_code")}
+                                </p>
+                              </div>
+                            </div>
+                            {coupon.expiry && (
+                              <div className="flex items-center gap-2">
+                                <IoCalendarOutline className="text-orange-500 text-xl" />
+                                <div>
+                                  <p className="text-xs text-gray-500">
+                                    {t("coupons.expires")}
+                                  </p>
+                                  <p className="text-sm font-semibold text-gray-900">
+                                    {coupon.expiry}
+                                  </p>
+                                </div>
+                              </div>
+                            )}
+                          </div>
 
-                        {/* Divider */}
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="px-0">
+                          {/* Right Section - Action Button */}
+                          <div className="flex items-center justify-between gap-3 w-1/3">
+                            <div className="relative">
+                              <div
+                                style={{
+                                  top: "-3rem",
+                                  position: "absolute",
+                                  borderRight: "3px dashed rgb(221, 221, 221)",
+                                  width: "1px",
+                                  height: "108px",
+                                }}
+                              />
+                            </div>
                             <button className="flex items-center overflow-hidden rounded-full font-medium text-base hover:opacity-90 transition-all duration-200">
                               {/* Right section - Purple with text */}
                               <div
@@ -1157,103 +1097,189 @@ const CouponsPage = () => {
                                 </span>
                               </div>
                             </button>
-                          </div>
-
-                          <div className="flex gap-2">
-                            <button
-                              type="button"
-                              onClick={(e) => handleFavoriteClick(e, coupon.id)}
-                              className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-all duration-200 disabled:opacity-50"
-                              disabled={toggleFavorite.isPending}
-                            >
-                              {isCouponFavorite(coupon.id) ? (
-                                <BsHeartFill className="text-sm text-red-500" />
-                              ) : (
-                                <BsHeart className="text-sm" />
-                              )}
-                            </button>
-                          </div>
-                        </div>
-                        <div
-                          className="mb-4 relative"
-                          style={{
-                            height: "20px",
-                            width: "calc(100% + 3rem)",
-                            right: "-1.5rem",
-                          }}
-                        >
-                          <img
-                            src={cutCopon}
-                            alt="cutCopon"
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-
-                        {/* Usage and Expiry */}
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-start gap-2">
-                            <IoFlashOutline className="text-orange-500 text-xl" />
-                            <div>
-                              <p className="text-xs text-gray-500">
-                                {t("coupons.usage")}
-                              </p>
-                              <p className="text-sm font-bold text-gray-900">
-                                {coupon.uses} {t("coupons.uses_for_code")}
-                              </p>
+                            <div className="flex gap-2">
+                              <button
+                                type="button"
+                                onClick={(e) =>
+                                  handleFavoriteClick(e, coupon.id)
+                                }
+                                className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-all duration-200 disabled:opacity-50"
+                                disabled={toggleFavorite.isPending}
+                              >
+                                {isCouponFavorite(coupon.id) ? (
+                                  <BsHeartFill className="text-sm text-red-500" />
+                                ) : (
+                                  <BsHeart className="text-sm" />
+                                )}
+                              </button>
                             </div>
                           </div>
-                          {coupon.expiry && (
-                            <div className="flex items-start gap-2">
-                              <IoCalendarOutline className="text-orange-500 text-xl" />
+                        </div>
+                      ) : (
+                        // Grid View Layout
+                        <>
+                          {/* Header */}
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-3">
+                              <div className="w-12 h-12 rounded-lg overflow-hidden">
+                                <img
+                                  src={getCouponImage(coupon.logo)}
+                                  alt={coupon.storeName}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
                               <div>
-                                <p className="text-xs text-gray-500">
-                                  {t("coupons.expires")}
-                                </p>
-                                <p className="text-sm font-bold text-gray-900">
-                                  {coupon.expiry}
+                                <h3 className="font-bold text-gray-900 text-sm">
+                                  {stripHtml(coupon.storeName)}
+                                </h3>
+                                <p className="text-sm text-gray-500">
+                                  {stripHtml(coupon.storeCategory)}
                                 </p>
                               </div>
                             </div>
-                          )}
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-20">
-              <p className="text-gray-500 text-xl">
-                {search
-                  ? t("coupons.no_results", { search })
-                  : t("coupons.no_coupons")}
-              </p>
-            </div>
-          )}
+                          </div>
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-2 mt-10">
-              {Array.from({ length: totalPages }).map((_, idx) => {
-                const page = idx + 1;
-                const isActive = page === currentPage;
-                return (
-                  <button
-                    key={page}
-                    onClick={() => setCurrentPage(page)}
-                    className={`w-8 h-8 rounded-md text-sm ${
-                      isActive
-                        ? "bg-[#400198] text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                    }`}
-                  >
-                    {page}
-                  </button>
-                );
-              })}
-            </div>
-          )}
+                          {/* Offer */}
+                          <div className="mb-4">
+                            <h4 className="text-base font-bold text-gray-900 mb-2">
+                              {stripHtml(coupon.offer)}
+                            </h4>
+                          </div>
+
+                          {/* Divider */}
+                          <div className="flex items-center justify-between mb-4">
+                            <div className="px-0">
+                              <button className="flex items-center overflow-hidden rounded-full font-medium text-base hover:opacity-90 transition-all duration-200">
+                                {/* Right section - Purple with text */}
+                                <div
+                                  className="bg-[#400198] h-[45px] text-white px-4 py-2 flex items-center justify-center"
+                                  style={{
+                                    borderBottomLeftRadius: "60px",
+                                    paddingLeft: "30px",
+                                    zIndex: 1,
+                                  }}
+                                >
+                                  <span
+                                    className="font-medium text-sm"
+                                    style={{ marginTop: "-4px" }}
+                                  >
+                                    {t("coupons.show_coupon")}
+                                  </span>
+                                </div>
+                                {/* Left section - Gray with number */}
+                                <div
+                                  className="bg-[#EBEBEC] h-[45px] text-gray-700 px-6 py-2 flex items-center justify-center"
+                                  style={{
+                                    paddingRight: "38px",
+                                    marginRight: "-48px",
+                                  }}
+                                >
+                                  <span className="font-bold text-lg">
+                                    {coupon.couponCode
+                                      ? coupon.couponCode.slice(0, 3)
+                                      : coupon.uses}
+                                  </span>
+                                </div>
+                              </button>
+                            </div>
+
+                            <div className="flex gap-2">
+                              <button
+                                type="button"
+                                onClick={(e) =>
+                                  handleFavoriteClick(e, coupon.id)
+                                }
+                                className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-200 transition-all duration-200 disabled:opacity-50"
+                                disabled={toggleFavorite.isPending}
+                              >
+                                {isCouponFavorite(coupon.id) ? (
+                                  <BsHeartFill className="text-sm text-red-500" />
+                                ) : (
+                                  <BsHeart className="text-sm" />
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                          <div
+                            className="mb-4 relative"
+                            style={{
+                              height: "20px",
+                              width: "calc(100% + 3rem)",
+                              right: "-1.5rem",
+                            }}
+                          >
+                            <img
+                              src={cutCopon}
+                              alt="cutCopon"
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+
+                          {/* Usage and Expiry */}
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-start gap-2">
+                              <IoFlashOutline className="text-orange-500 text-xl" />
+                              <div>
+                                <p className="text-xs text-gray-500">
+                                  {t("coupons.usage")}
+                                </p>
+                                <p className="text-sm font-bold text-gray-900">
+                                  {coupon.uses} {t("coupons.uses_for_code")}
+                                </p>
+                              </div>
+                            </div>
+                            {coupon.expiry && (
+                              <div className="flex items-start gap-2">
+                                <IoCalendarOutline className="text-orange-500 text-xl" />
+                                <div>
+                                  <p className="text-xs text-gray-500">
+                                    {t("coupons.expires")}
+                                  </p>
+                                  <p className="text-sm font-bold text-gray-900">
+                                    {coupon.expiry}
+                                  </p>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-20">
+                <p className="text-gray-500 text-xl">
+                  {search
+                    ? t("coupons.no_results", { search })
+                    : t("coupons.no_coupons")}
+                </p>
+              </div>
+            )}
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center gap-2 mt-10">
+                {Array.from({ length: totalPages }).map((_, idx) => {
+                  const page = idx + 1;
+                  const isActive = page === currentPage;
+                  return (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`w-8 h-8 rounded-md text-sm ${
+                        isActive
+                          ? "bg-[#400198] text-white"
+                          : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </section>
         </>
       )}
