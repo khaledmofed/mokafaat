@@ -37,15 +37,51 @@ export async function downloadVoucher(
     credentials: "include",
   });
   if (!res.ok) {
-    throw new Error(`Download failed: ${res.status}`);
+    let details = "";
+    try {
+      details = await res.text();
+    } catch {
+      // ignore
+    }
+    throw new Error(`Download failed: ${res.status}${details ? ` - ${details}` : ""}`);
   }
+  const contentType = res.headers.get("Content-Type") || "";
   const blob = await res.blob();
+
+  // If backend returns JSON/HTML error but with 200, don't download a corrupted "pdf".
+  if (!/application\/pdf/i.test(contentType)) {
+    try {
+      const text = await blob.text();
+      const parsed = JSON.parse(text) as Record<string, unknown>;
+      const nestedMsg =
+        (
+          (parsed?.data as Record<string, unknown> | undefined)?.order as
+            | Record<string, unknown>
+            | undefined
+        )?.message ??
+        parsed?.message ??
+        parsed?.msg;
+      throw new Error(String(nestedMsg || "Invalid voucher response"));
+    } catch (e) {
+      const msg =
+        e instanceof Error
+          ? e.message
+          : "Invalid voucher response (not a PDF)";
+      throw new Error(msg);
+    }
+  }
+
   const disposition = res.headers.get("Content-Disposition");
   const filenameMatch = disposition?.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
   const filename = filenameMatch ? filenameMatch[1].replace(/['"]/g, "") : `voucher-${Date.now()}.pdf`;
+  const objectUrl = URL.createObjectURL(blob);
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
+  a.href = objectUrl;
   a.download = filename;
+  a.rel = "noopener";
+  document.body.appendChild(a);
   a.click();
-  URL.revokeObjectURL(a.href);
+  a.remove();
+  // revoke later to avoid corrupt downloads in some browsers
+  window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1500);
 }

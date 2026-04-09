@@ -13,6 +13,7 @@ import { useUserStore } from "@stores/userStore";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import { normalizeOrdersList, type NormalizedOrder } from "@utils/orders";
 import { downloadVoucher } from "@utils/voucherDownload";
+import { toast } from "react-toastify";
 
 /** شكل الطلب الخام من API تفاصيل الطلب (عرض أو بطاقة) */
 interface RawOrder {
@@ -112,8 +113,14 @@ const OrderDetailPage: React.FC = () => {
   const handleDownloadVoucher = () => {
     const url = rawOrderData?.voucher_url ?? order?.voucherUrl;
     if (!url || !token) return;
-    downloadVoucher(url, () => getToken().token).catch(() => {
-      alert(isRTL ? "فشل التنزيل" : "Download failed");
+    downloadVoucher(url, () => getToken().token).catch((e) => {
+      const msg =
+        e instanceof Error && e.message
+          ? e.message
+          : isRTL
+            ? "فشل التنزيل"
+            : "Download failed";
+      toast.error(msg);
     });
   };
 
@@ -183,6 +190,7 @@ const OrderDetailPage: React.FC = () => {
   const terms = rawOrderData?.item?.terms;
   const hasVoucher = !!(rawOrderData?.voucher_url ?? order?.voucherUrl);
   const isCardOrder = (rawOrderData?.order_type ?? order?.orderType) === "card";
+  const showActivateDealButton = !isCardOrder && Number(totalPrice) <= 0;
   const barcodeUrl = rawOrderData?.barcode_url ?? order?.barcodeUrl;
   const cardCodes = rawOrderData?.card_codes ?? order?.cardCodes ?? [];
   const orderItem = rawOrderData?.item;
@@ -262,8 +270,12 @@ const OrderDetailPage: React.FC = () => {
                 </p>
                 <p className="text-sm text-gray-500 mt-1">
                   {isCardOrder
-                    ? (isRTL ? "رمز التفعيل" : "Activation Code")
-                    : (isRTL ? "رقم القسيمة" : "Voucher Number")}
+                    ? isRTL
+                      ? "رمز التفعيل"
+                      : "Activation Code"
+                    : isRTL
+                      ? "رقم القسيمة"
+                      : "Voucher Number"}
                 </p>
               </div>
             )}
@@ -322,7 +334,13 @@ const OrderDetailPage: React.FC = () => {
                     {order.items[0].title[isRTL ? "ar" : "en"]}
                   </span>
                   <span className="text-gray-500">
-                    {isCardOrder ? (isRTL ? "البطاقة" : "Card") : (isRTL ? "العرض" : "Offer")}
+                    {isCardOrder
+                      ? isRTL
+                        ? "البطاقة"
+                        : "Card"
+                      : isRTL
+                        ? "العرض"
+                        : "Offer"}
                   </span>
                 </div>
               )}
@@ -334,7 +352,13 @@ const OrderDetailPage: React.FC = () => {
                     {rawOrderData.item.name}
                   </span>
                   <span className="text-gray-500">
-                    {isCardOrder ? (isRTL ? "البطاقة" : "Card") : (isRTL ? "العرض" : "Offer")}
+                    {isCardOrder
+                      ? isRTL
+                        ? "البطاقة"
+                        : "Card"
+                      : isRTL
+                        ? "العرض"
+                        : "Offer"}
                   </span>
                 </div>
               )}
@@ -386,12 +410,18 @@ const OrderDetailPage: React.FC = () => {
                 className={`flex justify-between items-center text-sm gap-4 ${isRTL ? "flex-row-reverse" : ""}`}
               >
                 <span className="text-gray-900 font-medium">
-                  {order.items?.reduce((s, i) => s + i.quantity, 0) ?? rawOrderData?.quantity ?? 1}
+                  {order.items?.reduce((s, i) => s + i.quantity, 0) ??
+                    rawOrderData?.quantity ??
+                    1}
                 </span>
                 <span className="text-gray-500">
                   {isCardOrder
-                    ? (isRTL ? "الكمية" : "Quantity")
-                    : (isRTL ? "عدد الصفقات المشتراة" : "Number of Deals Purchased")}
+                    ? isRTL
+                      ? "الكمية"
+                      : "Quantity"
+                    : isRTL
+                      ? "عدد الصفقات المشتراة"
+                      : "Number of Deals Purchased"}
                 </span>
               </div>
               {/* نوع الصلاحية (للبطاقات) */}
@@ -401,11 +431,17 @@ const OrderDetailPage: React.FC = () => {
                 >
                   <span className="text-gray-900 font-medium">
                     {orderItem.validity_type === "annual"
-                      ? (isRTL ? "سنوي" : "Annual")
+                      ? isRTL
+                        ? "سنوي"
+                        : "Annual"
                       : orderItem.validity_type === "monthly"
-                        ? (isRTL ? "شهري" : "Monthly")
+                        ? isRTL
+                          ? "شهري"
+                          : "Monthly"
                         : orderItem.validity_type === "quarterly"
-                          ? (isRTL ? "ربع سنوي" : "Quarterly")
+                          ? isRTL
+                            ? "ربع سنوي"
+                            : "Quarterly"
                           : orderItem.validity_type}
                   </span>
                   <span className="text-gray-500">
@@ -449,10 +485,18 @@ const OrderDetailPage: React.FC = () => {
             <div className="border-t border-dashed border-gray-200 mt-6 pt-6 flex gap-3">
               <button
                 type="button"
-                onClick={() => navigate("/orders")}
+                onClick={() =>
+                  showActivateDealButton ? navigate("/profile") : navigate("/orders")
+                }
                 className="flex-1 py-3 px-4 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors"
               >
-                {isRTL ? "عودة للمتجر" : "Return to Store"}
+                {showActivateDealButton
+                  ? isRTL
+                    ? "تفعيل الصفقة"
+                    : "Activate Deal"
+                  : isRTL
+                    ? "عودة للمتجر"
+                    : "Return to Store"}
               </button>
               {hasVoucher && (
                 <button
