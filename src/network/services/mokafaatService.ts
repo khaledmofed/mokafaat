@@ -210,6 +210,8 @@ export const couponsApi = {
     api.get(API_ENDPOINTS.coupons.byMerchant(id)),
   detail: (id: string | number) => api.get(API_ENDPOINTS.coupons.detail(id)),
   use: (id: string | number) => api.post(API_ENDPOINTS.coupons.use(id)),
+  vote: (id: string | number, vote: "working" | "not_working") =>
+    api.post(API_ENDPOINTS.coupons.vote(id), { vote }),
 };
 
 // ========== Cards (app) ==========
@@ -228,18 +230,8 @@ export const cardsApi = {
 // ========== Web (عام - للوحة الويب بدون توكن أو معه) ==========
 export const webApi = {
   home: () => api.get(API_ENDPOINTS.web.home),
-  cards: (params?: {
-    category_id?: number;
-    merchant_id?: number;
-    pricing_type?: string;
-    price_min?: number;
-    price_max?: number;
-    discount_min?: number;
-    search?: string;
-    sort_by?: string;
-    per_page?: number;
-    page?: number;
-  }) => api.get(API_ENDPOINTS.web.cards, { params }),
+  cards: (params?: Record<string, unknown>) =>
+    api.get(API_ENDPOINTS.web.cards, { params }),
   cardDetail: (id: string | number) =>
     api.get(API_ENDPOINTS.web.cardDetail(id)),
   categoriesCards: (platformSlug: string, params?: Record<string, unknown>) =>
@@ -249,6 +241,7 @@ export const webApi = {
   newsDetail: (slug: string) => api.get(API_ENDPOINTS.web.newsDetail(slug)),
   newsByCategory: (categorySlug: string) =>
     api.get(API_ENDPOINTS.web.newsByCategory(categorySlug)),
+  couponsHome: () => api.get(API_ENDPOINTS.web.couponsHome),
   coupons: (params?: Record<string, unknown>) =>
     api.get(API_ENDPOINTS.web.coupons, { params }),
   couponDetail: (id: string | number) =>
@@ -259,6 +252,8 @@ export const webApi = {
     api.get(API_ENDPOINTS.web.offers, { params }),
   offerDetail: (id: string | number) =>
     api.get(API_ENDPOINTS.web.offerDetail(id)),
+  popupAds: (params: { screen: string }) =>
+    api.get(API_ENDPOINTS.web.popupAds, { params }),
   contact: (params: {
     name: string;
     email: string;

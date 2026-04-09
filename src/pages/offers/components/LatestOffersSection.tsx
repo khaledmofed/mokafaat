@@ -7,6 +7,7 @@ import OwlCarousel from "react-owl-carousel";
 import { Pattern } from "@assets";
 import { useWebOffers } from "@hooks/api/useMokafaatQueries";
 import { mapApiOffersToModels } from "@network/mappers/offersMapper";
+import { buildWebOffersParams } from "@utils/webFilters";
 
 function extractOffersArray(res: unknown): Array<Record<string, unknown>> {
   const root = (res as Record<string, unknown>) ?? {};
@@ -22,9 +23,9 @@ const LatestOffersSection: React.FC = () => {
   const [carouselKey, setCarouselKey] = useState(0);
   const owlCarouselRef = useRef<OwlCarousel | null>(null);
 
-  const { data: latestRes, isLoading: apiLoading } = useWebOffers({
-    sort_by: "latest",
-  });
+  const { data: latestRes, isLoading: apiLoading } = useWebOffers(
+    buildWebOffersParams({ sortBy: "latest" }),
+  );
 
   const offers = useMemo(
     () => mapApiOffersToModels(extractOffersArray(latestRes)).slice(0, 8),

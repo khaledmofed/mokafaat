@@ -21,6 +21,7 @@ import { OwnerImage, UnderTitle, MukafaatVideo } from "@assets";
 import { LuPhoneCall } from "react-icons/lu";
 import useIsRTL from "@hooks/useIsRTL";
 import OwlCarousel from "react-owl-carousel";
+import { useShareSheetStore } from "@stores/shareSheetStore";
 
 const PropertyProductPage: React.FC = () => {
   const { propertySlug, productSlug } = useParams<{
@@ -36,6 +37,7 @@ const PropertyProductPage: React.FC = () => {
   // State for video
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const openShare = useShareSheetStore((s) => s.openShare);
 
   // Get property product from centralized data
   const propertyProduct = useMemo(() => {
@@ -97,7 +99,10 @@ const PropertyProductPage: React.FC = () => {
   }, [propertySlug, productSlug]);
 
   const handleShareClick = (id: number) => {
-    console.log("Share clicked:", id);
+    const item = properties.find((p) => p.id === id);
+    if (!item) return;
+    const url = `${window.location.origin}/properties/${item.propertySlug}/${item.slug}`;
+    openShare({ title: isRTL ? item.titleAr : item.title, url });
   };
 
   const handleVisitClick = (id: number) => {

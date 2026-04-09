@@ -3,20 +3,20 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useIsRTL } from "@hooks";
 import { FiArrowLeft, FiFilter, FiGrid, FiList } from "react-icons/fi";
-import {
-  getRestaurantsByCategory,
-  offerCategories,
-  type Restaurant,
-  type Offer,
-} from "@data/offers";
+import { offerCategories, type Offer } from "@data/offers";
 import { AboutPattern } from "@assets";
 import GetStartedSection from "@pages/home/components/GetStartedSection";
 import FilterSidebar, { type FilterState } from "../components/FilterSidebar";
 import OfferCard from "../components/OfferCard";
 import CategoryCard from "@components/CategoryCard";
-import { useWebHome, useFilters } from "@hooks/api/useMokafaatQueries";
+import {
+  useWebHome,
+  useFilters,
+  useWebOffers,
+} from "@hooks/api/useMokafaatQueries";
 import { mapApiOffersToModels } from "@network/mappers/offersMapper";
 import { API_BASE_URL } from "@config/api";
+import { buildWebOffersParams } from "@utils/webFilters";
 
 function buildCategoryIconUrl(
   icon: string | undefined,
@@ -70,7 +70,11 @@ const CategoryOffersPage = () => {
           <SkeletonBlock className="h-5 w-80 mx-auto" />
         </div>
         <div className="absolute -bottom-10 transform z-9">
-          <img src={AboutPattern} alt="Pattern" className="w-full h-96 animate-float" />
+          <img
+            src={AboutPattern}
+            alt="Pattern"
+            className="w-full h-96 animate-float"
+          />
         </div>
       </section>
 
@@ -89,7 +93,10 @@ const CategoryOffersPage = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div
+              key={i}
+              className="bg-white rounded-xl shadow-lg overflow-hidden"
+            >
               <SkeletonBlock className="h-[185px] w-full" />
               <div className="p-4">
                 <SkeletonBlock className="h-5 w-3/4 mb-3" />
@@ -205,160 +212,73 @@ const CategoryOffersPage = () => {
   }, [category, webHomeResponse, categoryInfo?.icon]);
 
   // Restaurants from API (offers grouped by merchant) or fallback to static data
-  const apiRestaurants = useMemo((): Restaurant[] => {
-    if (!category || !webHomeResponse) return [];
-    const res = webHomeResponse as Record<string, unknown>;
-    const data = res?.data as Record<string, unknown> | undefined;
-    const offersData = data?.offers as
-      | Record<string, Array<Record<string, unknown>>>
-      | undefined;
-    const all = [
-      ...(Array.isArray(offersData?.today) ? offersData.today : []),
-      ...(Array.isArray(offersData?.new) ? offersData.new : []),
-      ...(Array.isArray(offersData?.best_selling)
-        ? offersData.best_selling
-        : []),
-    ];
-    let offers = mapApiOffersToModels(all).filter(
-      (o) =>
-        (o.category || "").toLowerCase() === (category || "").toLowerCase(),
-    );
-    // إزالة تكرار العروض إذا ظهر نفس العرض في أكثر من قائمة (today / new / best_selling)
-    const seenIds = new Set<string>();
-    offers = offers.filter((o) => {
-      if (seenIds.has(o.id)) return false;
-      seenIds.add(o.id);
-      return true;
-    });
-    const byCompany = new Map<string, Offer[]>();
-    for (const o of offers) {
-      const id = o.companyId || "unknown";
-      if (!byCompany.has(id)) byCompany.set(id, []);
-      byCompany.get(id)!.push(o);
-    }
-    return Array.from(byCompany.entries()).map(([companyId, companyOffers]) => {
-      const first = companyOffers[0]!;
-      const name = first.merchantName || first.title.ar || first.title.en || "";
-      const logo = first.merchantLogo || first.image || "Pro1";
-      return {
-        id: companyId,
-        slug: companyId,
-        name: { ar: name, en: name },
-        logo,
-        category: {
-          key: category,
-          ar: first.categoryName ?? category,
-          en: first.categoryName ?? category,
-        },
-        description: { ar: "", en: "" },
-        location: { ar: "-", en: "-" },
-        distance: "-",
-        rating: first.rating ?? 0,
-        reviewsCount: 0,
-        views: first.views ?? 0,
-        saves: first.bookmarks ?? 0,
-        color: "#400198",
-        topColor: "bg-[#400198]",
-        offers: companyOffers,
-        menu: [],
-        isOpen: true,
-        deliveryTime: "-",
-        minimumOrder: 0,
-        deliveryFee: 0,
-      };
-    });
-  }, [category, webHomeResponse]);
+  // Note: This page now uses server-side filtering via /api/web/offers.
 
   // قائمة العروض المسطحة للتصنيف (عروض فقط بدون تجميع حسب متجر)
-  const allOffers = useMemo((): Offer[] => {
-    if (!category) return [];
-    const restaurants: Restaurant[] =
-      apiRestaurants.length > 0
-        ? apiRestaurants
-        : getRestaurantsByCategory(category);
-    return restaurants.flatMap((r) => r.offers);
-  }, [category, apiRestaurants]);
+  const webOffersParams = useMemo(
+    () =>
+      buildWebOffersParams({
+        categoryIds: categoryId != null ? [categoryId] : undefined,
+        search,
+        sortBy:
+          appliedFilters?.sortBy && appliedFilters.sortBy !== "nearest"
+            ? appliedFilters.sortBy
+            : undefined,
+        subcategoryIds: appliedFilters?.subcategoryIds,
+        brandIds: appliedFilters?.brandIds,
+        offerTypeIds: appliedFilters?.offerTypeIds,
+        priceMin: appliedFilters?.priceRange?.min,
+        priceMax: appliedFilters?.priceRange?.max,
+        perPage,
+        page: currentPage,
+      }),
+    [categoryId, search, appliedFilters, perPage, currentPage],
+  );
 
-  // فلترة وترتيب العروض (عرض جميع العروض في التصنيف وليس المتاجر)
-  // خيارات الفلتر من API: GET /api/filters/:categoryId
-  // التطبيق: على البيانات المحمّلة من web/home (today/new/best_selling). لتفعيل فلترة من السيرفر استخدم useOffersByCategory(categoryId, { subcategory_ids, offer_type_ids, brand_ids, sort_by, ... }) إن دعم الباكند.
-  const filteredOffers = useMemo(() => {
-    if (!category) return [];
+  const { data: webOffersRes, isLoading: isOffersLoading } = useWebOffers(
+    webOffersParams,
+    { enabled: categoryId != null },
+  );
 
-    let offers: Offer[] = [...allOffers];
+  function extractOffersArray(res: unknown): Array<Record<string, unknown>> {
+    const root = (res as Record<string, unknown>) ?? {};
+    const data =
+      (root.data as Record<string, unknown>) ??
+      (root as Record<string, unknown>);
+    const offers = (data.offers ?? data.data ?? data) as unknown;
+    return Array.isArray(offers)
+      ? (offers as Array<Record<string, unknown>>)
+      : [];
+  }
 
-    if (search) {
-      const q = search.toLowerCase();
-      offers = offers.filter(
-        (o) =>
-          (o.title?.ar ?? "").toLowerCase().includes(q) ||
-          (o.title?.en ?? "").toLowerCase().includes(q) ||
-          (o.description?.ar ?? "").toLowerCase().includes(q) ||
-          (o.description?.en ?? "").toLowerCase().includes(q) ||
-          (o.merchantName ?? "").toLowerCase().includes(q),
-      );
-    }
+  function extractPagination(res: unknown): {
+    currentPage: number;
+    lastPage: number;
+    total: number;
+  } {
+    const root = (res as Record<string, unknown>) ?? {};
+    const data =
+      (root.data as Record<string, unknown>) ??
+      (root as Record<string, unknown>);
+    const pg =
+      (data.pagination as Record<string, unknown> | undefined) ??
+      (data.meta as Record<string, unknown> | undefined) ??
+      (data as Record<string, unknown>);
+    const currentPage = Number(pg?.current_page ?? pg?.page ?? 1) || 1;
+    const lastPage = Number(pg?.last_page ?? pg?.pages ?? 1) || 1;
+    const total = Number(pg?.total ?? 0) || 0;
+    return { currentPage, lastPage, total };
+  }
 
-    if (appliedFilters) {
-      if (appliedFilters.brandIds.length > 0) {
-        offers = offers.filter((o) =>
-          appliedFilters!.brandIds.some(
-            (bid) =>
-              String(bid) === String(o.companyId) ||
-              bid === Number(o.companyId),
-          ),
-        );
-      }
-      if (appliedFilters.subcategoryIds.length > 0) {
-        offers = offers.filter((o) =>
-          o.subcategoryId != null &&
-          appliedFilters!.subcategoryIds.includes(o.subcategoryId),
-        );
-      }
-      if (appliedFilters.offerTypeIds.length > 0) {
-        offers = offers.filter((o) =>
-          o.offerTypeId != null &&
-          appliedFilters!.offerTypeIds.includes(o.offerTypeId),
-        );
-      }
-      if (
-        appliedFilters.priceRange.min != null ||
-        appliedFilters.priceRange.max != null
-      ) {
-        const min = appliedFilters.priceRange.min ?? 0;
-        const max = appliedFilters.priceRange.max ?? Infinity;
-        offers = offers.filter((o) => {
-          const price = o.discountPrice ?? o.originalPrice ?? 0;
-          return price >= min && price <= max;
-        });
-      }
-      switch (appliedFilters.sortBy) {
-        case "highest_rated":
-          offers = [...offers].sort(
-            (a, b) => (b.rating ?? 0) - (a.rating ?? 0),
-          );
-          break;
-        case "newest":
-          offers = [...offers].sort((a, b) => (b.views ?? 0) - (a.views ?? 0));
-          break;
-        case "best_selling":
-          offers = [...offers].sort(
-            (a, b) => (b.purchases ?? 0) - (a.purchases ?? 0),
-          );
-          break;
-        case "highest_discount":
-          offers = [...offers].sort(
-            (a, b) => (b.discountPercentage ?? 0) - (a.discountPercentage ?? 0),
-          );
-          break;
-        case "nearest":
-        default:
-          break;
-      }
-    }
+  const filteredOffers = useMemo(
+    () => mapApiOffersToModels(extractOffersArray(webOffersRes)),
+    [webOffersRes],
+  );
 
-    return offers;
-  }, [category, search, appliedFilters, allOffers]);
+  const pagination = useMemo(
+    () => extractPagination(webOffersRes),
+    [webOffersRes],
+  );
 
   const handleApplyFilters = (filters: FilterState) => {
     setAppliedFilters(filters);
@@ -387,9 +307,8 @@ const CategoryOffersPage = () => {
     );
   }
 
-  const totalPages = Math.ceil(filteredOffers.length / perPage) || 1;
-  const startIdx = (currentPage - 1) * perPage;
-  const paginatedOffers = filteredOffers.slice(startIdx, startIdx + perPage);
+  const totalPages = pagination.lastPage || 1;
+  const paginatedOffers = filteredOffers;
 
   const handleOfferClick = (offer: Offer) => {
     navigate(`/offers/${category}/${offer.companyId}/offer/${offer.id}`);
@@ -786,7 +705,11 @@ const CategoryOffersPage = () => {
         </div>
 
         {/* عرض جميع العروض في التصنيف */}
-        {paginatedOffers.length > 0 ? (
+        {isOffersLoading ? (
+          <div className="flex items-center justify-center py-16">
+            <div className="w-10 h-10 border-2 border-[#400198] border-t-transparent rounded-full animate-spin" />
+          </div>
+        ) : paginatedOffers.length > 0 ? (
           <div
             className={
               viewMode === "grid"

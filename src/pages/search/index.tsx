@@ -13,6 +13,7 @@ import GetStartedSectionInside from "@pages/home/components/GetStartedSectionIns
 import FAQSection from "@pages/home/components/FAQSection";
 import { properties, getCategoryFilters } from "@data/properties";
 import Pagination from "../../components/Pagination";
+import { useShareSheetStore } from "@stores/shareSheetStore";
 // import { useTranslation } from "react-i18next";
 
 // Custom SingleValue component for Sort by
@@ -33,6 +34,7 @@ const CustomSingleValue = (props: any) => {
 
 const SearchPage: React.FC = () => {
   const isRTL = useIsRTL();
+  const openShare = useShareSheetStore((s) => s.openShare);
   //   const { t } = useTranslation();
   // Filter states
   const [location, setLocation] = useState("");
@@ -109,6 +111,13 @@ const SearchPage: React.FC = () => {
     }
     return categoryFilters.slice(0, 6);
   }, [categoryFilters, showMoreTags]);
+
+  const openShareForProperty = (id: number) => {
+    const item = allProperties.find((p) => p.id === id);
+    if (!item) return;
+    const url = `${window.location.origin}/properties/${item.propertySlug}/${item.slug}`;
+    openShare({ title: item.title, url });
+  };
 
   return (
     <>
@@ -523,7 +532,7 @@ const SearchPage: React.FC = () => {
                           <PropertyCard
                             key={property.id}
                             {...property}
-                            onShareClick={() => console.log("Share clicked")}
+                            onShareClick={openShareForProperty}
                             onVisitClick={() => console.log("Visit clicked")}
                           />
                         ))}

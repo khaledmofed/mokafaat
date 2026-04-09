@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useIsRTL } from "@hooks";
 import { FiStar, FiHeart, FiShare, FiMapPin, FiUsers } from "react-icons/fi";
 import { MdOutlineFlight } from "react-icons/md";
+import { useShareSheetStore } from "@stores/shareSheetStore";
 
 interface BookingData {
   image: string;
@@ -36,14 +37,17 @@ const BookingCard: React.FC<BookingCardProps> = ({
 }) => {
   const isRTL = useIsRTL();
   const [isFavorited, setIsFavorited] = useState(false);
+  const openShare = useShareSheetStore((s) => s.openShare);
 
   const handleFavorite = () => {
     setIsFavorited(!isFavorited);
   };
 
   const handleShare = () => {
-    // Implement share functionality
-    console.log("Share clicked");
+    openShare({
+      title: data.name[isRTL ? "ar" : "en"],
+      url: window.location.href,
+    });
   };
 
   const handleBook = () => {
@@ -67,7 +71,10 @@ const BookingCard: React.FC<BookingCardProps> = ({
               {/* Action Buttons */}
               <div className="absolute top-2 right-2 flex gap-1">
                 <button
-                  onClick={handleShare}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleShare();
+                  }}
                   className="w-6 h-6 bg-white bg-opacity-90 rounded-full flex items-center justify-center text-gray-700 hover:bg-opacity-100 transition-all duration-200"
                 >
                   <FiShare className="text-xs" />
@@ -155,7 +162,10 @@ const BookingCard: React.FC<BookingCardProps> = ({
           />
           <div className="absolute top-3 right-3 flex gap-2">
             <button
-              onClick={handleShare}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleShare();
+              }}
               className="w-8 h-8 bg-white bg-opacity-90 rounded-full flex items-center justify-center text-gray-700 hover:bg-opacity-100 transition-all duration-200"
             >
               <FiShare className="text-sm" />
@@ -246,7 +256,10 @@ const BookingCard: React.FC<BookingCardProps> = ({
               {/* Action Buttons */}
               <div className="absolute top-2 right-2 flex gap-1">
                 <button
-                  onClick={handleShare}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleShare();
+                  }}
                   className="w-6 h-6 bg-white bg-opacity-90 rounded-full flex items-center justify-center text-gray-700 hover:bg-opacity-100 transition-all duration-200"
                 >
                   <FiShare className="text-xs" />
@@ -345,7 +358,10 @@ const BookingCard: React.FC<BookingCardProps> = ({
           />
           <div className="absolute top-3 right-3 flex gap-2">
             <button
-              onClick={handleShare}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleShare();
+              }}
               className="w-8 h-8 bg-white bg-opacity-90 rounded-full flex items-center justify-center text-gray-700 hover:bg-opacity-100 transition-all duration-200"
             >
               <FiShare className="text-sm" />
@@ -453,7 +469,10 @@ const BookingCard: React.FC<BookingCardProps> = ({
               {/* Action Buttons */}
               <div className="absolute top-2 right-2 flex gap-1">
                 <button
-                  onClick={handleShare}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleShare();
+                  }}
                   className="w-6 h-6 bg-white bg-opacity-90 rounded-full flex items-center justify-center text-gray-700 hover:bg-opacity-100 transition-all duration-200"
                 >
                   <FiShare className="text-xs" />
@@ -540,7 +559,10 @@ const BookingCard: React.FC<BookingCardProps> = ({
           />
           <div className="absolute top-3 right-3 flex gap-2">
             <button
-              onClick={handleShare}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleShare();
+              }}
               className="w-8 h-8 bg-white bg-opacity-90 rounded-full flex items-center justify-center text-gray-700 hover:bg-opacity-100 transition-all duration-200"
             >
               <FiShare className="text-sm" />

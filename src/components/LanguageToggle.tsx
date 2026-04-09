@@ -45,6 +45,7 @@ const LanguageToggle: React.FC<LanguageToggleProps> = ({
   };
   const apiCountries = appConfig?.data?.config?.countries ?? [];
   const countries = apiCountries.map((c) => ({
+    id: c.id,
     code: c.code,
     name: c.name,
     image: c.flag
@@ -55,17 +56,33 @@ const LanguageToggle: React.FC<LanguageToggleProps> = ({
   const currentLang =
     languages.find((lang) => lang.code === currentLanguage) || languages[0];
 
+  const selectedCountryId = (() => {
+    try {
+      const v = localStorage.getItem("country_id");
+      const n = v && v.trim() !== "" ? Number(v) : NaN;
+      return Number.isFinite(n) ? n : null;
+    } catch {
+      return null;
+    }
+  })();
+
   const handleLanguageChange = (langCode: string) => {
     setLanguage(langCode);
     setIsOpen(false);
     handleCloseNavigation();
   };
 
-  const handleCountryChange = (countryCode: string) => {
-    // Handle country change logic here
-    console.log("Country changed to:", countryCode);
+  const handleCountryChange = (countryId: number) => {
+    // Persist selected country id so API requests can include `country_id`
+    try {
+      localStorage.setItem("country_id", String(countryId));
+    } catch {
+      // ignore storage failures
+    }
     setIsOpen(false);
     handleCloseNavigation();
+    // Force refetch across the app (React Query keys do not include country)
+    window.location.reload();
   };
 
   const toggleDropdown = () => {
@@ -133,7 +150,8 @@ const LanguageToggle: React.FC<LanguageToggleProps> = ({
       {isOpen && (
         <div
           className={`absolute top-full mt-2 w-96 bg-white rounded-xl shadow-lg border border-gray-200 z-50 overflow-hidden p-6 ${
-            isRTL ? "left-0" : "right-0"
+            // Align dropdown with trigger depending on direction
+            isRTL ? "right-0" : "left-0"
           }`}
         >
           {/* Header Tabs */}
@@ -208,11 +226,17 @@ const LanguageToggle: React.FC<LanguageToggleProps> = ({
                 ) : (
                   countries.map((country) => (
                     <button
-                      key={country.code}
-                      onClick={() => handleCountryChange(country.code)}
+                      key={country.id ?? country.code}
+                      onClick={() => handleCountryChange(country.id)}
                       className={`w-full flex items-center gap-2 px-3 py-3 ${
                         isRTL ? "text-right" : "text-left"
-                      } hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0`}
+                      } hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0 ${
+                        selectedCountryId != null &&
+                        country.id != null &&
+                        Number(country.id) === Number(selectedCountryId)
+                          ? "bg-gray-100"
+                          : ""
+                      }`}
                     >
                       <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-gray-200 flex items-center justify-center flex-shrink-0 bg-gray-100">
                         {country.image ? (

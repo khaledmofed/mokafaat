@@ -5,7 +5,7 @@ import { Helmet } from "react-helmet-async";
 import { IoCalendarOutline, IoFlashOutline } from "react-icons/io5";
 import { BsHeart, BsHeartFill } from "react-icons/bs";
 import { FaTag, FaPercent, FaUtensils } from "react-icons/fa";
-import { FiGrid, FiList } from "react-icons/fi";
+import { FiFilter, FiGrid, FiList } from "react-icons/fi";
 import OwlCarousel from "react-owl-carousel";
 import { copon1, copon2, copon3, copon4, cutCopon } from "@assets";
 import CouponsHero from "./components/CouponsHero";
@@ -14,7 +14,7 @@ import CouponModal, {
   type CouponWithIcon,
 } from "@pages/home/components/CouponModal";
 import { LoadingSpinner } from "@components/LoadingSpinner";
-import { useCouponsHome } from "@hooks/api/useMokafaatQueries";
+import { useWebCoupons, useWebCouponsHome } from "@hooks/api/useMokafaatQueries";
 import { mapApiCouponsToModels } from "@network/mappers/couponsMapper";
 import { stripHtml } from "@utils/stripHtml";
 import { useIsRTL } from "@hooks";
@@ -23,6 +23,8 @@ import { useFavorites, useFavoriteToggle } from "@hooks/api/useMokafaatQueries";
 import { normalizeFavoritesList } from "@utils/favorites";
 import { toast } from "react-toastify";
 import CategoryCard from "@components/CategoryCard";
+import { buildWebCouponsParams } from "@utils/webFilters";
+import { IoMdClose } from "react-icons/io";
 
 type CouponDisplay = {
   id: string;
@@ -98,10 +100,27 @@ const CouponsPage = () => {
   );
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [categoriesCarouselKey, setCategoriesCarouselKey] = useState(0);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const defaultCouponFilters = useMemo(
+    () => ({ merchantIds: [] as string[], couponTypes: [] as Array<"percentage" | "fixed"> }),
+    [],
+  );
+  const [draftCouponFilters, setDraftCouponFilters] = useState<{
+    sortBy?: "newest" | "most_used" | "highest_discount";
+    merchantIds: string[];
+    couponTypes: Array<"percentage" | "fixed">;
+    discountMin?: number;
+  }>(defaultCouponFilters);
+  const [appliedCouponFilters, setAppliedCouponFilters] = useState<{
+    sortBy?: "newest" | "most_used" | "highest_discount";
+    merchantIds: string[];
+    couponTypes: Array<"percentage" | "fixed">;
+    discountMin?: number;
+  }>(defaultCouponFilters);
   const perPage = 9;
 
   const { data: couponsHomeResponse, isLoading: isLoadingCoupons } =
-    useCouponsHome();
+    useWebCouponsHome();
 
   const homeData = useMemo(() => {
     if (!couponsHomeResponse) return null;
@@ -114,6 +133,12 @@ const CouponsPage = () => {
     const list = homeData.categories as
       | Array<Record<string, unknown>>
       | undefined;
+    return Array.isArray(list) ? list : [];
+  }, [homeData]);
+
+  const merchantsList = useMemo(() => {
+    if (!homeData) return [];
+    const list = homeData.merchants as Array<Record<string, unknown>> | undefined;
     return Array.isArray(list) ? list : [];
   }, [homeData]);
 
@@ -162,19 +187,64 @@ const CouponsPage = () => {
     [isRTL, categoriesCarouselItems.length],
   );
 
+  const listParams = useMemo(
+    () =>
+      buildWebCouponsParams({
+        categoryIds: selectedCategoryId ? [selectedCategoryId] : undefined,
+        search,
+        perPage,
+        page: currentPage,
+        sortBy:
+          appliedCouponFilters.sortBy ??
+          (selectedFilter === "top_used" ? "most_used" : "newest"),
+        merchantIds:
+          appliedCouponFilters.merchantIds.length > 0
+            ? appliedCouponFilters.merchantIds
+            : undefined,
+        couponTypes:
+          appliedCouponFilters.couponTypes.length > 0
+            ? appliedCouponFilters.couponTypes
+            : undefined,
+        discountMin: appliedCouponFilters.discountMin,
+      }),
+    [
+      selectedCategoryId,
+      search,
+      perPage,
+      currentPage,
+      selectedFilter,
+      appliedCouponFilters,
+    ],
+  );
+
+  const { data: couponsListRes, isLoading: isLoadingList } = useWebCoupons(
+    listParams,
+  );
+
   const allCouponsRaw = useMemo(() => {
-    if (!homeData) return [];
-    if (selectedFilter === "top_used") {
-      const list = homeData.top_used_coupons as
-        | Array<Record<string, unknown>>
-        | undefined;
-      return Array.isArray(list) ? list : [];
-    }
-    const list = homeData.latest_coupons as
-      | Array<Record<string, unknown>>
-      | undefined;
-    return Array.isArray(list) ? list : [];
-  }, [homeData, selectedFilter]);
+    const root = (couponsListRes as Record<string, unknown>) ?? {};
+    const data =
+      (root.data as Record<string, unknown>) ??
+      (root as Record<string, unknown>);
+    const list = (data.coupons ?? data.data ?? data) as unknown;
+    return Array.isArray(list) ? (list as Array<Record<string, unknown>>) : [];
+  }, [couponsListRes]);
+
+  const pagination = useMemo(() => {
+    const root = (couponsListRes as Record<string, unknown>) ?? {};
+    const data =
+      (root.data as Record<string, unknown>) ??
+      (root as Record<string, unknown>);
+    const pg =
+      (data.pagination as Record<string, unknown> | undefined) ??
+      (data.meta as Record<string, unknown> | undefined) ??
+      (data as Record<string, unknown>);
+    return {
+      currentPage: Number(pg?.current_page ?? pg?.page ?? currentPage) || currentPage,
+      lastPage: Number(pg?.last_page ?? pg?.pages ?? 1) || 1,
+      total: Number(pg?.total ?? 0) || 0,
+    };
+  }, [couponsListRes, currentPage]);
 
   const couponModels = useMemo(() => {
     const withTitle = (allCouponsRaw as Array<Record<string, unknown>>).map(
@@ -189,14 +259,7 @@ const CouponsPage = () => {
     return mapApiCouponsToModels(withTitle);
   }, [allCouponsRaw]);
 
-  const couponRawById = useMemo(() => {
-    const m = new Map<string, Record<string, unknown>>();
-    (allCouponsRaw as Array<Record<string, unknown>>).forEach((c) => {
-      const id = c?.id != null ? String(c.id) : null;
-      if (id) m.set(id, c);
-    });
-    return m;
-  }, [allCouponsRaw]);
+  // Note: server-side filtering is used; raw-by-id map is no longer required here.
 
   const couponsWithIcons = useMemo((): CouponWithIcon[] => {
     return couponModels.map((coupon) => {
@@ -295,36 +358,10 @@ const CouponsPage = () => {
     }
   };
 
-  const filteredCoupons = useMemo(() => {
-    let coupons: CouponDisplay[] =
-      apiCouponsAsDisplay.length > 0 ? apiCouponsAsDisplay : [];
-
-    if (selectedCategoryId) {
-      coupons = coupons.filter(
-        (c) =>
-          String(
-            (couponRawById.get(c.id)?.category as Record<string, unknown>)?.id,
-          ) === selectedCategoryId,
-      );
-    }
-
-    if (search) {
-      coupons = coupons.filter(
-        (coupon) =>
-          coupon.storeName.toLowerCase().includes(search.toLowerCase()) ||
-          coupon.storeCategory.toLowerCase().includes(search.toLowerCase()) ||
-          coupon.offer.toLowerCase().includes(search.toLowerCase()),
-      );
-    }
-
-    return coupons;
-  }, [selectedCategoryId, search, apiCouponsAsDisplay, couponRawById]);
-
-  const totalPages = Math.max(1, Math.ceil(filteredCoupons.length / perPage));
-  const paginated = useMemo(() => {
-    const start = (currentPage - 1) * perPage;
-    return filteredCoupons.slice(start, start + perPage);
-  }, [filteredCoupons, currentPage, perPage]);
+  // Server-side filtering & pagination (WEB):
+  // listParams includes category_ids + search + sort_by + page/per_page
+  const paginated = apiCouponsAsDisplay;
+  const totalPages = Math.max(1, pagination.lastPage);
 
   const openCouponModal = (displayCoupon: CouponDisplay) => {
     const withIcon = couponsWithIcons.find(
@@ -355,6 +392,210 @@ const CouponsPage = () => {
         </div>
       ) : (
         <>
+          {/* Filter Sidebar (WEB Coupons) */}
+          {isFilterOpen && (
+            <div
+              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+              onClick={() => setIsFilterOpen(false)}
+            />
+          )}
+          <div
+            className={`fixed top-0 h-full w-full md:w-1/2 lg:w-1/3 xl:w-1/4 bg-white z-[9999] transition-all duration-300 ease-in-out shadow-2xl ${
+              isFilterOpen
+                ? isRTL
+                  ? "right-0 translate-x-0"
+                  : "left-0 translate-x-0"
+                : isRTL
+                  ? "-right-full translate-x-full"
+                  : "-left-full -translate-x-full"
+            }`}
+          >
+            <div className="flex items-center justify-between py-4 px-6 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-800">
+                {isRTL ? "فلترة الكوبونز" : "Filter Coupons"}
+              </h2>
+              <button
+                type="button"
+                onClick={() => setIsFilterOpen(false)}
+                className="text-gray-400 hover:text-gray-600 transition-colors duration-200 bg-gray-100 rounded-full p-2"
+              >
+                <IoMdClose size={20} />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-6 pb-24 h-[calc(100vh-160px)]">
+              <div className="space-y-6">
+                {/* Sort */}
+                <div>
+                  <p className="text-sm font-semibold text-gray-800 mb-3">
+                    {isRTL ? "ترتيب حسب" : "Sort by"}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {(
+                      [
+                        { key: "newest", label: isRTL ? "الأحدث" : "Newest" },
+                        {
+                          key: "most_used",
+                          label: isRTL ? "الأكثر استخدامًا" : "Most used",
+                        },
+                        {
+                          key: "highest_discount",
+                          label: isRTL ? "أعلى خصم" : "Highest discount",
+                        },
+                      ] as const
+                    ).map((opt) => (
+                      <button
+                        key={opt.key}
+                        type="button"
+                        onClick={() =>
+                          setDraftCouponFilters((p) => ({ ...p, sortBy: opt.key }))
+                        }
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${
+                          draftCouponFilters.sortBy === opt.key
+                            ? "bg-purple-100 text-purple-700 border-purple-200"
+                            : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Coupon Types */}
+                <div className="border-t border-gray-200 pt-5">
+                  <p className="text-sm font-semibold text-gray-800 mb-3">
+                    {isRTL ? "نوع الكوبون" : "Coupon type"}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {(
+                      [
+                        {
+                          key: "percentage",
+                          label: isRTL ? "نسبة" : "Percentage",
+                        },
+                        { key: "fixed", label: isRTL ? "ثابت" : "Fixed" },
+                      ] as const
+                    ).map((opt) => {
+                      const selected = draftCouponFilters.couponTypes.includes(
+                        opt.key,
+                      );
+                      return (
+                        <button
+                          key={opt.key}
+                          type="button"
+                          onClick={() =>
+                            setDraftCouponFilters((p) => ({
+                              ...p,
+                              couponTypes: selected
+                                ? p.couponTypes.filter((x) => x !== opt.key)
+                                : [...p.couponTypes, opt.key],
+                            }))
+                          }
+                          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors border ${
+                            selected
+                              ? "bg-purple-100 text-purple-700 border-purple-200"
+                              : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Discount min */}
+                <div className="border-t border-gray-200 pt-5">
+                  <p className="text-sm font-semibold text-gray-800 mb-3">
+                    {isRTL ? "أقل خصم (%)" : "Min discount (%)"}
+                  </p>
+                  <input
+                    type="number"
+                    min={0}
+                    value={draftCouponFilters.discountMin ?? ""}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setDraftCouponFilters((p) => ({
+                        ...p,
+                        discountMin: v === "" ? undefined : Number(v),
+                      }));
+                    }}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#400198]/30"
+                    placeholder={isRTL ? "مثال: 20" : "e.g. 20"}
+                  />
+                </div>
+
+                {/* Merchants */}
+                {merchantsList.length > 0 && (
+                  <div className="border-t border-gray-200 pt-5">
+                    <p className="text-sm font-semibold text-gray-800 mb-3">
+                      {isRTL ? "التجار" : "Merchants"}
+                    </p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {merchantsList.map((m) => {
+                        const id =
+                          m?.id != null ? String(m.id) : undefined;
+                        const name = String(m?.name ?? "").trim();
+                        if (!id || !name) return null;
+                        const selected = draftCouponFilters.merchantIds.includes(id);
+                        return (
+                          <button
+                            key={id}
+                            type="button"
+                            onClick={() =>
+                              setDraftCouponFilters((p) => ({
+                                ...p,
+                                merchantIds: selected
+                                  ? p.merchantIds.filter((x) => x !== id)
+                                  : [...p.merchantIds, id],
+                              }))
+                            }
+                            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors border ${
+                              selected
+                                ? "bg-purple-100 text-purple-700 border-purple-200"
+                                : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
+                            }`}
+                          >
+                            {name}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="border-t border-gray-200 p-6">
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDraftCouponFilters(defaultCouponFilters);
+                    setAppliedCouponFilters(defaultCouponFilters);
+                    setSelectedFilter("latest");
+                    setCurrentPage(1);
+                  }}
+                  className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+                >
+                  {isRTL ? "إعادة تعيين" : "Reset"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAppliedCouponFilters(draftCouponFilters);
+                    setCurrentPage(1);
+                    setIsFilterOpen(false);
+                  }}
+                  className="flex-1 px-4 py-2 bg-[#fd671a] text-white rounded-lg font-medium hover:bg-[#e55a17] transition-colors"
+                >
+                  {isRTL ? "تطبيق" : "Apply"}
+                </button>
+              </div>
+            </div>
+          </div>
+
           {/* Categories (>=7 => slider, <7 => centered grid) */}
           {categoriesCarouselItems.length > 0 && (
             <section className="relative container mx-auto px-4 py-8 z-10">
@@ -507,6 +748,18 @@ const CouponsPage = () => {
             </div>
 
             <div className="flex items-center gap-3">
+              {/* Filter button */}
+              <button
+                type="button"
+                onClick={() => {
+                  setDraftCouponFilters(appliedCouponFilters);
+                  setIsFilterOpen(true);
+                }}
+                className="px-5 py-3 rounded-full font-medium text-sm shadow-md transition-all duration-300 bg-white text-gray-700 hover:bg-gray-100 border border-gray-200 inline-flex items-center gap-2"
+              >
+                <FiFilter size={18} />
+                {isRTL ? "فلترة" : "Filter"}
+              </button>
               {/* Search Input */}
               <div className="w-full md:w-64">
                 <input
@@ -547,8 +800,157 @@ const CouponsPage = () => {
             </div>
           </div>
 
+          {/* Results Count + Applied Filters Tags (like Offers page) */}
+          <div className="text-sm text-gray-600 mb-6">
+            <div className="flex items-center gap-2 mb-0">
+              <h2 className="text-[#400198] text-3xl font-bold">
+                {pagination.total || paginated.length}
+              </h2>
+              {isRTL ? ` كوبون` : ` coupons`}
+            </div>
+
+            <div className="flex flex-wrap gap-2 mt-3">
+              {(() => {
+                const effectiveSort =
+                  appliedCouponFilters.sortBy ??
+                  (selectedFilter === "top_used" ? "most_used" : "newest");
+                const hasAny =
+                  effectiveSort !== "newest" ||
+                  appliedCouponFilters.merchantIds.length > 0 ||
+                  appliedCouponFilters.couponTypes.length > 0 ||
+                  appliedCouponFilters.discountMin != null;
+
+                const sortLabel =
+                  effectiveSort === "most_used"
+                    ? isRTL
+                      ? "الأكثر استخدامًا"
+                      : "Most used"
+                    : effectiveSort === "highest_discount"
+                      ? isRTL
+                        ? "أعلى خصم"
+                        : "Highest discount"
+                      : isRTL
+                        ? "الأحدث"
+                        : "Newest";
+
+                return (
+                  <>
+                    {effectiveSort !== "newest" && (
+                      <span className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
+                        {sortLabel}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAppliedCouponFilters((p) => ({ ...p, sortBy: undefined }));
+                            setSelectedFilter("latest");
+                            setCurrentPage(1);
+                          }}
+                          className="ml-1 hover:bg-purple-200 rounded-full p-0.5"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    )}
+
+                    {appliedCouponFilters.couponTypes.map((ct) => (
+                      <span
+                        key={ct}
+                        className="inline-flex items-center gap-1 px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium"
+                      >
+                        {ct === "percentage"
+                          ? isRTL
+                            ? "نسبة"
+                            : "Percentage"
+                          : isRTL
+                            ? "ثابت"
+                            : "Fixed"}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAppliedCouponFilters((p) => ({
+                              ...p,
+                              couponTypes: p.couponTypes.filter((x) => x !== ct),
+                            }));
+                            setCurrentPage(1);
+                          }}
+                          className="ml-1 hover:bg-orange-200 rounded-full p-0.5"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+
+                    {appliedCouponFilters.merchantIds.map((id) => {
+                      const label =
+                        merchantsList.find((m) => String(m?.id) === String(id))
+                          ?.name ?? id;
+                      return (
+                        <span
+                          key={id}
+                          className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium"
+                        >
+                          {String(label)}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setAppliedCouponFilters((p) => ({
+                                ...p,
+                                merchantIds: p.merchantIds.filter((x) => x !== id),
+                              }));
+                              setCurrentPage(1);
+                            }}
+                            className="ml-1 hover:bg-blue-200 rounded-full p-0.5"
+                          >
+                            ×
+                          </button>
+                        </span>
+                      );
+                    })}
+
+                    {appliedCouponFilters.discountMin != null && (
+                      <span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
+                        {isRTL
+                          ? `خصم من ${appliedCouponFilters.discountMin}%`
+                          : `Discount >= ${appliedCouponFilters.discountMin}%`}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAppliedCouponFilters((p) => ({ ...p, discountMin: undefined }));
+                            setCurrentPage(1);
+                          }}
+                          className="ml-1 hover:bg-gray-200 rounded-full p-0.5"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    )}
+
+                    {hasAny && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAppliedCouponFilters(defaultCouponFilters);
+                          setDraftCouponFilters(defaultCouponFilters);
+                          setSelectedFilter("latest");
+                          setCurrentPage(1);
+                        }}
+                        className="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium hover:bg-red-200 transition-colors"
+                      >
+                        {isRTL ? "مسح الكل" : "Clear All"}
+                      </button>
+                    )}
+                  </>
+                );
+              })()}
+            </div>
+          </div>
+
           {/* Coupons Display */}
-          {paginated.length > 0 ? (
+          {isLoadingList ? (
+            <div className="container mx-auto md:p-10 p-6 flex justify-center min-h-[200px] items-center">
+              <LoadingSpinner />
+            </div>
+          ) : paginated.length > 0 ? (
             <div
               className={
                 viewMode === "grid"

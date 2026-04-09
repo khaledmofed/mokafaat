@@ -37,6 +37,25 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
     config.headers["Accept-Language"] = getAcceptLanguage();
+
+    // Inject selected country_id into ALL requests as query param (unless explicitly provided).
+    // Selected country is stored by LanguageToggle in localStorage.
+    try {
+      const storedCountryId = localStorage.getItem("country_id");
+      const countryIdNum =
+        storedCountryId && storedCountryId.trim() !== ""
+          ? Number(storedCountryId)
+          : NaN;
+      if (Number.isFinite(countryIdNum)) {
+        const params = (config.params ?? {}) as Record<string, unknown>;
+        if (params.country_id == null || String(params.country_id).trim() === "") {
+          config.params = { ...params, country_id: countryIdNum };
+        }
+      }
+    } catch {
+      // ignore storage access failures
+    }
+
     return config;
   },
   (error) => Promise.reject(error)

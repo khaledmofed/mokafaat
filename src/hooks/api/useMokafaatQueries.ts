@@ -64,9 +64,11 @@ export const mokafaatKeys = {
     ["mokafaat", "web", "offers", params] as const,
   webCoupons: (params?: Record<string, unknown>) =>
     ["mokafaat", "web", "coupons", params] as const,
+  webCouponsHome: ["mokafaat", "web", "coupons", "home"] as const,
   webCouponCategories: (categorySlug: string) =>
     ["mokafaat", "web", "categories", categorySlug, "coupons"] as const,
   webNews: ["mokafaat", "web", "news"] as const,
+  webPopupAds: (screen: string) => ["mokafaat", "web", "popupAds", screen] as const,
   webHome: ["mokafaat", "web", "home"] as const,
   appConfig: ["mokafaat", "appConfig"] as const,
   countries: ["mokafaat", "locations", "countries"] as const,
@@ -190,6 +192,25 @@ export function useFavoriteToggle() {
     }) => favoritesApi.toggle(favorable_type, favorable_id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["mokafaat", "favorites"] });
+    },
+  });
+}
+
+// ========== Coupons Vote (يتطلب توكن) ==========
+export function useCouponVote() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      id,
+      vote,
+    }: {
+      id: string | number;
+      vote: "working" | "not_working";
+    }) => couponsApi.vote(id, vote).then((r) => r.data),
+    onSuccess: () => {
+      // Refresh coupons lists if needed (web/app)
+      queryClient.invalidateQueries({ queryKey: ["mokafaat", "web", "coupons"] });
+      queryClient.invalidateQueries({ queryKey: ["mokafaat", "coupons"] });
     },
   });
 }
@@ -321,11 +342,15 @@ export function useWebCards(params?: Record<string, unknown>) {
   });
 }
 
-export function useWebOffers(params?: Record<string, unknown>) {
+export function useWebOffers(
+  params?: Record<string, unknown>,
+  options?: { enabled?: boolean }
+) {
   const lang = useQueryLang();
   return useQuery({
     queryKey: [...mokafaatKeys.webOffers(params), lang],
     queryFn: () => webApi.offers(params).then((r) => r.data),
+    enabled: options?.enabled !== false,
   });
 }
 
@@ -334,6 +359,14 @@ export function useWebCoupons(params?: Record<string, unknown>) {
   return useQuery({
     queryKey: [...mokafaatKeys.webCoupons(params), lang],
     queryFn: () => webApi.coupons(params).then((r) => r.data),
+  });
+}
+
+export function useWebCouponsHome() {
+  const lang = useQueryLang();
+  return useQuery({
+    queryKey: [...mokafaatKeys.webCouponsHome, lang],
+    queryFn: () => webApi.couponsHome().then((r) => r.data),
   });
 }
 
@@ -351,6 +384,15 @@ export function useWebNews() {
   return useQuery({
     queryKey: [...mokafaatKeys.webNews, lang],
     queryFn: () => webApi.news().then((r) => r.data),
+  });
+}
+
+export function useWebPopupAds(screen: string) {
+  const lang = useQueryLang();
+  return useQuery({
+    queryKey: [...mokafaatKeys.webPopupAds(screen), lang],
+    queryFn: () => webApi.popupAds({ screen }).then((r) => r.data),
+    enabled: !!screen,
   });
 }
 

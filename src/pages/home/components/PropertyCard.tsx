@@ -117,7 +117,10 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
         {/* Image Overlays */}
         <div className="absolute top-3 right-3 flex gap-2">
           <button
-            onClick={() => onShareClick?.(id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onShareClick?.(id);
+            }}
             className="w-8 h-8 bg-white bg-opacity-90 rounded-full flex items-center justify-center text-gray-700 hover:bg-opacity-100 transition-all duration-200"
           >
             <BsShare className="text-sm" />

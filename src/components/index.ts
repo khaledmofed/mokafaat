@@ -38,6 +38,9 @@ import FileUploader from "./FileUploader";
 import InquiryModal from "./InquiryModal";
 import CurrencyIcon from "./CurrencyIcon";
 import SubscribersOnlyModal from "./SubscribersOnlyModal";
+import PopupAdsModal from "./PopupAdsModal";
+import ShareSheetModal from "./ShareSheetModal";
+import ShareSheetHost from "./ShareSheetHost";
 
 export {
   Layout,
@@ -80,4 +83,7 @@ export {
   InquiryModal,
   CurrencyIcon,
   SubscribersOnlyModal,
+  PopupAdsModal,
+  ShareSheetModal,
+  ShareSheetHost,
 };

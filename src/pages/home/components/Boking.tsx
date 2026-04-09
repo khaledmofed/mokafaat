@@ -7,12 +7,14 @@ import OwlCarousel from "react-owl-carousel";
 import { IoIosArrowRoundForward } from "react-icons/io";
 import InvestmentCard from "./InvestmentCard";
 import { bookingProperties } from "./bookingData";
+import { useShareSheetStore } from "@stores/shareSheetStore";
 
 const Boking: React.FC = () => {
   const isRTL = useIsRTL();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState<string>("all");
+  const openShare = useShareSheetStore((s) => s.openShare);
 
   // Filter options
   const filters = [
@@ -73,7 +75,10 @@ const Boking: React.FC = () => {
   };
 
   const handleShare = (id: number) => {
-    console.log("Share clicked:", id);
+    const item = bookingProperties.find((x) => x.id === id);
+    const title = item?.title ?? (isRTL ? "الحجوزات" : "Bookings");
+    const url = `${window.location.origin}/bookings`;
+    openShare({ title, url });
   };
 
   return (

@@ -17,6 +17,7 @@ import {
 import OwlCarousel from "react-owl-carousel";
 import { IoIosArrowRoundForward } from "react-icons/io";
 import InvestmentCard from "./InvestmentCard";
+import { useShareSheetStore } from "@stores/shareSheetStore";
 
 interface InvestmentProperty {
   id: number;
@@ -153,6 +154,7 @@ const Investments: React.FC = () => {
   const isRTL = useIsRTL();
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const openShare = useShareSheetStore((s) => s.openShare);
 
   const owlCarouselOptions = {
     loop: true,
@@ -176,7 +178,10 @@ const Investments: React.FC = () => {
   };
 
   const handleShare = (id: number) => {
-    console.log("Share clicked:", id);
+    const item = investmentProperties.find((x) => x.id === id);
+    const title = item?.title ?? (isRTL ? "استثمارات" : "Investments");
+    const url = window.location.href;
+    openShare({ title, url });
   };
 
   return (

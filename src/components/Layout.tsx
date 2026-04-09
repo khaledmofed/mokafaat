@@ -11,6 +11,7 @@ import {
   // TopNav,
   // Splash,
   GlobalStyles,
+  ShareSheetHost,
 } from "@components";
 // import { useWebsiteProvider } from "@hooks";
 
@@ -47,6 +48,7 @@ const Layout = () => {
         <Navbar />
         <ScrollToTop />
         <Outlet />
+        <ShareSheetHost />
         <WhatsAppButton />
         <ScrollToTopButton />
         <Footer />

@@ -8,6 +8,7 @@ import { useIsRTL } from "../../../hooks";
 import { type Offer } from "@data/offers";
 import { useWebOffers } from "@hooks/api/useMokafaatQueries";
 import { mapApiOffersToModels } from "@network/mappers/offersMapper";
+import { buildWebOffersParams } from "@utils/webFilters";
 
 function extractOffersArray(res: unknown): Array<Record<string, unknown>> {
   const root = (res as Record<string, unknown>) ?? {};
@@ -30,22 +31,18 @@ const OffersSection: React.FC = () => {
   const owlCarouselRef = useRef<OwlCarousel | null>(null);
 
   // Fetch offers from API: /api/web/offers?category_id&price_min&price_max&pricing_type&search&sort_by
-  const { data: latestRes, isLoading: latestLoading } = useWebOffers({
-    sort_by: "latest",
-    per_page: 50,
-  });
-  const { data: freeRes, isLoading: freeLoading } = useWebOffers({
-    sort_by: "latest",
-    per_page: 50,
-  });
-  const { data: paidRes, isLoading: paidLoading } = useWebOffers({
-    sort_by: "latest",
-    per_page: 50,
-  });
-  const { data: suggestedRes, isLoading: suggestedLoading } = useWebOffers({
-    sort_by: "best_selling",
-    per_page: 50,
-  });
+  const { data: latestRes, isLoading: latestLoading } = useWebOffers(
+    buildWebOffersParams({ sortBy: "latest", perPage: 50 }),
+  );
+  const { data: freeRes, isLoading: freeLoading } = useWebOffers(
+    buildWebOffersParams({ sortBy: "latest", perPage: 50 }),
+  );
+  const { data: paidRes, isLoading: paidLoading } = useWebOffers(
+    buildWebOffersParams({ sortBy: "latest", perPage: 50 }),
+  );
+  const { data: suggestedRes, isLoading: suggestedLoading } = useWebOffers(
+    buildWebOffersParams({ sortBy: "best_selling", perPage: 50 }),
+  );
 
   // Force re-render when language or direction changes
   useEffect(() => {

@@ -8,6 +8,7 @@ import { PatternNewProperty, Restu1, Restu2, Restu3 } from "@assets";
 import { IoIosArrowRoundForward } from "react-icons/io";
 import { BsHeart, BsShare } from "react-icons/bs";
 import { useWebHome } from "@hooks/api/useMokafaatQueries";
+import { useShareSheetStore } from "@stores/shareSheetStore";
 
 interface RestaurantType {
   id: number;
@@ -81,6 +82,7 @@ const PropertySlider: React.FC = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [key, setKey] = useState(0); // Key for forcing re-render
+  const openShareSheet = useShareSheetStore((s) => s.openShare);
 
   const { data: webHomeResponse } = useWebHome();
 
@@ -103,6 +105,13 @@ const PropertySlider: React.FC = () => {
   useEffect(() => {
     setKey((prev) => prev + 1);
   }, [i18n.language]);
+
+  const openShare = useCallback(
+    (payload: { title?: string; url: string }) => {
+      openShareSheet(payload);
+    },
+    [openShareSheet]
+  );
 
   const restaurantsStatic: RestaurantType[] = useMemo(
     () => [
@@ -346,12 +355,27 @@ const PropertySlider: React.FC = () => {
                     </div>
                     {/* Left Side - Icons */}
                     <div className="flex gap-2">
-                      <div className="w-8 h-8 border border-white rounded-full flex items-center justify-center hover:bg-white hover:bg-opacity-20 transition-all duration-200">
+                      <button
+                        type="button"
+                        className="w-8 h-8 border border-white rounded-full flex items-center justify-center hover:bg-white hover:bg-opacity-20 transition-all duration-200"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // Placeholder: no favorites behavior here yet
+                        }}
+                      >
                         <BsHeart className="text-white text-sm" />
-                      </div>
-                      <div className="w-8 h-8 border border-white rounded-full flex items-center justify-center hover:bg-white hover:bg-opacity-20 transition-all duration-200">
+                      </button>
+                      <button
+                        type="button"
+                        className="w-8 h-8 border border-white rounded-full flex items-center justify-center hover:bg-white hover:bg-opacity-20 transition-all duration-200"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const url = `${window.location.origin}/restaurants/${restaurant.slug}`;
+                          openShare({ title: restaurant.name, url });
+                        }}
+                      >
                         <BsShare className="text-white text-sm" />
-                      </div>
+                      </button>
                     </div>
                     {/* Wavy Separator */}
                     <div className="absolute bottom-0 left-0 right-0">

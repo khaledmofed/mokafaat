@@ -11,6 +11,7 @@ import {
   mapApiNewsToModels,
   type NewsArticleModel,
 } from "@network/mappers/newsMapper";
+import { useShareSheetStore } from "@stores/shareSheetStore";
 
 // Export news articles data (kept for backward compatibility, but will use API data)
 export const newsArticles: NewsArticleModel[] = [];
@@ -19,6 +20,7 @@ const NewsBlogs: React.FC = () => {
   const navigate = useNavigate();
   const isRTL = useIsRTL();
   const { t } = useTranslation();
+  const openShare = useShareSheetStore((s) => s.openShare);
 
   // Fetch news from API
   const { data: webHomeResponse } = useWebHome();
@@ -60,7 +62,10 @@ const NewsBlogs: React.FC = () => {
   };
 
   const handleShare = (id: number) => {
-    console.log("Share clicked:", id);
+    const article = newsArticles.find((a) => a.id === id);
+    if (!article) return;
+    const url = `${window.location.origin}/blogs/${article.slug}`;
+    openShare({ title: isRTL ? article.title : article.titleEn, url });
   };
 
   const handleVisit = (id: number) => {

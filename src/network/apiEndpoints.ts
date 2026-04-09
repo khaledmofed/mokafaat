@@ -95,6 +95,7 @@ export const API_ENDPOINTS = {
     byMerchant: (id: string | number) => `${API}/coupons/by-merchant/${id}`,
     detail: (id: string | number) => `${API}/coupons/${id}`,
     use: (id: string | number) => `${API}/coupons/${id}/use`,
+    vote: (id: string | number) => `${API}/coupons/${id}/vote`,
   },
 
   // ========== Cards (app) ==========
@@ -119,12 +120,14 @@ export const API_ENDPOINTS = {
     newsDetail: (slug: string) => `${API}/web/news/${slug}`,
     newsByCategory: (categorySlug: string) =>
       `${API}/web/news/categories/${categorySlug}`,
+    couponsHome: `${API}/web/coupons/home`,
     coupons: `${API}/web/coupons`,
     couponDetail: (id: string | number) => `${API}/web/coupons/${id}`,
     categoryCoupons: (categorySlug: string) =>
       `${API}/web/categories/${categorySlug}/coupons`,
     offers: `${API}/web/offers`,
     offerDetail: (id: string | number) => `${API}/web/offers/${id}`,
+    popupAds: `${API}/web/popup-ads`,
   },
 
   // ========== توافق مع الكود القديم — لا تستخدم مع سيرفر مكافآت (ليس في الكوليكشن) ==========

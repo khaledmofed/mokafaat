@@ -24,6 +24,7 @@ import { useFavorites, useFavoriteToggle } from "@hooks/api/useMokafaatQueries";
 import { normalizeFavoritesList } from "@utils/favorites";
 import { toast } from "react-toastify";
 import { stripHtml } from "@utils/stripHtml";
+import { useShareSheetStore } from "@stores/shareSheetStore";
 
 interface OfferCardProps {
   offer: Offer;
@@ -33,6 +34,7 @@ interface OfferCardProps {
 const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
   const isRTL = useIsRTL();
   const navigate = useNavigate();
+  const openShare = useShareSheetStore((s) => s.openShare);
   const isAuthenticated = useUserStore((s) => !!s.token);
   const { data: favoritesData } = useFavorites();
   const toggleFavorite = useFavoriteToggle();
@@ -174,6 +176,10 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
+              openShare({
+                title: stripHtml(offer.title[isRTL ? "ar" : "en"] ?? ""),
+                url: `${window.location.origin}${offerDetailPath}`,
+              });
             }}
             className="w-8 h-8 bg-white bg-opacity-90 rounded-full flex items-center justify-center text-gray-700 hover:bg-opacity-100 transition-all duration-200"
           >

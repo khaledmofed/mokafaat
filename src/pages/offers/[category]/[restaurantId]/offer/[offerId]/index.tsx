@@ -50,6 +50,7 @@ import { normalizeFavoritesList } from "@utils/favorites";
 import { BsHeart, BsHeartFill, BsShare } from "react-icons/bs";
 import { toast } from "react-toastify";
 import OfferCard from "@pages/offers/components/OfferCard";
+import { useShareSheetStore } from "@stores/shareSheetStore";
 
 const getOfferImageSrc = (imageName: string) => {
   if (imageName.startsWith("http")) return imageName;
@@ -102,6 +103,7 @@ const OfferDetailPage = () => {
   const isSubscribed = isUserSubscribed(subscriptionStatusData);
   const { data: favoritesData } = useFavorites();
   const toggleFavorite = useFavoriteToggle();
+  const openShare = useShareSheetStore((s) => s.openShare);
   const favoritesList = useMemo(
     () => normalizeFavoritesList(favoritesData ?? null),
     [favoritesData],
@@ -574,6 +576,13 @@ const OfferDetailPage = () => {
             <div className="flex items-center gap-2">
               <button
                 type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (!offer) return;
+                  const title = stripHtml(offer.title?.[isRTL ? "ar" : "en"] ?? "");
+                  const url = `${window.location.origin}/offers/${category}/${restaurantId}/offer/${offerId}`;
+                  openShare({ title, url });
+                }}
                 className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
                 aria-label="Share"
               >
@@ -846,6 +855,72 @@ const OfferDetailPage = () => {
             {/* الشريط الجانبي: التسعير والكمية والأزرار */}
             <div className="lg:col-span-1">
               <div className="lg:sticky lg:top-6 bg-white rounded-3xl shadow-lg p-6 space-y-6">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (!offer) return;
+                      const title = stripHtml(
+                        offer.title?.[isRTL ? "ar" : "en"] ?? "",
+                      );
+                      const url = `${window.location.origin}/offers/${category}/${restaurantId}/offer/${offerId}`;
+                      openShare({ title, url });
+                    }}
+                    className="flex-1 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-800 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <BsShare className="text-base" />
+                    <span className="text-sm font-medium">
+                      {isRTL ? "مشاركة" : "Share"}
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      if (!offer) return;
+                      if (!token) {
+                        navigate(
+                          `/login?returnUrl=${encodeURIComponent(location.pathname)}`,
+                        );
+                        return;
+                      }
+                      toggleFavorite.mutate(
+                        { favorable_type: "offer", favorable_id: offer.id },
+                        {
+                          onSuccess: () => {
+                            toast.success(
+                              isOfferFavorite
+                                ? isRTL
+                                  ? "تمت إزالته من المفضلة"
+                                  : "Removed from favorites"
+                                : isRTL
+                                  ? "تمت الإضافة إلى المفضلة"
+                                  : "Added to favorites",
+                            );
+                          },
+                          onError: () =>
+                            toast.error(
+                              isRTL ? "حدث خطأ" : "Something went wrong",
+                            ),
+                        },
+                      );
+                    }}
+                    className="flex-1 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-800 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+                    disabled={toggleFavorite.isPending}
+                  >
+                    {isOfferFavorite ? (
+                      <BsHeartFill className="text-base text-red-500" />
+                    ) : (
+                      <BsHeart className="text-base" />
+                    )}
+                    <span className="text-sm font-medium">
+                      {isRTL ? "المفضلة" : "Save"}
+                    </span>
+                  </button>
+                </div>
+
                 <div className="flex flex-wrap gap-2">
                   {offer.features.map((feature, index) => (
                     <span

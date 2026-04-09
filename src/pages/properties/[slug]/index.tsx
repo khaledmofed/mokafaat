@@ -11,6 +11,7 @@ import { UnderTitle } from "@assets";
 import GetStartedSectionInside from "@pages/home/components/GetStartedSectionInside";
 import FAQSection from "@pages/home/components/FAQSection";
 import { propertyTypes, getPropertiesByType } from "@data/properties";
+import { useShareSheetStore } from "@stores/shareSheetStore";
 
 // Custom SingleValue component for Sort by
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -31,6 +32,7 @@ const CustomSingleValue = (props: any) => {
 const PropertyPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const openShare = useShareSheetStore((s) => s.openShare);
   const [sortBy, setSortBy] = useState({
     value: "recently-added",
     label: "Recently Added",
@@ -70,6 +72,14 @@ const PropertyPage: React.FC = () => {
   }, [slug]);
 
   const isRTL = useIsRTL();
+
+  const openShareForProperty = (id: number) => {
+    if (!propertyData) return;
+    const item = propertyData.properties.find((p) => p.id === id);
+    if (!item || !item.slug || !item.propertySlug) return;
+    const url = `${window.location.origin}/properties/${item.propertySlug}/${item.slug}`;
+    openShare({ title: item.title, url });
+  };
 
   if (!propertyData) {
     return <div>{isRTL ? "العقار غير موجود" : "Property not found"}</div>;
@@ -237,7 +247,7 @@ const PropertyPage: React.FC = () => {
                           {...property}
                           slug={property.slug}
                           propertySlug={property.propertySlug}
-                          onShareClick={() => console.log("Share clicked")}
+                          onShareClick={openShareForProperty}
                           onVisitClick={() => console.log("Visit clicked")}
                         />
                       ))}

@@ -13,6 +13,7 @@ import FAQSection from "@pages/home/components/FAQSection";
 import { useNavigate } from "react-router-dom";
 import { properties, getCategoryFilters } from "@data/properties";
 import Pagination from "../../components/Pagination";
+import { useShareSheetStore } from "@stores/shareSheetStore";
 
 // Custom SingleValue component for Sort by
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -33,6 +34,7 @@ const CustomSingleValue = (props: any) => {
 const PropertiesPage: React.FC = () => {
   const navigate = useNavigate();
   const isRTL = useIsRTL();
+  const openShare = useShareSheetStore((s) => s.openShare);
 
   // Filter states
   const [location, setLocation] = useState("");
@@ -109,6 +111,13 @@ const PropertiesPage: React.FC = () => {
     }
     return categoryFilters.slice(0, 6);
   }, [categoryFilters, showMoreTags]);
+
+  const openShareForProperty = (id: number) => {
+    const item = allProperties.find((p) => p.id === id);
+    if (!item) return;
+    const url = `${window.location.origin}/properties/${item.propertySlug}/${item.slug}`;
+    openShare({ title: item.title, url });
+  };
 
   return (
     <>
@@ -525,7 +534,7 @@ const PropertiesPage: React.FC = () => {
                           <PropertyCard
                             key={property.id}
                             {...property}
-                            onShareClick={() => console.log("Share clicked")}
+                            onShareClick={openShareForProperty}
                             onVisitClick={() => console.log("Visit clicked")}
                           />
                         ))}

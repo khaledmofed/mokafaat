@@ -6,6 +6,7 @@ import { type Offer } from "@data/offers";
 import OfferCard from "./OfferCard";
 import { useWebOffers } from "@hooks/api/useMokafaatQueries";
 import { mapApiOffersToModels } from "@network/mappers/offersMapper";
+import { buildWebOffersParams } from "@utils/webFilters";
 
 function extractOffersArray(res: unknown): Array<Record<string, unknown>> {
   const root = (res as Record<string, unknown>) ?? {};
@@ -24,10 +25,9 @@ const WeeklyDiscountsSection: React.FC = () => {
   const owlCarouselRef = useRef<OwlCarousel | null>(null);
 
   // نجلب كمية أكبر ثم نفلتر حسب price === 0 (platformPrice)
-  const { data: freeRes, isLoading } = useWebOffers({
-    sort_by: "latest",
-    per_page: 50,
-  });
+  const { data: freeRes, isLoading } = useWebOffers(
+    buildWebOffersParams({ sortBy: "latest", perPage: 50 }),
+  );
 
   const freeOffers = useMemo(
     () =>

@@ -22,6 +22,7 @@ import { normalizeFavoritesList } from "@utils/favorites";
 import { toast } from "react-toastify";
 import OfferCard from "@pages/cards/[companyId]/components/OfferCard";
 import type { CardOffer } from "@data/cards";
+import { useShareSheetStore } from "@stores/shareSheetStore";
 
 type TabKey = "description" | "terms" | "features";
 
@@ -74,6 +75,7 @@ const CardOfferDetailPage = () => {
   const { data: cardDetailData, isLoading } = useCardDetail(offerId);
   const { data: favoritesData } = useFavorites();
   const toggleFavorite = useFavoriteToggle();
+  const openShare = useShareSheetStore((s) => s.openShare);
   const favoritesList = useMemo(
     () => normalizeFavoritesList(favoritesData ?? null),
     [favoritesData],
@@ -234,6 +236,12 @@ const CardOfferDetailPage = () => {
             <div className="flex items-center gap-2">
               <button
                 type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  const title = stripHtml(cardName || merchantName || "");
+                  const url = `${window.location.origin}/cards/${companyId}/offer/${offerId}`;
+                  openShare({ title, url });
+                }}
                 className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
                 aria-label="Share"
               >
@@ -407,6 +415,40 @@ const CardOfferDetailPage = () => {
             {/* الشريط الجانبي */}
             <div className="lg:col-span-1">
               <div className="lg:sticky lg:top-6 bg-white rounded-3xl shadow-lg p-6 space-y-6">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      const title = stripHtml(cardName || merchantName || "");
+                      const url = `${window.location.origin}/cards/${companyId}/offer/${offerId}`;
+                      openShare({ title, url });
+                    }}
+                    className="flex-1 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-800 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <BsShare className="text-base" />
+                    <span className="text-sm font-medium">
+                      {isRTL ? "مشاركة" : "Share"}
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleFavoriteClick}
+                    className="flex-1 py-2.5 rounded-xl border border-gray-200 bg-white text-gray-800 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+                    disabled={toggleFavorite.isPending}
+                  >
+                    {isCardFavorite ? (
+                      <BsHeartFill className="text-base text-red-500" />
+                    ) : (
+                      <BsHeart className="text-base" />
+                    )}
+                    <span className="text-sm font-medium">
+                      {isRTL ? "المفضلة" : "Save"}
+                    </span>
+                  </button>
+                </div>
+
                 <div className="flex flex-wrap gap-2">
                   {categoryName && (
                     <span className="inline-flex items-center gap-1 text-sm text-gray-600 bg-gray-100 px-3 py-1.5 rounded-full">

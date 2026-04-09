@@ -16,6 +16,7 @@ import { Helmet } from "react-helmet-async";
 import Boking from "./components/Boking";
 import CardsSections from "./components/CardsSections";
 import CouponsSection from "./components/CouponsSection";
+import { PopupAdsModal } from "@components";
 
 const HomePage = () => {
   return (
@@ -38,6 +39,7 @@ const HomePage = () => {
       </Helmet>
 
       <div className="home">
+        <PopupAdsModal screen="home" />
         <HeroSlider />
         <OffersSection />
         <PopularCountries />

@@ -14,7 +14,11 @@ import { BsHeart, BsHeartFill } from "react-icons/bs";
 import type { CouponModel } from "@network/mappers/couponsMapper";
 import { stripHtml } from "@utils/stripHtml";
 import { useUserStore } from "@stores/userStore";
-import { useFavorites, useFavoriteToggle } from "@hooks/api/useMokafaatQueries";
+import {
+  useCouponVote,
+  useFavorites,
+  useFavoriteToggle,
+} from "@hooks/api/useMokafaatQueries";
 import { normalizeFavoritesList } from "@utils/favorites";
 import { toast } from "react-toastify";
 
@@ -37,6 +41,12 @@ const CouponModal: React.FC<CouponModalProps> = ({
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
   const isAuthenticated = useUserStore((s) => !!s.token);
+  const couponVote = useCouponVote();
+  const [voteState, setVoteState] = useState<{
+    workingCount: number;
+    notWorkingCount: number;
+    userVote?: "working" | "not_working";
+  } | null>(null);
   const { data: favoritesData } = useFavorites();
   const toggleFavorite = useFavoriteToggle();
   const favoritesList = useMemo(
@@ -100,6 +110,101 @@ const CouponModal: React.FC<CouponModalProps> = ({
     });
   }, [code]);
 
+  const shareCoupon = useCallback(async () => {
+    const title = stripHtml(coupon.title);
+    const storeUrl =
+      coupon.storeUrl && coupon.storeUrl.trim().length > 0 ? coupon.storeUrl : "";
+
+    const lines = [
+      title,
+      `${isRTL ? "الكود" : "Code"}: ${code}`,
+      storeUrl ? `${isRTL ? "الرابط" : "Link"}: ${storeUrl}` : "",
+    ].filter(Boolean);
+    const text = lines.join("\n");
+
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title,
+          text,
+          ...(storeUrl ? { url: storeUrl } : {}),
+        });
+        return;
+      }
+    } catch {
+      // fall back to copy
+    }
+
+    try {
+      await navigator.clipboard?.writeText(text);
+      toast.success(isRTL ? "تم نسخ نص المشاركة" : "Share text copied");
+    } catch {
+      toast.error(isRTL ? "تعذر المشاركة" : "Unable to share");
+    }
+  }, [coupon.title, coupon.storeUrl, code, isRTL]);
+
+  const submitVote = useCallback(
+    (vote: "working" | "not_working") => {
+      if (!isAuthenticated) {
+        navigate(
+          `/login?returnUrl=${encodeURIComponent(window.location.pathname)}`,
+        );
+        onClose();
+        return;
+      }
+      couponVote.mutate(
+        { id: coupon.id, vote },
+        {
+          onSuccess: (res) => {
+            const wrapper = res as {
+              msg?: unknown;
+              data?: unknown;
+            };
+
+            const msg =
+              typeof wrapper?.msg === "string" && wrapper.msg.trim() !== ""
+                ? wrapper.msg
+                : null;
+            if (msg) {
+              toast.success(msg);
+            }
+
+            const inner = (() => {
+              const d = wrapper?.data;
+              if (d && typeof d === "object") {
+                const dObj = d as Record<string, unknown>;
+                if (dObj.data && typeof dObj.data === "object") {
+                  return dObj.data as Record<string, unknown>;
+                }
+                return dObj;
+              }
+              return {} as Record<string, unknown>;
+            })();
+
+            const payload = inner as {
+              working_count?: unknown;
+              not_working_count?: unknown;
+              user_vote?: unknown;
+            };
+            const next = {
+              workingCount: Number(payload?.working_count ?? 0) || 0,
+              notWorkingCount: Number(payload?.not_working_count ?? 0) || 0,
+              userVote:
+                payload?.user_vote === "working" ||
+                payload?.user_vote === "not_working"
+                  ? (payload.user_vote as "working" | "not_working")
+                  : undefined,
+            };
+            setVoteState(next);
+          },
+          onError: () =>
+            toast.error(isRTL ? "حدث خطأ" : "Something went wrong"),
+        },
+      );
+    },
+    [coupon.id, couponVote, isAuthenticated, isRTL, navigate, onClose],
+  );
+
   const goToStore = () => {
     const url = coupon.storeUrl;
     if (url && url.trim().length > 0) {
@@ -111,6 +216,9 @@ const CouponModal: React.FC<CouponModalProps> = ({
   };
 
   const logoUrl = getLogoUrl?.(coupon);
+  const workingCount = voteState?.workingCount ?? 0;
+  const notWorkingCount = voteState?.notWorkingCount ?? 0;
+  const userVote = voteState?.userVote;
 
   return (
     <>
@@ -188,23 +296,50 @@ const CouponModal: React.FC<CouponModalProps> = ({
           </p> */}
 
           {/* Action icons: فعال، أضف للمفضلة، مشاركة، تسوق بالموقع */}
-          <div className={`flex flex-wrap gap-6 mb-6 `}>
+          <div className={`flex flex-wrap gap-4 mb-6 `}>
+            {/* Vote: working */}
             <button
               type="button"
-              onClick={() =>
-                toast.success(
-                  isRTL
-                    ? "شكرًا لاستخدامك هذا الكوبون"
-                    : "Thanks for using this coupon",
-                )
-              }
-              className="flex flex-col items-center gap-1 text-green-600 focus:outline-none"
+              onClick={() => submitVote("working")}
+              disabled={couponVote.isPending}
+              className={`flex flex-col items-center gap-1 focus:outline-none disabled:opacity-50 ${
+                userVote === "working"
+                  ? "text-green-700"
+                  : "text-green-600 hover:text-green-700"
+              }`}
             >
-              <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
-                <FiCheck className="w-6 h-6 text-green-600" />
+              <div
+                className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                  userVote === "working" ? "bg-green-200" : "bg-green-100"
+                }`}
+              >
+                <FiCheck className="w-6 h-6 text-green-700" />
               </div>
               <span className="text-xs font-medium">
-                {isRTL ? "فعال" : "Active"}
+                {isRTL ? "فعال" : "Working"} ({workingCount})
+              </span>
+            </button>
+
+            {/* Vote: not working */}
+            <button
+              type="button"
+              onClick={() => submitVote("not_working")}
+              disabled={couponVote.isPending}
+              className={`flex flex-col items-center gap-1 focus:outline-none disabled:opacity-50 ${
+                userVote === "not_working"
+                  ? "text-red-700"
+                  : "text-red-600 hover:text-red-700"
+              }`}
+            >
+              <div
+                className={`w-12 h-12 rounded-full flex items-center justify-center ${
+                  userVote === "not_working" ? "bg-red-200" : "bg-red-100"
+                }`}
+              >
+                <span className="text-xl font-bold text-red-700">×</span>
+              </div>
+              <span className="text-xs font-medium">
+                {isRTL ? "غير فعال" : "Not working"} ({notWorkingCount})
               </span>
             </button>
             <button
@@ -234,6 +369,7 @@ const CouponModal: React.FC<CouponModalProps> = ({
             </button>
             <button
               type="button"
+              onClick={shareCoupon}
               className="flex flex-col items-center gap-1 text-gray-500 hover:text-gray-700"
             >
               <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">

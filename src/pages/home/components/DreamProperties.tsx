@@ -13,6 +13,7 @@ import {
   propertyTypes,
   getCategoryFilters,
 } from "@data/properties";
+import { useShareSheetStore } from "@stores/shareSheetStore";
 
 interface Property {
   id: number;
@@ -43,6 +44,7 @@ const DreamProperties: React.FC = () => {
   const [carouselKey, setCarouselKey] = useState(0);
   const [showMoreTags, setShowMoreTags] = useState(false);
   const owlCarouselRef = useRef<OwlCarousel | null>(null);
+  const openShare = useShareSheetStore((s) => s.openShare);
 
   // Force re-render when language or direction changes
   useEffect(() => {
@@ -141,8 +143,10 @@ const DreamProperties: React.FC = () => {
   };
 
   const handleShareClick = (id: number) => {
-    // Handle share logic
-    console.log("Share clicked:", id);
+    const item = properties.find((p) => p.id === id);
+    if (!item) return;
+    const url = `${window.location.origin}/properties/${item.propertySlug}/${item.slug}`;
+    openShare({ title: item.title, url });
   };
 
   const handleVisitClick = (id: number) => {
