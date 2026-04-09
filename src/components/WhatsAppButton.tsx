@@ -16,9 +16,7 @@ const WhatsAppButton = () => {
   };
 
   const whatsappRaw =
-    appConfig?.data?.config?.contact?.whatsapp ??
-    appConfig?.data?.data?.config?.contact?.whatsapp ??
-    "";
+    appConfig?.data?.config?.contact?.whatsapp ?? "";
 
   const href = useMemo(() => toWhatsAppLink(whatsappRaw), [whatsappRaw]);
   if (!href) return null;
