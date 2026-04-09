@@ -713,7 +713,7 @@ const CategoryOffersPage = () => {
           <div
             className={
               viewMode === "grid"
-                ? "grid grid-cols-1 md:grid-cols-3 gap-6 grid-view"
+                ? "grid grid-cols-1 md:grid-cols-4 gap-6 grid-view"
                 : "grid grid-cols-1 gap-6 list-view"
             }
           >
