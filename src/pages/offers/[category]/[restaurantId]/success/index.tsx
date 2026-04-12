@@ -8,6 +8,8 @@ import {
 } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useIsRTL } from "@hooks";
+import { useTranslation } from "react-i18next";
+import { pickLocalized } from "@utils/pickLocalized";
 import {
   IoClose,
   IoDownloadOutline,
@@ -59,20 +61,22 @@ function formatVoucherNumber(code: string): string {
   return digits.replace(/(.{3})/g, "$1 ").trim();
 }
 
-function formatOrderDate(dateStr: string | undefined, isRTL: boolean): string {
+function formatOrderDate(dateStr: string | undefined, langBase: string): string {
   if (!dateStr) return "—";
   const date = new Date(dateStr);
-  return isRTL
-    ? date.toLocaleDateString("ar-SA", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      })
-    : date.toLocaleDateString("en-US", {
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-      });
+  const locale =
+    langBase === "ar"
+      ? "ar-SA"
+      : langBase === "ur"
+        ? "ur-PK"
+        : langBase === "hi"
+          ? "hi-IN"
+          : "en-US";
+  return date.toLocaleDateString(locale, {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 }
 
 const SuccessPage: React.FC = () => {
@@ -81,6 +85,8 @@ const SuccessPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isRTL = useIsRTL();
+  const { t, i18n } = useTranslation();
+  const langBase = i18n.language?.split("-")[0] || "en";
   const token = useUserStore((s) => s.token);
   const getToken = useUserStore.getState;
 
@@ -143,14 +149,14 @@ const SuccessPage: React.FC = () => {
       >
         <div className="text-center bg-white/10 rounded-2xl p-8 max-w-md">
           <h2 className="text-xl font-bold text-white mb-4">
-            {isRTL ? "الطلب غير معروف" : "Order not found"}
+            {t("offerCheckoutSuccess.order_unknown")}
           </h2>
           <button
             type="button"
             onClick={() => navigate("/offers")}
             className="bg-white text-[#1D0843] px-6 py-3 rounded-xl font-medium hover:bg-white/90 transition-colors"
           >
-            {isRTL ? "العودة للعروض" : "Back to Offers"}
+            {t("offerCheckoutSuccess.back_to_offers")}
           </button>
         </div>
       </div>
@@ -167,13 +173,13 @@ const SuccessPage: React.FC = () => {
       >
         <div className="text-center bg-white/10 rounded-2xl p-8 max-w-md mx-4">
           <h2 className="text-xl font-bold text-white mb-4">
-            {isRTL ? "تسجيل الدخول مطلوب" : "Login required"}
+            {t("offerCheckoutSuccess.login_required")}
           </h2>
           <Link
             to={`/login?returnUrl=${encodeURIComponent(location.pathname + location.search)}`}
             className="bg-white text-[#1D0843] px-6 py-3 rounded-xl font-medium hover:bg-white/90 transition-colors inline-block"
           >
-            {isRTL ? "تسجيل الدخول" : "Login"}
+            {t("offerCheckoutSuccess.login")}
           </Link>
         </div>
       </div>
@@ -203,7 +209,7 @@ const SuccessPage: React.FC = () => {
       >
         <div className="text-center bg-white/10 rounded-2xl p-8 max-w-md">
           <h2 className="text-xl font-bold text-white mb-2">
-            {isRTL ? "الطلب غير موجود" : "Order not found"}
+            {t("offerCheckoutSuccess.order_not_found")}
           </h2>
           <p className="text-white/80 mb-6">
             {String(orderErrorObj?.message ?? "")}
@@ -213,7 +219,7 @@ const SuccessPage: React.FC = () => {
             onClick={() => navigate("/orders")}
             className="bg-white text-[#1D0843] px-6 py-3 rounded-xl font-medium hover:bg-white/90 transition-colors"
           >
-            {isRTL ? "العودة للطلبات" : "Back to Orders"}
+            {t("offerCheckoutSuccess.back_to_orders")}
           </button>
         </div>
       </div>
@@ -235,7 +241,7 @@ const SuccessPage: React.FC = () => {
     <>
       <Helmet>
         <title>
-          {isRTL ? "تم الدفع بنجاح" : "Payment Successful"} #
+          {t("offerCheckoutSuccess.payment_success_title")} #
           {order.orderNumber ?? order.id} | Mokafaat
         </title>
       </Helmet>
@@ -256,7 +262,7 @@ const SuccessPage: React.FC = () => {
           >
             <IoArrowBackOutline className="w-6 h-6" />
             <span className="text-sm font-medium">
-              {isRTL ? "الطلبات" : "Orders"}
+              {t("offerCheckoutSuccess.orders_nav")}
             </span>
           </button>
         </div>
@@ -269,7 +275,7 @@ const SuccessPage: React.FC = () => {
                 type="button"
                 onClick={() => navigate("/orders")}
                 className="w-10 h-10 flex items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 transition-colors"
-                aria-label={isRTL ? "إغلاق" : "Close"}
+                aria-label={t("offerCheckoutSuccess.close")}
               >
                 <IoClose className="w-6 h-6" />
               </button>
@@ -280,7 +286,7 @@ const SuccessPage: React.FC = () => {
               <div className="flex justify-center mb-6">
                 <img
                   src={order.qrCodeUrl}
-                  alt={isRTL ? "رمز الاستجابة السريعة" : "QR Code"}
+                  alt={t("offerCheckoutSuccess.qr_alt")}
                   className="w-48 h-48 object-contain"
                 />
               </div>
@@ -293,7 +299,7 @@ const SuccessPage: React.FC = () => {
                   {formatVoucherNumber(voucherNumber)}
                 </p>
                 <p className="text-sm text-gray-500 mt-1">
-                  {isRTL ? "رقم القسيمة" : "Voucher Number"}
+                  {t("offerCheckoutSuccess.voucher_number")}
                 </p>
               </div>
             )}
@@ -306,21 +312,21 @@ const SuccessPage: React.FC = () => {
                 <span className="text-gray-900 font-medium">
                   {formatOrderDate(
                     rawOrderData?.created_at ?? order.createdAt,
-                    isRTL
+                    langBase,
                   )}
                 </span>
                 <span className="text-gray-500">
-                  {isRTL ? "تاريخ الشراء" : "Purchase Date"}
+                  {t("offerCheckoutSuccess.purchase_date")}
                 </span>
               </div>
               <div
                 className={`flex justify-between items-center text-sm gap-4 ${isRTL ? "flex-row-reverse" : ""}`}
               >
                 <span className="text-gray-900 font-medium">
-                  {formatOrderDate(rawOrderData?.expires_at, isRTL)}
+                  {formatOrderDate(rawOrderData?.expires_at, langBase)}
                 </span>
                 <span className="text-gray-500">
-                  {isRTL ? "انتهاء الكوبون" : "Coupon Expiry"}
+                  {t("offerCheckoutSuccess.coupon_expiry")}
                 </span>
               </div>
               {order.items?.[0] && (
@@ -328,10 +334,10 @@ const SuccessPage: React.FC = () => {
                   className={`flex justify-between items-center text-sm gap-4 ${isRTL ? "flex-row-reverse" : ""}`}
                 >
                   <span className="text-gray-900 font-medium">
-                    {order.items[0].title[isRTL ? "ar" : "en"]}
+                    {pickLocalized(order.items[0].title, langBase)}
                   </span>
                   <span className="text-gray-500">
-                    {isRTL ? "العرض" : "Offer"}
+                    {t("offerCheckoutSuccess.offer")}
                   </span>
                 </div>
               )}
@@ -343,7 +349,7 @@ const SuccessPage: React.FC = () => {
                     {rawOrderData.item.name as string}
                   </span>
                   <span className="text-gray-500">
-                    {isRTL ? "العرض" : "Offer"}
+                    {t("offerCheckoutSuccess.offer")}
                   </span>
                 </div>
               )}
@@ -351,14 +357,14 @@ const SuccessPage: React.FC = () => {
                 className={`flex justify-between items-center text-sm gap-4 ${isRTL ? "flex-row-reverse" : ""}`}
               >
                 <span className="text-gray-900 font-medium">
-                  {isRTL
-                    ? `${order.items?.reduce((s, i) => s + i.quantity, 0) ?? rawOrderData?.quantity ?? 1} صفقة`
-                    : `${order.items?.reduce((s, i) => s + i.quantity, 0) ?? rawOrderData?.quantity ?? 1} deal(s)`}
+                  {t("offerCheckoutSuccess.deals_count", {
+                    count:
+                      order.items?.reduce((s, i) => s + i.quantity, 0) ??
+                      Number(rawOrderData?.quantity ?? 1),
+                  })}
                 </span>
                 <span className="text-gray-500">
-                  {isRTL
-                    ? "عدد الصفقات المشتراة"
-                    : "Number of Deals Purchased"}
+                  {t("offerCheckoutSuccess.deals_label")}
                 </span>
               </div>
             </div>
@@ -373,7 +379,7 @@ const SuccessPage: React.FC = () => {
                   <CurrencyIcon size={20} className="text-[#fd671a]" />
                 </span>
                 <span className="text-gray-500">
-                  {isRTL ? "السعر الإجمالي" : "Total Price"}
+                  {t("offerCheckoutSuccess.total_price")}
                 </span>
               </div>
             </div>
@@ -385,7 +391,7 @@ const SuccessPage: React.FC = () => {
                   to="/privacy-policy"
                   className="text-sm text-gray-500 hover:text-[#fd671a] transition-colors inline-flex items-center gap-1"
                 >
-                  {isRTL ? "تابع شروط الخصوصية" : "Privacy Terms"}
+                  {t("offerCheckoutSuccess.privacy_terms")}
                   <span className="rtl:rotate-180" aria-hidden>
                     →
                   </span>
@@ -400,7 +406,7 @@ const SuccessPage: React.FC = () => {
                 onClick={() => navigate("/orders")}
                 className="flex-1 py-3 px-4 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 transition-colors"
               >
-                {isRTL ? "عودة للمتجر" : "Return to Store"}
+                {t("offerCheckoutSuccess.return_store")}
               </button>
               {hasVoucher && (
                 <button
@@ -409,7 +415,7 @@ const SuccessPage: React.FC = () => {
                   className="flex-1 py-3 px-4 rounded-xl bg-[#fd671a] text-white font-medium hover:bg-[#e55c18] transition-colors flex items-center justify-center gap-2"
                 >
                   <IoDownloadOutline className="w-5 h-5" />
-                  {isRTL ? "تنزيل ملف PDF" : "Download PDF"}
+                  {t("offerCheckoutSuccess.download_pdf")}
                 </button>
               )}
             </div>

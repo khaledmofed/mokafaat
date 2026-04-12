@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useIsRTL } from "@hooks";
 import OwlCarousel from "react-owl-carousel";
@@ -19,6 +20,7 @@ function extractOffersArray(res: unknown): Array<Record<string, unknown>> {
 }
 
 const WeeklyDiscountsSection: React.FC = () => {
+  const { t } = useTranslation();
   const isRTL = useIsRTL();
   const navigate = useNavigate();
   const [carouselKey, setCarouselKey] = useState(0);
@@ -74,12 +76,10 @@ const WeeklyDiscountsSection: React.FC = () => {
     <section className="container mx-auto px-4 py-0">
       <div className="text-start mb-4">
         <h2 className="text-[#400198] text-3xl font-bold">
-          {isRTL ? "عروض مجانية" : "Free Offers"}
+          {t("offersPage.freeOffers.title")}
         </h2>
         <p className="text-md text-gray-700 leading-relaxed">
-          {isRTL
-            ? "احصل على عروض مجانية مميزة الآن"
-            : "Get great free offers now"}
+          {t("offersPage.freeOffers.subtitle")}
         </p>
       </div>
 
@@ -91,7 +91,7 @@ const WeeklyDiscountsSection: React.FC = () => {
       >
         {isLoading ? (
           <div className="text-center py-12 text-gray-500">
-            {isRTL ? "جاري التحميل..." : "Loading..."}
+            {t("common.loading")}
           </div>
         ) : isRTL && freeOffers.length < 4 ? (
           <div

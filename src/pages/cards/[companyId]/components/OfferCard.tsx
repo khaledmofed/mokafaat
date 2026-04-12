@@ -35,6 +35,7 @@ import {
   Cards8,
 } from "@assets";
 import { stripHtml } from "@utils/stripHtml";
+import { pickLocalized } from "@utils/pickLocalized";
 
 interface CategoryItem {
   id: number;
@@ -67,7 +68,8 @@ const OfferCard: React.FC<OfferCardProps> = ({
   const isRTL = useIsRTL();
   const navigate = useNavigate();
   const detailPath = `/cards/${companyId}/offer/${offer.id}`;
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
+  const langBase = i18n.language?.split("-")[0] || "en";
   const isAuthenticated = useUserStore((s) => !!s.token);
   const { data: favoritesData } = useFavorites();
   const toggleFavorite = useFavoriteToggle();
@@ -100,15 +102,11 @@ const OfferCard: React.FC<OfferCardProps> = ({
         onSuccess: () => {
           toast.success(
             isFavorite
-              ? isRTL
-                ? "تمت إزالته من المفضلة"
-                : "Removed from favorites"
-              : isRTL
-                ? "تمت الإضافة إلى المفضلة"
-                : "Added to favorites",
+              ? t("couponModal.removedFromFavorites")
+              : t("couponModal.addedToFavorites"),
           );
         },
-        onError: () => toast.error(isRTL ? "حدث خطأ" : "Something went wrong"),
+        onError: () => toast.error(t("couponModal.errorGeneric")),
       },
     );
   };
@@ -144,34 +142,22 @@ const OfferCard: React.FC<OfferCardProps> = ({
     }
   };
 
-  // Memoize validity text based on language
   const validityText = useMemo(() => {
-    return offer.validity[isRTL ? "ar" : "en"];
-  }, [offer.validity, isRTL]);
+    const v = offer.validity as Record<string, string>;
+    return v[langBase] ?? v.en ?? v.ar ?? "";
+  }, [offer.validity, langBase]);
 
-  // Memoize visit button text based on language (تفاصيل البطاقة)
-  const visitButtonText = useMemo(() => {
-    if (i18n.language === "ar") {
-      return "تفاصيل البطاقة";
-    }
-    return "Card Details";
-  }, [i18n.language]);
+  const visitButtonText = useMemo(() => t("offerCard.cardDetails"), [t]);
 
-  // Memoize purchase count text based on language
-  const purchaseText = useMemo(() => {
-    if (i18n.language === "ar") {
-      return `${offer.purchases} عملية شراء`;
-    }
-    return `${offer.purchases} purchases`;
-  }, [offer.purchases, i18n.language]);
+  const purchaseText = useMemo(
+    () => t("offerCard.purchases", { count: offer.purchases }),
+    [offer.purchases, t],
+  );
 
-  // Memoize features text based on language
   const featuresText = useMemo(() => {
-    if (i18n.language === "ar") {
-      return `+${offer.features.length - 3} مميزات أخرى`;
-    }
-    return `+${offer.features.length - 3} more features`;
-  }, [offer.features.length, i18n.language]);
+    const extra = Math.max(0, offer.features.length - 3);
+    return t("offerCard.moreFeatures", { count: extra });
+  }, [offer.features.length, t]);
 
   // Function to get the appropriate icon (بطاقة = أيقونة بطاقة)
   const getOfferTypeIcon = () => {
@@ -187,12 +173,12 @@ const OfferCard: React.FC<OfferCardProps> = ({
   // Function to get card/offer type text (بطاقة وليس عرض)
   const getOfferTypeText = () => {
     if (offer.isPopular) {
-      return isRTL ? "شائع" : "Popular";
+      return t("offerCard.popular");
     }
     if (offer.isNew) {
-      return isRTL ? "جديد" : "New";
+      return t("offerCard.new");
     }
-    return isRTL ? "بطاقة" : "Card";
+    return t("offerCard.card");
   };
 
   // Function to get offer type color
@@ -212,7 +198,7 @@ const OfferCard: React.FC<OfferCardProps> = ({
       <div className="relative h-[185px] overflow-hidden flex-shrink-0">
         <img
           src={getCardImage(offer.image)}
-          alt={offer.title[isRTL ? "ar" : "en"]}
+          alt={pickLocalized(offer.title, langBase)}
           className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
         />
 
@@ -272,11 +258,11 @@ const OfferCard: React.FC<OfferCardProps> = ({
           </div>
 
           <h3 className="text-md font-bold text-gray-900 mb-2 line-clamp-2">
-            {offer.title[isRTL ? "ar" : "en"]}
+            {pickLocalized(offer.title, langBase)}
           </h3>
 
           <p className="text-sm text-gray-600 mb-3 line-clamp-2 min-h-[2.5rem]">
-            {stripHtml(offer.description[isRTL ? "ar" : "en"])}
+            {stripHtml(pickLocalized(offer.description, langBase))}
           </p>
 
           {/* التصنيف والمتجر - مع الصور */}

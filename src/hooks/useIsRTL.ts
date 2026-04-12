@@ -2,10 +2,8 @@ import { useTranslation } from "react-i18next";
 
 const useIsRTL = (): boolean => {
   const { i18n } = useTranslation();
-  const currentLanguage = i18n.language;
-  const isRTL = currentLanguage === "ar";
-
-  return isRTL;
+  const base = i18n.language?.split("-")[0] || "ar";
+  return base === "ar" || base === "ur";
 };
 
 export default useIsRTL;

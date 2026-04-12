@@ -2,10 +2,15 @@ import axios, { AxiosError } from "axios";
 import { API_BASE_URL } from "@config/api";
 import i18n from "../i18n";
 
-/** لغة الطلب للـ API: ar | en (وفق لغة الواجهة) */
-function getAcceptLanguage(): string {
+/** لغة الطلب لرأس Accept-Language (وفق لغة الواجهة في i18n) */
+const ACCEPT_LANGUAGE_CODES = ["ar", "en", "fr", "ur", "hi"] as const;
+
+/** قيمة رأس Accept-Language لكل طلبات الـ API (تتبع لغة الواجهة) */
+export function getAcceptLanguage(): string {
   const lang = i18n.language?.split("-")[0] || "ar";
-  return ["ar", "en", "fr"].includes(lang) ? lang : "ar";
+  return (ACCEPT_LANGUAGE_CODES as readonly string[]).includes(lang)
+    ? lang
+    : "ar";
 }
 
 export const api = axios.create({

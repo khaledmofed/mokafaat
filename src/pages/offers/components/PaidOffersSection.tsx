@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useIsRTL } from "@hooks";
 import { type Offer } from "@data/offers";
@@ -19,6 +20,7 @@ function extractOffersArray(res: unknown): Array<Record<string, unknown>> {
 }
 
 const PaidOffersSection: React.FC = () => {
+  const { t } = useTranslation();
   const isRTL = useIsRTL();
   const navigate = useNavigate();
   const [carouselKey, setCarouselKey] = useState(0);
@@ -68,12 +70,10 @@ const PaidOffersSection: React.FC = () => {
     <section className="container mx-auto px-4 py-10">
       <div className="text-start mb-4">
         <h2 className="text-[#400198] text-3xl font-bold">
-          {isRTL ? "عروض مدفوعة" : "Paid Offers"}
+          {t("offersPage.paidOffers.title")}
         </h2>
         <p className="text-md text-gray-700 leading-relaxed">
-          {isRTL
-            ? "استفد من أفضل العروض المدفوعة"
-            : "Enjoy the best paid offers"}
+          {t("offersPage.paidOffers.subtitle")}
         </p>
       </div>
 
@@ -83,7 +83,7 @@ const PaidOffersSection: React.FC = () => {
       >
         {isLoading ? (
           <div className="text-center py-12 text-gray-500">
-            {isRTL ? "جاري التحميل..." : "Loading..."}
+            {t("common.loading")}
           </div>
         ) : isRTL && paidOffers.length < 4 ? (
           <div

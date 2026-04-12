@@ -1,12 +1,11 @@
 import { AboutPattern } from "@assets";
-import { useIsRTL } from "@hooks";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
 const CouponsHero = () => {
-  const isRTL = useIsRTL();
-  const titleFontType = isRTL
-    ? " font-semibold mt-8 text-2xl md:text-2xl lg:text-2xl"
-    : " font-semibold mt-8 text-2xl md:text-2xl lg:text-2xl";
+  const { t } = useTranslation();
+  const titleFontType =
+    " font-semibold mt-8 text-2xl md:text-2xl lg:text-2xl";
 
   return (
     <section className="relative w-full bg-[#1D0843] overflow-hidden min-h-[140px] flex items-center justify-center">
@@ -15,7 +14,7 @@ const CouponsHero = () => {
         <h1
           className={`${titleFontType} mb-4 tracking-tight leading-none text-white`}
         >
-          {isRTL ? "الكوبونز" : "Couponz"}
+          {t("coupons.title")}
         </h1>
 
         <div className="flex items-center justify-center  text-sm md:text-base">
@@ -23,11 +22,11 @@ const CouponsHero = () => {
             to="/"
             className="text-white hover:text-purple-300 transition-colors cursor-pointer text-xs"
           >
-            {isRTL ? "الرئيسية" : "Home"}
+            {t("home.navbar.home")}
           </Link>
           <span className="text-white text-xs mx-2">|</span>
           <span className="text-[#fd671a] font-medium text-xs">
-            {isRTL ? "الكوبونز" : "Couponz"}
+            {t("coupons.title")}
           </span>
         </div>
       </div>
@@ -35,7 +34,7 @@ const CouponsHero = () => {
       <div className="absolute -bottom-10 transform z-9">
         <img
           src={AboutPattern}
-          alt="Pattern"
+          alt={t("offersPage.patternAlt")}
           className="w-full h-96 animate-float"
         />
       </div>

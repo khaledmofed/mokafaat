@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback } from "react";
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useIsRTL } from "@hooks";
+import { useTranslation } from "react-i18next";
 import {
   FiArrowLeft,
   FiTag,
@@ -26,13 +27,6 @@ import { useShareSheetStore } from "@stores/shareSheetStore";
 
 type TabKey = "description" | "terms" | "features";
 
-const validityLabel: Record<string, string> = {
-  annual: "سنوي",
-  monthly: "شهري",
-  quarterly: "ربع سنوي",
-  semi_annual: "نصف سنوي",
-};
-
 function mapApiRelatedToCardOffer(raw: Record<string, unknown>): CardOffer & { companyId: string } {
   const merchant = (raw.merchant as Record<string, unknown>) || {};
   const id = String(raw.id ?? "");
@@ -48,7 +42,7 @@ function mapApiRelatedToCardOffer(raw: Record<string, unknown>): CardOffer & { c
     price: Number(raw.final_price ?? raw.price ?? 0),
     currency: "SAR",
     validity: {
-      ar: validityLabel[String(raw.validity_type ?? "").toLowerCase()] ?? String(raw.validity_type ?? ""),
+      ar: String(raw.validity_type ?? ""),
       en: String(raw.validity_type ?? ""),
     },
     features: [],
@@ -67,6 +61,7 @@ const CardOfferDetailPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isRTL = useIsRTL();
+  const { t } = useTranslation();
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState<TabKey>("description");
   const handleQuantityChange = useCallback((q: number) => setQuantity(q), []);
@@ -155,11 +150,11 @@ const CardOfferDetailPage = () => {
         onSuccess: () => {
           toast.success(
             isCardFavorite
-              ? isRTL ? "تمت إزالته من المفضلة" : "Removed from favorites"
-              : isRTL ? "تمت الإضافة إلى المفضلة" : "Added to favorites",
+              ? t("couponModal.removedFromFavorites")
+              : t("couponModal.addedToFavorites"),
           );
         },
-        onError: () => toast.error(isRTL ? "حدث خطأ" : "Something went wrong"),
+        onError: () => toast.error(t("couponModal.errorGeneric")),
       },
     );
   };
@@ -196,13 +191,13 @@ const CardOfferDetailPage = () => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">
-            {isRTL ? "البطاقة غير موجودة" : "Card not found"}
+            {t("cardOfferDetail.not_found")}
           </h2>
           <button
             onClick={() => navigate("/cards")}
             className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors"
           >
-            {isRTL ? "العودة للبطاقات" : "Back to Cards"}
+            {t("cardOfferDetail.back_to_cards")}
           </button>
         </div>
       </div>
@@ -213,7 +208,7 @@ const CardOfferDetailPage = () => {
     <>
       <Helmet>
         <title>
-          {cardName} - {merchantName} | {isRTL ? "البطاقات" : "Cards"}
+          {cardName} - {merchantName} | {t("cardOfferDetail.cards_brand")}
         </title>
         <link
           rel="canonical"
@@ -231,7 +226,7 @@ const CardOfferDetailPage = () => {
               className={`text-white hover:text-purple-300 transition-colors flex items-center gap-2 ${isRTL ? "flex-row-reverse" : ""}`}
             >
               <FiArrowLeft className="text-xl" />
-              <span className="text-sm">{isRTL ? "العودة" : "Back"}</span>
+              <span className="text-sm">{t("cardOfferDetail.back")}</span>
             </button>
             <div className="flex items-center gap-2">
               <button
@@ -243,7 +238,7 @@ const CardOfferDetailPage = () => {
                   openShare({ title, url });
                 }}
                 className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
-                aria-label="Share"
+                aria-label={t("offerDetail.aria_share")}
               >
                 <BsShare className="text-lg" />
               </button>
@@ -286,7 +281,7 @@ const CardOfferDetailPage = () => {
           <div className="flex items-center justify-center gap-2 text-white/90 mb-4 flex-wrap">
             <div className="flex items-center gap-2">
               <span className="text-white/70">
-                {isRTL ? "مبيعات" : "sold"}
+                {t("cardOfferDetail.sold")}
               </span>
               <span className="font-medium">{purchaseCount}</span>
             </div>
@@ -295,17 +290,17 @@ const CardOfferDetailPage = () => {
               <FiEye className="text-white/80 shrink-0" size={18} />
               <span>{viewsCount}</span>
               <span className="text-white/70">
-                {isRTL ? "مشاهدات" : "views"}
+                {t("cardOfferDetail.views_word")}
               </span>
             </div>
           </div>
           <div className="flex items-center justify-center text-sm flex-wrap gap-x-1 text-white/80">
             <Link to="/" className="hover:text-white transition-colors text-xs">
-              {isRTL ? "الرئيسية" : "Home"}
+              {t("propertyDetail.breadcrumb.home")}
             </Link>
             <span className="text-xs">|</span>
             <Link to="/cards" className="hover:text-white transition-colors text-xs">
-              {isRTL ? "البطاقات" : "Cards"}
+              {t("home.navbar.cards")}
             </Link>
             {merchantName && (
               <>
@@ -347,9 +342,18 @@ const CardOfferDetailPage = () => {
               <div className="bg-white rounded-3xl shadow-lg overflow-hidden">
                 <div className="flex border-b">
                   {[
-                    { key: "description" as TabKey, label: isRTL ? "الوصف" : "Description" },
-                    { key: "terms" as TabKey, label: isRTL ? "الشروط والأحكام" : "Terms" },
-                    { key: "features" as TabKey, label: isRTL ? "المميزات" : "Features" },
+                    {
+                      key: "description" as TabKey,
+                      label: t("cardOfferDetail.tab_description"),
+                    },
+                    {
+                      key: "terms" as TabKey,
+                      label: t("cardOfferDetail.tab_terms"),
+                    },
+                    {
+                      key: "features" as TabKey,
+                      label: t("cardOfferDetail.tab_features"),
+                    },
                   ].map((tab) => (
                     <button
                       key={tab.key}
@@ -367,19 +371,39 @@ const CardOfferDetailPage = () => {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                         {validityType && (
                           <div className="bg-gray-100 p-3 rounded-lg">
-                            <div className="text-sm text-gray-600">{isRTL ? "نوع الصلاحية" : "Validity"}</div>
+                            <div className="text-sm text-gray-600">
+                              {t("cardOfferDetail.validity_type")}
+                            </div>
                             <div className="font-medium text-gray-800">
-                              {validityLabel[validityType.toLowerCase()] ?? validityType}
+                              {(() => {
+                                const vk = validityType.toLowerCase();
+                                return [
+                                  "annual",
+                                  "monthly",
+                                  "quarterly",
+                                  "semi_annual",
+                                ].includes(vk)
+                                  ? t(`cardOfferDetail.validity.${vk}`)
+                                  : validityType;
+                              })()}
                             </div>
                           </div>
                         )}
                         <div className="bg-gray-100 p-3 rounded-lg">
-                          <div className="text-sm text-gray-600">{isRTL ? "قابل للتجديد" : "Renewable"}</div>
-                          <div className="font-medium text-gray-800">{isRenewable ? (isRTL ? "نعم" : "Yes") : (isRTL ? "لا" : "No")}</div>
+                          <div className="text-sm text-gray-600">
+                            {t("cardOfferDetail.renewable")}
+                          </div>
+                          <div className="font-medium text-gray-800">
+                            {isRenewable
+                              ? t("cardOfferDetail.yes")
+                              : t("cardOfferDetail.no")}
+                          </div>
                         </div>
                         {deliveryType && (
                           <div className="bg-gray-100 p-3 rounded-lg">
-                            <div className="text-sm text-gray-600">{isRTL ? "نوع التوصيل" : "Delivery"}</div>
+                            <div className="text-sm text-gray-600">
+                              {t("cardOfferDetail.delivery")}
+                            </div>
                             <div className="font-medium text-gray-800">{deliveryType}</div>
                           </div>
                         )}
@@ -391,7 +415,7 @@ const CardOfferDetailPage = () => {
                   )}
                   {activeTab === "terms" && (
                     <p className="text-gray-600 text-sm whitespace-pre-wrap">
-                      {stripHtml(cardTerms) || (isRTL ? "لا توجد شروط." : "No terms.")}
+                      {stripHtml(cardTerms) || t("cardOfferDetail.no_terms")}
                     </p>
                   )}
                   {activeTab === "features" && (
@@ -404,7 +428,10 @@ const CardOfferDetailPage = () => {
                           </div>
                         ))
                       ) : (
-                        <p className="text-gray-500 text-sm">{stripHtml(String(card.features ?? "")) || (isRTL ? "لا توجد مميزات." : "No features.")}</p>
+                        <p className="text-gray-500 text-sm">
+                          {stripHtml(String(card.features ?? "")) ||
+                            t("cardOfferDetail.no_features")}
+                        </p>
                       )}
                     </div>
                   )}
@@ -428,7 +455,7 @@ const CardOfferDetailPage = () => {
                   >
                     <BsShare className="text-base" />
                     <span className="text-sm font-medium">
-                      {isRTL ? "مشاركة" : "Share"}
+                      {t("cardOfferDetail.share")}
                     </span>
                   </button>
 
@@ -444,7 +471,7 @@ const CardOfferDetailPage = () => {
                       <BsHeart className="text-base" />
                     )}
                     <span className="text-sm font-medium">
-                      {isRTL ? "المفضلة" : "Save"}
+                      {t("cardOfferDetail.favorites")}
                     </span>
                   </button>
                 </div>
@@ -456,11 +483,11 @@ const CardOfferDetailPage = () => {
                     </span>
                   )}
                   <span className="inline-flex items-center gap-1 text-sm text-gray-600 bg-gray-100 px-3 py-1.5 rounded-full">
-                    {purchaseCount} {isRTL ? "مبيعة" : "sold"}
+                    {purchaseCount} {t("cardOfferDetail.sold_badge")}
                   </span>
                 </div>
                 <h3 className="text-lg font-semibold text-gray-800">
-                  {isRTL ? "اختر الكمية" : "Choose quantity"}
+                  {t("cardOfferDetail.choose_quantity")}
                 </h3>
                 <div className="border border-gray-200 rounded-xl p-4 space-y-3">
                   <p className="text-gray-800 font-medium mb-2">{cardName}</p>
@@ -472,13 +499,15 @@ const CardOfferDetailPage = () => {
                     <CurrencyIcon className="text-gray-700" size={20} />
                     {discountPercentage != null && discountPercentage > 0 && (
                       <span className="text-green-600 text-sm font-medium bg-green-50 px-2 py-0.5 rounded-full">
-                        {isRTL ? "خصم" : "Save"} {discountPercentage}%
+                        {t("cardOfferDetail.save_pct", {
+                          pct: discountPercentage,
+                        })}
                       </span>
                     )}
                   </div>
                   {!inStock && (
                     <p className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-sm">
-                      {isRTL ? "غير متوفر حالياً" : "Out of stock"}
+                      {t("cardOfferDetail.out_of_stock")}
                     </p>
                   )}
                   {inStock && (
@@ -486,12 +515,12 @@ const CardOfferDetailPage = () => {
                       <div className="mt-3">
                         <QuantitySelector
                           maxQty={Math.min(99, Number(card.stock) || 99)}
-                          isRTL={!!isRTL}
                           onQuantityChange={handleQuantityChange}
                         />
                       </div>
                       <p className="text-sm font-medium text-gray-700 mt-2">
-                        {isRTL ? "المجموع" : "Total"}: {totalPrice} <CurrencyIcon className="inline" size={14} />
+                        {t("cardOfferDetail.total")}: {totalPrice}{" "}
+                        <CurrencyIcon className="inline" size={14} />
                       </p>
                     </>
                   )}
@@ -501,11 +530,13 @@ const CardOfferDetailPage = () => {
                     onClick={handlePurchase}
                     className="w-full py-3 px-6 bg-primary text-white rounded-xl font-medium hover:opacity-90 transition-opacity disabled:opacity-70 disabled:cursor-not-allowed"
                   >
-                    {isRTL ? "شراء سريع" : "Quick Buy"}
+                    {t("cardOfferDetail.quick_buy")}
                   </button>
                 )}
                 <div>
-                  <p className="text-sm text-gray-600 mb-2">{isRTL ? "طرق الدفع" : "Payment methods"}</p>
+                  <p className="text-sm text-gray-600 mb-2">
+                    {t("cardOfferDetail.payment_methods")}
+                  </p>
                   <div className="flex items-center gap-2 text-gray-500 text-xs font-medium">
                     <span>VISA</span>
                     <span>MasterCard</span>
@@ -520,7 +551,7 @@ const CardOfferDetailPage = () => {
           {relatedCards.length > 0 && (
             <section className="mt-12">
               <h2 className="text-xl font-bold text-gray-800 mb-6">
-                {isRTL ? "بطاقات قد تعجبك" : "Related cards"}
+                {t("cardOfferDetail.related_cards")}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {relatedCards.map((related) => (

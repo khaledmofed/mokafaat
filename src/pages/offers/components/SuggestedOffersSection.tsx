@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useIsRTL } from "@hooks";
 import OwlCarousel from "react-owl-carousel";
@@ -10,6 +11,7 @@ import { useWebHome } from "@hooks/api/useMokafaatQueries";
 import { mapApiOffersToModels } from "@network/mappers/offersMapper";
 
 const SuggestedOffersSection: React.FC = () => {
+  const { t } = useTranslation();
   const isRTL = useIsRTL();
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState<
@@ -43,23 +45,27 @@ const SuggestedOffersSection: React.FC = () => {
     };
   }, [webHomeResponse]);
 
-  const filters = [
-    {
-      key: "most-viewed" as const,
-      label: { ar: "الأعلى زيارة", en: "Most Viewed" },
-      icon: <FiEye />,
-    },
-    {
-      key: "highest-rated" as const,
-      label: { ar: "الأعلى تقييماً", en: "Highest Rated" },
-      icon: <FiStar />,
-    },
-    {
-      key: "nearby" as const,
-      label: { ar: "قريبة منك", en: "Nearby" },
-      icon: <IoLocationOutline />,
-    },
-  ];
+  const filters = useMemo(
+    () =>
+      [
+        {
+          key: "most-viewed" as const,
+          labelKey: "offersPage.suggestedOffers.filterMostViewed",
+          icon: <FiEye />,
+        },
+        {
+          key: "highest-rated" as const,
+          labelKey: "offersPage.suggestedOffers.filterHighestRated",
+          icon: <FiStar />,
+        },
+        {
+          key: "nearby" as const,
+          labelKey: "offersPage.suggestedOffers.filterNearby",
+          icon: <IoLocationOutline />,
+        },
+      ] as const,
+    [],
+  );
 
   const offers = useMemo(() => {
     switch (activeFilter) {
@@ -163,12 +169,10 @@ const SuggestedOffersSection: React.FC = () => {
     <section className="container mx-auto px-4 py-10">
       <div className="text-start mb-4">
         <h2 className="text-[#400198] text-3xl font-bold">
-          {isRTL ? "نقترحها عليك" : "Suggested for You"}
+          {t("offersPage.suggestedOffers.title")}
         </h2>
         <p className="text-md text-gray-700 leading-relaxed">
-          {isRTL
-            ? "عروض مخصصة لك بناءً على تفضيلاتك"
-            : "Personalized offers based on your preferences"}
+          {t("offersPage.suggestedOffers.subtitle")}
         </p>
       </div>
 
@@ -185,7 +189,7 @@ const SuggestedOffersSection: React.FC = () => {
             }`}
           >
             <span>{filter.icon}</span>
-            <span>{filter.label[isRTL ? "ar" : "en"]}</span>
+            <span>{t(filter.labelKey)}</span>
           </button>
         ))}
       </div>
@@ -199,18 +203,16 @@ const SuggestedOffersSection: React.FC = () => {
               <IoLocationOutline className=" mx-auto" />
             </div>
             <h3 className="text-lg font-semibold text-gray-800 mb-2">
-              {isRTL ? "تحديد موقعك" : "Share Your Location"}
+              {t("offersPage.suggestedOffers.locationTitle")}
             </h3>
             <p className="text-gray-600 text-sm mb-4">
-              {isRTL
-                ? "نحتاج إلى معرفة موقعك لعرض العروض القريبة منك"
-                : "We need to know your location to show nearby offers"}
+              {t("offersPage.suggestedOffers.locationDescription")}
             </p>
             <button
               onClick={handleLocationRequest}
               className="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors"
             >
-              {isRTL ? "تحديد الموقع" : "Share Location"}
+              {t("offersPage.suggestedOffers.shareLocation")}
             </button>
           </div>
         </div>
@@ -263,12 +265,10 @@ const SuggestedOffersSection: React.FC = () => {
               )}
             </div>
             <h3 className="text-xl font-semibold text-gray-600 mb-2">
-              {isRTL ? "لا توجد عروض متاحة" : "No offers available"}
+              {t("offersPage.suggestedOffers.emptyTitle")}
             </h3>
             <p className="text-gray-500">
-              {isRTL
-                ? "جرب فلتر آخر أو تحقق مرة أخرى لاحقاً"
-                : "Try another filter or check back later"}
+              {t("offersPage.suggestedOffers.emptyHint")}
             </p>
           </div>
         )}

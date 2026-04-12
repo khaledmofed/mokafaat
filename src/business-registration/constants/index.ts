@@ -53,7 +53,7 @@ export const businessRegistrationNavItems = (t: TFunction) => [
   },
 ];
 
-export const languages = ["en", "ar", "fr"];
+export const languages = ["en", "ar", "fr", "ur", "hi"];
 
 // Initial form data with TypeScript type
 export const initialFormData: BusinessRegistrationForm = {

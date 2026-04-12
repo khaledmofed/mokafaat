@@ -199,7 +199,7 @@ const DreamProperties: React.FC = () => {
                   : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
               }`}
             >
-              {i18n.language === "ar" ? "الكل" : "All"} ({properties.length})
+              {t("dreamProperties.all")} ({properties.length})
             </button>
 
             {displayedCategories.map((filter) => (
@@ -212,7 +212,10 @@ const DreamProperties: React.FC = () => {
                     : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
                 }`}
               >
-                {i18n.language === "ar" ? filter.nameAr : filter.name} (
+                {i18n.language?.split("-")[0] === "ar"
+                  ? filter.nameAr
+                  : filter.name}{" "}
+                (
                 {filter.count})
               </button>
             ))}
@@ -226,12 +229,8 @@ const DreamProperties: React.FC = () => {
               }`}
             >
               {showMoreTags
-                ? i18n.language === "ar"
-                  ? "عرض أقل"
-                  : "Show Less"
-                : i18n.language === "ar"
-                ? "عرض المزيد"
-                : "View More"}
+                ? t("dreamProperties.showLess")
+                : t("dreamProperties.viewMore")}
             </button>
           </div>
         </div>

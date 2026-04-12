@@ -4,6 +4,8 @@ import Backend from "i18next-http-backend";
 import global_en from "@locale/en.json";
 import global_ar from "@locale/ar.json";
 import global_fr from "@locale/fr.json";
+import global_ur from "@locale/ur.json";
+import global_hi from "@locale/hi.json";
 
 const resources = {
   en: {
@@ -15,6 +17,12 @@ const resources = {
   fr: {
     translation: global_fr,
   },
+  ur: {
+    translation: global_ur,
+  },
+  hi: {
+    translation: global_hi,
+  },
 };
 
 // Function to get saved language safely
@@ -22,7 +30,7 @@ const getSavedLanguage = (): string => {
   try {
     if (typeof window !== "undefined" && window.localStorage) {
       const saved = localStorage.getItem("language");
-      if (saved && ["en", "ar"].includes(saved)) {
+      if (saved && ["en", "ar", "ur", "hi"].includes(saved)) {
         return saved;
       }
     }

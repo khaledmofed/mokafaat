@@ -1,6 +1,7 @@
 import { useParams, useSearchParams, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { useIsRTL } from "@hooks";
+import { useTranslation } from "react-i18next";
+import { pickLocalized } from "@utils/pickLocalized";
 import { useMemo } from "react";
 import {
   getCompanyById,
@@ -19,7 +20,8 @@ const SuccessPage = () => {
   const { companyId } = useParams<{ companyId: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const isRTL = useIsRTL();
+  const { t, i18n } = useTranslation();
+  const langBase = i18n.language?.split("-")[0] || "en";
   const { data: webHomeResponse } = useWebHome();
   const token = useUserStore((s) => s.token);
   const getToken = useUserStore.getState;
@@ -89,13 +91,13 @@ const SuccessPage = () => {
       <div className="flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">
-            {isRTL ? "خطأ في البيانات" : "Data Error"}
+            {t("cardsPurchaseSuccess.data_error")}
           </h2>
           <button
             onClick={() => navigate("/cards")}
             className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors"
           >
-            {isRTL ? "العودة للبطاقات" : "Back to Cards"}
+            {t("cardsPurchaseSuccess.back_to_cards")}
           </button>
         </div>
       </div>
@@ -124,8 +126,8 @@ const SuccessPage = () => {
     <>
       <Helmet>
         <title>
-          {isRTL ? "تم الشراء بنجاح" : "Purchase Successful"} -{" "}
-          {company.name[isRTL ? "ar" : "en"]}
+          {t("cardsPurchaseSuccess.purchase_success")} -{" "}
+          {pickLocalized(company.name, langBase)}
         </title>
       </Helmet>
 
@@ -135,55 +137,51 @@ const SuccessPage = () => {
           <div className="relative mb-8 mx-auto text-center w-full">
             <img
               src={Cardpayment}
-              alt="Credit Card"
+              alt={t("cardsPurchaseSuccess.credit_card_alt")}
               className="w-36 h-auto mx-auto"
             />
           </div>
 
           {/* Success Message */}
           <h1 className="text-3xl font-bold text-gray-800 mb-2">
-            {isRTL ? "شكراً لك" : "Thank You"}
+            {t("cardsPurchaseSuccess.thank_you")}
           </h1>
           <h2 className="text-xl font-bold text-gray-700 mb-2">
-            {isRTL
-              ? "تم شراء البطاقة بنجاح"
-              : "The card has been successfully purchased"}
+            {t("cardsPurchaseSuccess.card_purchased")}
           </h2>
           <p className="text-gray-600 mb-8 text-sm">
-            {isRTL
-              ? "نسعد بتجربتك معنا"
-              : "We are happy with your experience with us"}
+            {t("cardsPurchaseSuccess.happy")}
           </p>
 
           {/* Order Details */}
           <div className="bg-gray-50 rounded-lg p-4 mb-6 text-right">
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm text-gray-600">
-                {isRTL ? "رقم الطلب" : "Order Number"}
+                {t("cardsPurchaseSuccess.order_number")}
               </span>
               <span className="text-sm font-medium text-gray-800">
-                #{Math.random().toString(36).substr(2, 9).toUpperCase()}
+                #{orderId ?? "—"}
               </span>
             </div>
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm text-gray-600">
-                {isRTL ? "الشركة" : "Company"}
+                {t("cardsPurchaseSuccess.company")}
               </span>
               <span className="text-sm font-medium text-gray-800">
-                {company.name[isRTL ? "ar" : "en"]}
+                {pickLocalized(company.name, langBase)}
               </span>
             </div>
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm text-gray-600">
-                {isRTL ? "العرض" : "Offer"}
+                {t("cardsPurchaseSuccess.offer")}
               </span>
               <span className="text-sm font-medium text-gray-800">
-                {offer.title[isRTL ? "ar" : "en"]}
+                {pickLocalized(offer.title, langBase)}
               </span>
             </div>
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm text-gray-600">
-                {isRTL ? "الكمية" : "Quantity"}
+                {t("cardsPurchaseSuccess.quantity")}
               </span>
               <span className="text-sm font-medium text-gray-800">
                 {quantity}
@@ -192,7 +190,7 @@ const SuccessPage = () => {
             <div className="border-t pt-2 mt-2">
               <div className="flex justify-between items-center">
                 <span className="font-semibold text-gray-800">
-                  {isRTL ? "المجموع" : "Total"}
+                  {t("cardsPurchaseSuccess.total")}
                 </span>
                 <span className="text-lg font-bold text-orange-500 flex items-center gap-1">
                   {total}
@@ -208,23 +206,19 @@ const SuccessPage = () => {
               onClick={handleViewOrder}
               className="flex-1 py-3 px-6 bg-orange-500 text-white rounded-full hover:bg-orange-600 transition-colors font-medium"
             >
-              {isRTL ? "تنزيل ملف PDF" : "Download PDF File"}
+              {t("cardsPurchaseSuccess.download_pdf")}
             </button>
             <button
               onClick={handleBackToCards}
               className="flex-1 py-3 px-6 bg-white border-2 border-gray-300 text-gray-800 rounded-full hover:bg-gray-50 transition-colors font-medium"
             >
-              {isRTL ? "موافق" : "OK"}
+              {t("cardsPurchaseSuccess.ok")}
             </button>
           </div>
 
           {/* Additional Info */}
           <div className="mt-6 text-xs text-gray-500">
-            <p>
-              {isRTL
-                ? "سيتم إرسال تفاصيل البطاقة إلى بريدك الإلكتروني"
-                : "Card details will be sent to your email"}
-            </p>
+            <p>{t("cardsPurchaseSuccess.email_notice")}</p>
           </div>
         </div>
       </div>

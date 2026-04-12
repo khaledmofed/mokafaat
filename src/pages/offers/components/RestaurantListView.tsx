@@ -1,5 +1,10 @@
 import { useNavigate } from "react-router-dom";
-import { useIsRTL } from "@hooks";
+import { useTranslation } from "react-i18next";
+
+function pickArEnField(pair: { ar: string; en: string }, lang: string) {
+  const m = pair as Record<string, string>;
+  return m[lang] ?? pair.en ?? pair.ar;
+}
 import { FiStar, FiEye, FiDownload } from "react-icons/fi";
 import { BsHeart, BsShare } from "react-icons/bs";
 import { Offer } from "@data/offers";
@@ -33,7 +38,8 @@ const RestaurantListView: React.FC<RestaurantListViewProps> = ({
   className = "",
 }) => {
   const navigate = useNavigate();
-  const isRTL = useIsRTL();
+  const { i18n, t } = useTranslation();
+  const langBase = i18n.language?.split("-")[0] || "en";
 
   return (
     <div className={`grid grid-cols-1 lg:grid-cols-2 gap-4 ${className}`}>
@@ -48,7 +54,7 @@ const RestaurantListView: React.FC<RestaurantListViewProps> = ({
             <div className="w-48 h-32 relative flex-shrink-0">
               <img
                 src={getRestaurantImage(restaurant.logo)}
-                alt={restaurant.name[isRTL ? "ar" : "en"]}
+                alt={pickArEnField(restaurant.name, langBase)}
                 className="w-full h-full object-cover"
               />
 
@@ -72,7 +78,7 @@ const RestaurantListView: React.FC<RestaurantListViewProps> = ({
               <div className="absolute top-2 left-2">
                 <span className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">
                   {restaurant.offers[0]?.discountPercentage || 30}%{" "}
-                  {isRTL ? "خصم" : "OFF"}
+                  {t("offersPage.restaurantDiscount")}
                 </span>
               </div>
 
@@ -80,7 +86,7 @@ const RestaurantListView: React.FC<RestaurantListViewProps> = ({
               {restaurant.isOpen && (
                 <div className="absolute bottom-2 left-2">
                   <span className="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-medium">
-                    {isRTL ? "مفتوح" : "Open"}
+                    {t("offersPage.restaurantOpen")}
                   </span>
                 </div>
               )}
@@ -89,10 +95,10 @@ const RestaurantListView: React.FC<RestaurantListViewProps> = ({
             <div className="flex-1 px-4 h-32 py-3 flex flex-col justify-center">
               <div>
                 <h3 className="text-xl font-bold text-gray-800 mb-2">
-                  {restaurant.name[isRTL ? "ar" : "en"]}
+                  {pickArEnField(restaurant.name, langBase)}
                 </h3>
                 <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                  {restaurant.description[isRTL ? "ar" : "en"]}
+                  {pickArEnField(restaurant.description, langBase)}
                 </p>
 
                 {/* Location and Distance */}
@@ -114,7 +120,7 @@ const RestaurantListView: React.FC<RestaurantListViewProps> = ({
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="px-2 py-1 bg-gray-100 rounded-full text-xs text-gray-600">
-                      {restaurant.location[isRTL ? "ar" : "en"]}
+                      {pickArEnField(restaurant.location, langBase)}
                     </span>
                     <span className="px-2 py-1 bg-gray-100 rounded-full text-xs text-gray-600">
                       {restaurant.distance}

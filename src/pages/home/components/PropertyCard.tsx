@@ -51,39 +51,31 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
 }) => {
   const isRTL = useIsRTL();
   const navigate = useNavigate();
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
+  const langBase = i18n.language?.split("-")[0] || "en";
 
   // Memoize property type display based on language
   const displayPropertyType = useMemo(() => {
-    if (i18n.language === "ar" && propertyTypeAr) {
+    if (langBase === "ar" && propertyTypeAr) {
       return propertyTypeAr;
     }
     return propertyType;
-  }, [propertyType, propertyTypeAr, i18n.language]);
+  }, [propertyType, propertyTypeAr, langBase]);
 
-  // Memoize bedroom text based on language
-  const bedroomText = useMemo(() => {
-    if (i18n.language === "ar") {
-      return bedrooms === 1 ? "غرفة نوم" : `${bedrooms} غرف نوم`;
-    }
-    return `${bedrooms} Bedroom${bedrooms > 1 ? "s" : ""}`;
-  }, [bedrooms, i18n.language]);
+  const bedroomText = useMemo(
+    () => t("propertyCard.bedroom", { count: bedrooms }),
+    [bedrooms, t]
+  );
 
-  // Memoize area text based on language
-  const areaText = useMemo(() => {
-    if (i18n.language === "ar") {
-      return `حتى ${area}`;
-    }
-    return `Up to ${area}`;
-  }, [area, i18n.language]);
+  const areaText = useMemo(
+    () => t("propertyCard.area_up_to", { area }),
+    [area, t]
+  );
 
-  // Memoize visit button text based on language
-  const visitButtonText = useMemo(() => {
-    if (i18n.language === "ar") {
-      return "زيارة الآن";
-    }
-    return "Visit Now";
-  }, [i18n.language]);
+  const visitButtonText = useMemo(
+    () => t("dreamProperties.actions.visitNow"),
+    [t]
+  );
 
   // Function to get the appropriate icon based on property type
   const getPropertyTypeIcon = (type: string) => {
@@ -181,7 +173,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({
         <div className="flex items-center justify-between gap-1">
           <div className="text-lg font-bold text-[#400198]">
             <span className="text-[#B3B3B3] text-sm font-semibold">
-              {i18n.language === "ar" ? "من" : "From"}
+              {t("propertyCard.from")}
             </span>{" "}
             {price}
           </div>

@@ -1,7 +1,8 @@
 import { useLanguage } from "@context/language.context";
 import { useIsRTL } from "@hooks";
 import { useState, useRef, useEffect } from "react";
-import { EnglishUS, SaudiRoundFlag } from "@assets";
+import { useTranslation } from "react-i18next";
+import { EnglishUS, SaudiRoundFlag, UrduFlag, HindiFlag } from "@assets";
 import { IoGlobeOutline } from "react-icons/io5";
 import { useAppConfig } from "@hooks/api/useMokafaatQueries";
 import { API_BASE_URL } from "@config/api";
@@ -14,6 +15,7 @@ const LanguageToggle: React.FC<LanguageToggleProps> = ({
   handleCloseNavigation,
 }) => {
   const { currentLanguage, setLanguage } = useLanguage();
+  const { t } = useTranslation();
   const isRTL = useIsRTL();
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"languages" | "countries">(
@@ -21,7 +23,14 @@ const LanguageToggle: React.FC<LanguageToggleProps> = ({
   );
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const languages = [
+  const languages: {
+    code: string;
+    name: string;
+    flag: string;
+    country: string;
+    countryCode: string;
+    image?: string;
+  }[] = [
     {
       code: "en",
       name: "English",
@@ -37,6 +46,22 @@ const LanguageToggle: React.FC<LanguageToggleProps> = ({
       country: "المملكة العربية السعودية",
       countryCode: "sa",
       image: SaudiRoundFlag,
+    },
+    {
+      code: "ur",
+      name: "اردو",
+      flag: "🇵🇰",
+      country: "پاکستان",
+      countryCode: "pk",
+      image: UrduFlag,
+    },
+    {
+      code: "hi",
+      name: "हिन्दी",
+      flag: "🇮🇳",
+      country: "भारत",
+      countryCode: "in",
+      image: HindiFlag,
     },
   ];
 
@@ -138,12 +163,18 @@ const LanguageToggle: React.FC<LanguageToggleProps> = ({
         <div className="w-px h-6 bg-gray-400"></div>
 
         {/* Language Text */}
-        <div className="w-6 h-6 rounded-full overflow-hidden border-none border-gray-200 flex items-center justify-center">
-          <img
-            src={currentLang.image}
-            alt={currentLang.name}
-            className="w-full h-full object-cover"
-          />
+        <div className="w-6 h-6 rounded-full overflow-hidden border-none border-gray-200 flex items-center justify-center text-base leading-none">
+          {currentLang.image ? (
+            <img
+              src={currentLang.image}
+              alt={currentLang.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <span role="img" aria-label={currentLang.name}>
+              {currentLang.flag}
+            </span>
+          )}
         </div>
 
         {/* Dropdown Arrows */}
@@ -178,7 +209,7 @@ const LanguageToggle: React.FC<LanguageToggleProps> = ({
               }`}
             >
               <span className="font-medium text-sm">
-                {isRTL ? "اللغات" : "Languages"}
+                {t("languageToggle.languagesTab")}
               </span>
             </button>
             <button
@@ -190,7 +221,7 @@ const LanguageToggle: React.FC<LanguageToggleProps> = ({
               }`}
             >
               <span className="font-medium text-sm">
-                {isRTL ? "البلد" : "Country"}
+                {t("languageToggle.countryTab")}
               </span>
             </button>
           </div>
@@ -210,12 +241,18 @@ const LanguageToggle: React.FC<LanguageToggleProps> = ({
                   }`}
                 >
                   {/* Flag Image */}
-                  <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-gray-200 flex items-center justify-center">
-                    <img
-                      src={language.image}
-                      alt={language.name}
-                      className="w-full h-full object-cover"
-                    />
+                  <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-gray-200 flex items-center justify-center text-xl leading-none">
+                    {language.image ? (
+                      <img
+                        src={language.image}
+                        alt={language.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span role="img" aria-label={language.name}>
+                        {language.flag}
+                      </span>
+                    )}
                   </div>
 
                   {/* Language Name */}
@@ -234,7 +271,7 @@ const LanguageToggle: React.FC<LanguageToggleProps> = ({
               <div className="grid grid-cols-2 gap-0">
                 {countries.length === 0 ? (
                   <div className="col-span-2 px-4 py-6 text-gray-500 text-sm text-center">
-                    {isRTL ? "لا توجد دول متاحة" : "No countries available"}
+                    {t("languageToggle.noCountries")}
                   </div>
                 ) : (
                   countries.map((country) => (

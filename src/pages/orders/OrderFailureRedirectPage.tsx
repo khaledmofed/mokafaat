@@ -1,6 +1,6 @@
 import React from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
-import { useIsRTL } from "@hooks";
+import { useTranslation } from "react-i18next";
 
 /**
  * صفحة فشل الدفع بعد العودة من ميسر.
@@ -17,7 +17,7 @@ import { useIsRTL } from "@hooks";
 const OrderFailureRedirectPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const isRTL = useIsRTL();
+  const { t } = useTranslation();
 
   const message = searchParams.get("message");
   const orderId = searchParams.get("order_id");
@@ -54,12 +54,10 @@ const OrderFailureRedirectPage: React.FC = () => {
         </svg>
       </div>
       <h1 className="text-2xl md:text-3xl font-bold text-white text-center mb-2">
-        {isRTL ? "فشلت العملية" : "Payment Failed"}
+        {t("orderFailureRedirect.title")}
       </h1>
       <p className="text-white/80 text-center mb-4">
-        {isRTL
-          ? "لم تكتمل عملية الدفع. يمكنك المحاولة مرة أخرى أو العودة للطلبات."
-          : "The payment could not be completed. You can try again or go back to orders."}
+        {t("orderFailureRedirect.description")}
       </p>
       {message && (
         <p className="text-white/60 text-sm mb-6 max-w-md text-center">
@@ -72,18 +70,18 @@ const OrderFailureRedirectPage: React.FC = () => {
           onClick={handleRetry}
           className="px-6 py-3 rounded-full bg-white text-gray-900 font-medium hover:bg-gray-100 transition-colors"
         >
-          {isRTL ? "إعادة المحاولة" : "Try Again"}
+          {t("orderFailureRedirect.try_again")}
         </button>
         <Link
           to="/orders"
           className="px-6 py-3 rounded-full border border-white/50 text-white font-medium hover:bg-white/10 transition-colors text-center"
         >
-          {isRTL ? "الطلبات" : "My Orders"}
+          {t("orderFailureRedirect.my_orders")}
         </Link>
       </div>
       {orderId && (
         <p className="text-white/50 text-xs mt-6">
-          {isRTL ? "رقم الطلب:" : "Order:"} {orderId}
+          {t("orderFailureRedirect.order_id")} {orderId}
         </p>
       )}
     </div>

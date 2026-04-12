@@ -2,6 +2,8 @@ import { useState, useMemo, useCallback } from "react";
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useIsRTL } from "@hooks";
+import { useTranslation } from "react-i18next";
+import { pickLocalized } from "@utils/pickLocalized";
 import {
   FiArrowLeft,
   FiTag,
@@ -85,6 +87,8 @@ const OfferDetailPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isRTL = useIsRTL();
+  const { t, i18n } = useTranslation();
+  const langBase = i18n.language?.split("-")[0] || "en";
   const [quantity, setQuantity] = useState(1);
   const [subscribersOnlyModalOpen, setSubscribersOnlyModalOpen] =
     useState(false);
@@ -280,12 +284,12 @@ const OfferDetailPage = () => {
 
   const categoryInfo = offerCategories.find((c) => c.key === category);
   const categoryName = categoryInfo
-    ? isRTL
+    ? langBase === "ar"
       ? categoryInfo.ar
       : categoryInfo.en
     : category;
-  const restaurantName = restaurant?.name[isRTL ? "ar" : "en"] ?? "";
-  const offerTitle = offer?.title[isRTL ? "ar" : "en"] ?? "";
+  const restaurantName = pickLocalized(restaurant?.name, langBase);
+  const offerTitle = pickLocalized(offer?.title, langBase);
 
   const handlePurchase = () => {
     if (!category || !restaurantId || !offerId || !offer) return;
@@ -317,16 +321,12 @@ const OfferDetailPage = () => {
               });
               setSubscribersOnlyModalOpen(true);
               toast.error(
-                (root.msg as string) ||
-                  (isRTL
-                    ? "يجب أن يكون لديك اشتراك فعال"
-                    : "Active subscription required"),
+                (root.msg as string) || t("offerDetail.subscription_required"),
               );
               return;
             }
             toast.error(
-              (root.msg as string) ||
-                (isRTL ? "تعذّر إنشاء الطلب" : "Could not create order"),
+              (root.msg as string) || t("offerDetail.could_not_create_order"),
             );
             return;
           }
@@ -382,7 +382,7 @@ const OfferDetailPage = () => {
           );
         },
         onError: () => {
-          toast.error(isRTL ? "فشل إنشاء الطلب" : "Failed to create order");
+          toast.error(t("offerDetail.failed_create_order"));
         },
       },
     );
@@ -513,13 +513,13 @@ const OfferDetailPage = () => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">
-            {isRTL ? "العرض غير موجود" : "Offer not found"}
+            {t("offerDetail.offer_not_found")}
           </h2>
           <button
             onClick={() => navigate("/offers")}
             className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors"
           >
-            {isRTL ? "العودة للعروض" : "Back to Offers"}
+            {t("offerDetail.back_to_offers")}
           </button>
         </div>
       </div>
@@ -553,7 +553,7 @@ const OfferDetailPage = () => {
       />
       <Helmet>
         <title>
-          {offerTitle} - {restaurantName} | {isRTL ? "العروض" : "Offers"}
+          {offerTitle} - {restaurantName} | {t("offerDetail.offers_brand")}
         </title>
         <link
           rel="canonical"
@@ -571,7 +571,7 @@ const OfferDetailPage = () => {
               className="text-white hover:text-purple-300 transition-colors flex items-center gap-2"
             >
               <FiArrowLeft className="text-xl" />
-              <span className="text-sm">{isRTL ? "العودة" : "Back"}</span>
+              <span className="text-sm">{t("offerDetail.back")}</span>
             </button>
             <div className="flex items-center gap-2">
               <button
@@ -579,12 +579,14 @@ const OfferDetailPage = () => {
                 onClick={(e) => {
                   e.preventDefault();
                   if (!offer) return;
-                  const title = stripHtml(offer.title?.[isRTL ? "ar" : "en"] ?? "");
+                  const title = stripHtml(
+                    pickLocalized(offer.title, langBase) ?? "",
+                  );
                   const url = `${window.location.origin}/offers/${category}/${restaurantId}/offer/${offerId}`;
                   openShare({ title, url });
                 }}
                 className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
-                aria-label="Share"
+                aria-label={t("offerDetail.aria_share")}
               >
                 <BsShare className="text-lg" />
               </button>
@@ -605,18 +607,12 @@ const OfferDetailPage = () => {
                         onSuccess: () => {
                           toast.success(
                             isOfferFavorite
-                              ? isRTL
-                                ? "تمت إزالته من المفضلة"
-                                : "Removed from favorites"
-                              : isRTL
-                                ? "تمت الإضافة إلى المفضلة"
-                                : "Added to favorites",
+                              ? t("couponModal.removedFromFavorites")
+                              : t("couponModal.addedToFavorites"),
                           );
                         },
                         onError: () =>
-                          toast.error(
-                            isRTL ? "حدث خطأ" : "Something went wrong",
-                          ),
+                          toast.error(t("couponModal.errorGeneric")),
                       },
                     );
                   }}
@@ -648,9 +644,9 @@ const OfferDetailPage = () => {
           <h1 className="text-2xl md:text-3xl font-bold mb-2 tracking-tight leading-tight text-white px-4">
             {offerTitle}
           </h1>
-          {restaurant.description?.[isRTL ? "ar" : "en"] && (
+          {pickLocalized(restaurant.description, langBase) && (
             <p className="text-white/80 text-base mb-3 max-w-2xl mx-auto line-clamp-2">
-              {stripHtml(restaurant.description[isRTL ? "ar" : "en"])}
+              {stripHtml(pickLocalized(restaurant.description, langBase))}
             </p>
           )}
           <div className="flex items-center justify-center gap-2 text-white/90 mb-4 flex-wrap">
@@ -658,7 +654,7 @@ const OfferDetailPage = () => {
               <span className="text-yellow-400">★</span>
               <span className="font-medium">{offer.rating}</span>
               <span className="text-white/70">
-                {isRTL ? "تقييمات" : "reviews"}
+                {t("offerDetail.reviews_word")}
               </span>
               <span>{offer.reviewsCount ?? offer.purchases ?? 0}</span>
             </div>
@@ -667,20 +663,20 @@ const OfferDetailPage = () => {
               <FiEye className="text-white/80 shrink-0" size={18} />
               <span>{offer.views ?? 0}</span>
               <span className="text-white/70">
-                {isRTL ? "مشاهدات" : "views"}
+                {t("offerDetail.views_word")}
               </span>
             </div>
           </div>
           <div className="flex items-center justify-center text-sm flex-wrap gap-x-1 text-white/80">
             <Link to="/" className="hover:text-white transition-colors text-xs">
-              {isRTL ? "الرئيسية" : "Home"}
+              {t("propertyDetail.breadcrumb.home")}
             </Link>
             <span className="text-xs">|</span>
             <Link
               to="/offers"
               className="hover:text-white transition-colors text-xs"
             >
-              {isRTL ? "العروض" : "Offers"}
+              {t("home.navbar.offers")}
             </Link>
             {category && (
               <>
@@ -764,15 +760,15 @@ const OfferDetailPage = () => {
                   {[
                     {
                       key: "description" as TabKey,
-                      label: isRTL ? "وصف العرض" : "Offer Description",
+                      label: t("offerDetail.tab_description"),
                     },
                     {
                       key: "terms" as TabKey,
-                      label: isRTL ? "الشروط والأحكام" : "Terms & Conditions",
+                      label: t("offerDetail.tab_terms"),
                     },
                     {
                       key: "privacy" as TabKey,
-                      label: isRTL ? "سياسة الخصوصية" : "Privacy Policy",
+                      label: t("offerDetail.tab_privacy"),
                     },
                   ].map((tab) => (
                     <button
@@ -791,15 +787,15 @@ const OfferDetailPage = () => {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                         <div className="bg-gray-100 p-3 rounded-lg">
                           <div className="text-sm text-gray-600">
-                            {isRTL ? "صلاحية العرض" : "Offer Validity"}
+                            {t("offerDetail.offer_validity")}
                           </div>
                           <div className="font-medium text-gray-800">
-                            {offer.validity[isRTL ? "ar" : "en"]}
+                            {pickLocalized(offer.validity, langBase)}
                           </div>
                         </div>
                         <div className="bg-gray-100 p-3 rounded-lg">
                           <div className="text-sm text-gray-600">
-                            {isRTL ? "الخصم" : "Discount"}
+                            {t("offerDetail.discount")}
                           </div>
                           <div className="font-medium text-gray-800">
                             {offer.discountPercentage}%
@@ -807,7 +803,7 @@ const OfferDetailPage = () => {
                         </div>
                       </div>
                       <p className="text-gray-600 text-sm whitespace-pre-wrap">
-                        {stripHtml(offer.description[isRTL ? "ar" : "en"])}
+                        {stripHtml(pickLocalized(offer.description, langBase))}
                       </p>
                       {offer.features.length > 0 && (
                         <div className="flex flex-wrap gap-2 mt-4">
@@ -825,7 +821,7 @@ const OfferDetailPage = () => {
                   )}
                   {activeTab === "terms" && (
                     <p className="text-gray-600 text-sm whitespace-pre-wrap">
-                      {stripHtml(offer.terms[isRTL ? "ar" : "en"])}
+                      {stripHtml(pickLocalized(offer.terms, langBase))}
                     </p>
                   )}
                   {activeTab === "privacy" && (
@@ -835,14 +831,12 @@ const OfferDetailPage = () => {
                         : null}
                       {apiDetailExtras.privacyPolicy ? null : (
                         <>
-                          {isRTL
-                            ? "للمزيد عن كيفية جمع واستخدام بياناتك، يرجى مراجعة سياسة الخصوصية الخاصة بنا."
-                            : "For more on how we collect and use your data, please see our privacy policy."}{" "}
+                          {t("offerDetail.privacy_fallback")}{" "}
                           <Link
                             to="/privacy-policy"
                             className="text-primary underline"
                           >
-                            {isRTL ? "سياسة الخصوصية" : "Privacy Policy"}
+                            {t("offerDetail.privacy_link")}
                           </Link>
                         </>
                       )}
@@ -862,7 +856,7 @@ const OfferDetailPage = () => {
                       e.preventDefault();
                       if (!offer) return;
                       const title = stripHtml(
-                        offer.title?.[isRTL ? "ar" : "en"] ?? "",
+                        pickLocalized(offer.title, langBase) ?? "",
                       );
                       const url = `${window.location.origin}/offers/${category}/${restaurantId}/offer/${offerId}`;
                       openShare({ title, url });
@@ -871,7 +865,7 @@ const OfferDetailPage = () => {
                   >
                     <BsShare className="text-base" />
                     <span className="text-sm font-medium">
-                      {isRTL ? "مشاركة" : "Share"}
+                      {t("offerDetail.share")}
                     </span>
                   </button>
 
@@ -892,18 +886,12 @@ const OfferDetailPage = () => {
                           onSuccess: () => {
                             toast.success(
                               isOfferFavorite
-                                ? isRTL
-                                  ? "تمت إزالته من المفضلة"
-                                  : "Removed from favorites"
-                                : isRTL
-                                  ? "تمت الإضافة إلى المفضلة"
-                                  : "Added to favorites",
+                                ? t("couponModal.removedFromFavorites")
+                                : t("couponModal.addedToFavorites"),
                             );
                           },
                           onError: () =>
-                            toast.error(
-                              isRTL ? "حدث خطأ" : "Something went wrong",
-                            ),
+                            toast.error(t("couponModal.errorGeneric")),
                         },
                       );
                     }}
@@ -916,7 +904,7 @@ const OfferDetailPage = () => {
                       <BsHeart className="text-base" />
                     )}
                     <span className="text-sm font-medium">
-                      {isRTL ? "المفضلة" : "Save"}
+                      {t("offerDetail.favorites_action")}
                     </span>
                   </button>
                 </div>
@@ -931,12 +919,14 @@ const OfferDetailPage = () => {
                     </span>
                   ))}
                   <span className="inline-flex items-center gap-1 text-sm text-gray-600 bg-gray-100 px-3 py-1.5 rounded-full">
-                    <FiTag className="text-base" /> {offer.purchases ?? 0}{" "}
-                    {isRTL ? "قسيمة مباعة" : "sold"}
+                    <FiTag className="text-base" />{" "}
+                    {t("offerDetail.sold_count", {
+                      count: offer.purchases ?? 0,
+                    })}
                   </span>
                 </div>
                 <h3 className="text-lg font-semibold text-gray-800">
-                  {isRTL ? "اختر خيارك المفضل" : "Choose your option"}
+                  {t("offerDetail.choose_option")}
                 </h3>
                 <div className="space-y-3">
                   <div className="border border-gray-200 rounded-xl p-4">
@@ -952,18 +942,16 @@ const OfferDetailPage = () => {
                       </span>
                       <CurrencyIcon className="text-gray-700" size={20} />
                       <span className="text-green-600 text-sm font-medium bg-green-50 px-2 py-0.5 rounded-full">
-                        {isRTL ? "حفظ" : "Save"} {offer.discountPercentage}%
+                        {t("offerDetail.save_pct", {
+                          pct: offer.discountPercentage,
+                        })}
                       </span>
                     </div>
                     <div className="mt-2 p-3 bg-primary/5 border border-primary/20 rounded-lg">
                       <p className="text-sm text-gray-700 mb-1">
                         {!isFree && unitPrice > 0
-                          ? isRTL
-                            ? "احصل على العرض الآن مقابل السعر التالي"
-                            : "Get this offer now for the price below"
-                          : isRTL
-                            ? "احصل على العرض الآن مجاناً"
-                            : "Get this offer now for free"}
+                          ? t("offerDetail.cta_price")
+                          : t("offerDetail.cta_free")}
                       </p>
                       {!isFree && unitPrice > 0 ? (
                         <p className="text-lg font-bold text-primary flex items-center gap-1">
@@ -972,20 +960,18 @@ const OfferDetailPage = () => {
                         </p>
                       ) : (
                         <p className="text-lg font-bold text-green-600">
-                          {isRTL ? "مجاني" : "Free"}
+                          {t("offerDetail.free")}
                         </p>
                       )}
                     </div>
                     {usedQuotaBefore && (
                       <p className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-sm">
-                        {isRTL
-                          ? "لقد استفدت من هذا العرض مسبقاً"
-                          : "You have already used this offer"}
+                        {t("offerDetail.already_used")}
                       </p>
                     )}
                     {offerEndedNoStock && (
                       <p className="mt-3 p-3 bg-gray-100 border border-gray-200 rounded-lg text-gray-700 text-sm">
-                        {isRTL ? "لقد انتهى العرض" : "Offer ended"}
+                        {t("offerDetail.offer_ended")}
                       </p>
                     )}
                     {canPurchase && (
@@ -993,17 +979,17 @@ const OfferDetailPage = () => {
                         <div className="mt-3">
                           <QuantitySelector
                             maxQty={maxQty}
-                            isRTL={!!isRTL}
                             onQuantityChange={handleQuantityChange}
                           />
                           <p className="text-xs text-gray-500 mt-1">
-                            {isRTL
-                              ? `الحد الأقصى للشراء: ${maxQty} وحدة`
-                              : `Max quantity: ${maxQty} ${maxQty === 1 ? "unit" : "units"}`}
+                            {t("offerDetail.max_purchase", {
+                              max: maxQty,
+                              count: maxQty,
+                            })}
                           </p>
                         </div>
                         <p className="text-sm font-medium text-gray-700 mt-2">
-                          {isRTL ? "المجموع" : "Total"}: {totalPrice}{" "}
+                          {t("offerDetail.total")}: {totalPrice}{" "}
                           <CurrencyIcon className="inline" size={14} />
                         </p>
                       </>
@@ -1018,12 +1004,8 @@ const OfferDetailPage = () => {
                       className="w-full py-3 px-6 bg-primary text-white rounded-xl font-medium hover:opacity-90 transition-opacity disabled:opacity-70 disabled:cursor-not-allowed"
                     >
                       {createOrder.isPending
-                        ? isRTL
-                          ? "جاري إنشاء الطلب..."
-                          : "Creating order..."
-                        : isRTL
-                          ? "شراء سريع"
-                          : "Quick Buy"}
+                        ? t("offerDetail.creating_order")
+                        : t("offerDetail.quick_buy")}
                     </button>
                   </div>
                 )}
@@ -1032,7 +1014,7 @@ const OfferDetailPage = () => {
                 </div> */}
                 <div>
                   <p className="text-sm text-gray-600 mb-2">
-                    {isRTL ? "طريقة الدفع" : "Payment methods"}
+                    {t("offerDetail.payment_methods")}
                   </p>
                   <div className="flex items-center gap-2 text-gray-500">
                     <span className="text-xs font-medium">VISA</span>
@@ -1049,7 +1031,7 @@ const OfferDetailPage = () => {
           {apiDetailExtras.relatedOffers.length > 0 && (
             <section className="mt-12">
               <h2 className="text-xl font-bold text-gray-800 mb-6">
-                {isRTL ? "عروض قد تعجبك" : "Related offers"}
+                {t("offerDetail.related_offers")}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {apiDetailExtras.relatedOffers.map((relatedOffer) => (
@@ -1075,13 +1057,13 @@ const OfferDetailPage = () => {
           className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
           onClick={() => setGalleryOpen(false)}
           role="dialog"
-          aria-label={isRTL ? "معرض الصور" : "Image gallery"}
+          aria-label={t("offerDetail.gallery_aria")}
         >
           <button
             type="button"
             className="absolute top-4 right-4 text-white hover:bg-white/20 rounded-full p-2 z-10"
             onClick={() => setGalleryOpen(false)}
-            aria-label="Close"
+            aria-label={t("offerDetail.gallery_close")}
           >
             <FiX className="text-2xl" />
           </button>
@@ -1094,7 +1076,7 @@ const OfferDetailPage = () => {
                 prev <= 0 ? galleryImages.length - 1 : prev - 1,
               );
             }}
-            aria-label={isRTL ? "السابق" : "Previous"}
+            aria-label={t("pagination.previous")}
           >
             <FiChevronLeft className="text-3xl" />
           </button>
@@ -1107,7 +1089,7 @@ const OfferDetailPage = () => {
                 prev >= galleryImages.length - 1 ? 0 : prev + 1,
               );
             }}
-            aria-label={isRTL ? "التالي" : "Next"}
+            aria-label={t("pagination.next")}
           >
             <FiChevronRight className="text-3xl" />
           </button>

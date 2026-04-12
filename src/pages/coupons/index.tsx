@@ -46,7 +46,8 @@ type CouponDisplay = {
 };
 
 const CouponsPage = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const langBase = i18n.language?.split("-")[0] || "en";
   const navigate = useNavigate();
   const isRTL = useIsRTL();
   const isAuthenticated = useUserStore((s) => !!s.token);
@@ -79,15 +80,11 @@ const CouponsPage = () => {
         onSuccess: () => {
           toast.success(
             isFavorite
-              ? isRTL
-                ? "تمت إزالته من المفضلة"
-                : "Removed from favorites"
-              : isRTL
-                ? "تمت الإضافة إلى المفضلة"
-                : "Added to favorites",
+              ? t("couponModal.removedFromFavorites")
+              : t("couponModal.addedToFavorites"),
           );
         },
-        onError: () => toast.error(isRTL ? "حدث خطأ" : "Something went wrong"),
+        onError: () => toast.error(t("couponModal.errorGeneric")),
       },
     );
   };
@@ -309,7 +306,15 @@ const CouponsPage = () => {
       if (!v) return fallback;
       const d = new Date(String(v));
       if (Number.isNaN(d.getTime())) return fallback;
-      return d.toLocaleDateString(isRTL ? "ar-SA" : "en-US", {
+      const locale =
+        langBase === "ar"
+          ? "ar-SA"
+          : langBase === "ur"
+            ? "ur-PK"
+            : langBase === "hi"
+              ? "hi-IN"
+              : "en-US";
+      return d.toLocaleDateString(locale, {
         day: "numeric",
         month: "short",
         year: "numeric",
@@ -348,7 +353,7 @@ const CouponsPage = () => {
         couponCode: String(raw.coupon_code ?? ""),
       };
     });
-  }, [allCouponsRaw, isRTL]);
+  }, [allCouponsRaw, langBase]);
 
   const getCouponImage = (logoName: string) => {
     if (logoName.startsWith("http")) return logoName;
@@ -420,7 +425,7 @@ const CouponsPage = () => {
           >
             <div className="flex items-center justify-between py-4 px-6 border-b border-gray-200">
               <h2 className="text-lg font-semibold text-gray-800">
-                {isRTL ? "فلترة الكوبونز" : "Filter Coupons"}
+                {t("coupons.filter_sidebar_title")}
               </h2>
               <button
                 type="button"
@@ -436,19 +441,19 @@ const CouponsPage = () => {
                 {/* Sort */}
                 <div>
                   <p className="text-sm font-semibold text-gray-800 mb-3">
-                    {isRTL ? "ترتيب حسب" : "Sort by"}
+                    {t("coupons.sort_by")}
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {(
                       [
-                        { key: "newest", label: isRTL ? "الأحدث" : "Newest" },
+                        { key: "newest", label: t("coupons.sort_newest") },
                         {
                           key: "most_used",
-                          label: isRTL ? "الأكثر استخدامًا" : "Most used",
+                          label: t("coupons.sort_most_used"),
                         },
                         {
                           key: "highest_discount",
-                          label: isRTL ? "أعلى خصم" : "Highest discount",
+                          label: t("coupons.sort_highest_discount"),
                         },
                       ] as const
                     ).map((opt) => (
@@ -476,16 +481,16 @@ const CouponsPage = () => {
                 {/* Coupon Types */}
                 <div className="border-t border-gray-200 pt-5">
                   <p className="text-sm font-semibold text-gray-800 mb-3">
-                    {isRTL ? "نوع الكوبون" : "Coupon type"}
+                    {t("coupons.coupon_type")}
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {(
                       [
                         {
                           key: "percentage",
-                          label: isRTL ? "نسبة" : "Percentage",
+                          label: t("coupons.type_percentage"),
                         },
-                        { key: "fixed", label: isRTL ? "ثابت" : "Fixed" },
+                        { key: "fixed", label: t("coupons.type_fixed") },
                       ] as const
                     ).map((opt) => {
                       const selected = draftCouponFilters.couponTypes.includes(
@@ -519,7 +524,7 @@ const CouponsPage = () => {
                 {/* Discount min */}
                 <div className="border-t border-gray-200 pt-5">
                   <p className="text-sm font-semibold text-gray-800 mb-3">
-                    {isRTL ? "أقل خصم (%)" : "Min discount (%)"}
+                    {t("coupons.min_discount_pct")}
                   </p>
                   <input
                     type="number"
@@ -533,7 +538,7 @@ const CouponsPage = () => {
                       }));
                     }}
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#400198]/30"
-                    placeholder={isRTL ? "مثال: 20" : "e.g. 20"}
+                    placeholder={t("coupons.min_discount_placeholder")}
                   />
                 </div>
 
@@ -541,7 +546,7 @@ const CouponsPage = () => {
                 {merchantsList.length > 0 && (
                   <div className="border-t border-gray-200 pt-5">
                     <p className="text-sm font-semibold text-gray-800 mb-3">
-                      {isRTL ? "التجار" : "Merchants"}
+                      {t("coupons.merchants")}
                     </p>
                     <div className="grid grid-cols-2 gap-2">
                       {merchantsList.map((m) => {
@@ -590,7 +595,7 @@ const CouponsPage = () => {
                   }}
                   className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
                 >
-                  {isRTL ? "إعادة تعيين" : "Reset"}
+                  {t("cardsPage.reset")}
                 </button>
                 <button
                   type="button"
@@ -601,7 +606,7 @@ const CouponsPage = () => {
                   }}
                   className="flex-1 px-4 py-2 bg-[#fd671a] text-white rounded-lg font-medium hover:bg-[#e55a17] transition-colors"
                 >
-                  {isRTL ? "تطبيق" : "Apply"}
+                  {t("cardsPage.apply")}
                 </button>
               </div>
             </div>
@@ -647,8 +652,8 @@ const CouponsPage = () => {
                         >
                           <CategoryCard
                             icon="https://api.iconify.design/mdi:shape-outline.svg?color=%23400198"
-                            title={isRTL ? "كل التصنيفات" : "All categories"}
-                            alt={isRTL ? "كل التصنيفات" : "All categories"}
+                            title={t("coupons.all_categories")}
+                            alt={t("coupons.all_categories")}
                             selected={!selectedCategoryId}
                           />
                         </button>
@@ -693,8 +698,8 @@ const CouponsPage = () => {
                     >
                       <CategoryCard
                         icon="https://api.iconify.design/mdi:shape-outline.svg?color=%23400198"
-                        title={isRTL ? "كل التصنيفات" : "All categories"}
-                        alt={isRTL ? "كل التصنيفات" : "All categories"}
+                        title={t("coupons.all_categories")}
+                        alt={t("coupons.all_categories")}
                         selected={!selectedCategoryId}
                       />
                     </button>
@@ -741,7 +746,7 @@ const CouponsPage = () => {
                       : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-200"
                   }`}
                 >
-                  {isRTL ? "الأحدث" : "Latest"}
+                  {t("coupons.latest")}
                 </button>
                 <button
                   onClick={() => {
@@ -769,7 +774,7 @@ const CouponsPage = () => {
                   className="px-5 py-3 rounded-full font-medium text-sm shadow-md transition-all duration-300 bg-white text-gray-700 hover:bg-gray-100 border border-gray-200 inline-flex items-center gap-2"
                 >
                   <FiFilter size={18} />
-                  {isRTL ? "فلترة" : "Filter"}
+                  {t("coupons.filter")}
                 </button>
                 {/* Search Input */}
                 <div className="w-full md:w-64">
@@ -817,7 +822,7 @@ const CouponsPage = () => {
                 <h2 className="text-[#400198] text-3xl font-bold">
                   {pagination.total || paginated.length}
                 </h2>
-                {isRTL ? ` كوبون` : ` coupons`}
+                {t("coupons.coupons_suffix")}
               </div>
 
               <div className="flex flex-wrap gap-2 mt-3">
@@ -833,16 +838,10 @@ const CouponsPage = () => {
 
                   const sortLabel =
                     effectiveSort === "most_used"
-                      ? isRTL
-                        ? "الأكثر استخدامًا"
-                        : "Most used"
+                      ? t("coupons.sort_most_used")
                       : effectiveSort === "highest_discount"
-                        ? isRTL
-                          ? "أعلى خصم"
-                          : "Highest discount"
-                        : isRTL
-                          ? "الأحدث"
-                          : "Newest";
+                        ? t("coupons.sort_highest_discount")
+                        : t("coupons.sort_newest");
 
                   return (
                     <>
@@ -872,12 +871,8 @@ const CouponsPage = () => {
                           className="inline-flex items-center gap-1 px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium"
                         >
                           {ct === "percentage"
-                            ? isRTL
-                              ? "نسبة"
-                              : "Percentage"
-                            : isRTL
-                              ? "ثابت"
-                              : "Fixed"}
+                            ? t("coupons.type_percentage")
+                            : t("coupons.type_fixed")}
                           <button
                             type="button"
                             onClick={() => {
@@ -928,9 +923,9 @@ const CouponsPage = () => {
 
                       {appliedCouponFilters.discountMin != null && (
                         <span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
-                          {isRTL
-                            ? `خصم من ${appliedCouponFilters.discountMin}%`
-                            : `Discount >= ${appliedCouponFilters.discountMin}%`}
+                          {t("coupons.discount_min_tag", {
+                            min: appliedCouponFilters.discountMin,
+                          })}
                           <button
                             type="button"
                             onClick={() => {
@@ -958,7 +953,7 @@ const CouponsPage = () => {
                           }}
                           className="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium hover:bg-red-200 transition-colors"
                         >
-                          {isRTL ? "مسح الكل" : "Clear All"}
+                          {t("coupons.clear_all")}
                         </button>
                       )}
                     </>
@@ -1210,7 +1205,7 @@ const CouponsPage = () => {
                           >
                             <img
                               src={cutCopon}
-                              alt="cutCopon"
+                              alt={t("coupons.image_cut_coupon")}
                               className="w-full h-full object-cover"
                             />
                           </div>

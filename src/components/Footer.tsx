@@ -94,12 +94,10 @@ const Footer: React.FC<FooterProps> = () => {
                   }`}
                 >
                   <h2 className="text-lg lg:text-xl font-bold text-white leading-tight">
-                    {isRTL ? "ابق على تواصل" : t("footer.stayInLoop.title")}
+                    {t("footer.stayInLoop.title")}
                   </h2>
                   <p className="text-sm text-white opacity-95 leading-relaxed">
-                    {isRTL
-                      ? "احصل على آخر الأخبار والعروض الخاصة"
-                      : t("footer.stayInLoop.description")}
+                    {t("footer.stayInLoop.description")}
                   </p>
                 </div>
               </div>
@@ -116,11 +114,7 @@ const Footer: React.FC<FooterProps> = () => {
                     />
                     <input
                       type="email"
-                      placeholder={
-                        isRTL
-                          ? "أدخل بريدك الإلكتروني"
-                          : t("footer.stayInLoop.emailPlaceholder")
-                      }
+                      placeholder={t("footer.stayInLoop.emailPlaceholder")}
                       className={`w-full ${
                         isRTL ? "pr-12 pl-4" : "pl-12 pr-4"
                       } py-3 text-white bg-transparent focus:outline-none text-base placeholder-white placeholder-opacity-80`}
@@ -132,7 +126,7 @@ const Footer: React.FC<FooterProps> = () => {
                     onClick={handleSubscribe}
                     className="bg-white text-gray-800 px-6 py-2 rounded-lg lg:rounded-full font-semibold text-base hover:bg-gray-50 transition-all duration-300 whitespace-nowrap"
                   >
-                    {isRTL ? "اشتراك" : t("footer.stayInLoop.subscribeButton")}
+                    {t("footer.stayInLoop.subscribeButton")}
                   </button>
                 </div>
               </div>
@@ -164,10 +158,7 @@ const Footer: React.FC<FooterProps> = () => {
                   className="text-[#EBEBEB] leading-relaxed text-start"
                   style={{ fontSize: "13px" }}
                 >
-                  {site?.description ??
-                    (isRTL
-                      ? "لوريم إبسوم هو نص وهمي يستخدم في الطباعة والتنضيد. الغرض منه هو السماح بتصميم تخطيط الصفحة بشكل مستقل عن المحتوى الذي سيتم ملؤه لاحقاً."
-                      : t("footer.companyDescription"))}
+                  {site?.description ?? t("footer.companyDescription")}
                 </p>
               </div>
 
@@ -198,7 +189,7 @@ const Footer: React.FC<FooterProps> = () => {
               {/* Column 2 - About Us */}
               <div className="space-y-4">
                 <h3 className="font-bold text-white text-base text-start">
-                  {isRTL ? "عنا" : "About Us"}
+                  {t("footer.about")}
                 </h3>
                 <ul className="space-y-2 text-start">
                   <li>
@@ -206,7 +197,7 @@ const Footer: React.FC<FooterProps> = () => {
                       to={APP_ROUTES.contact}
                       className="text-[#EBEBEB] hover:text-white transition-colors text-sm"
                     >
-                      {isRTL ? "تواصل معنا" : "Contact Us"}
+                      {t("footer.contactUs")}
                     </Link>
                   </li>
                   <li>
@@ -214,7 +205,7 @@ const Footer: React.FC<FooterProps> = () => {
                       to="/join"
                       className="text-[#EBEBEB] hover:text-white transition-colors text-sm"
                     >
-                      {isRTL ? "انضم إلى موقعنا" : "Join Our Site"}
+                      {t("footer.joinOurSite")}
                     </Link>
                   </li>
                   <li>
@@ -222,7 +213,7 @@ const Footer: React.FC<FooterProps> = () => {
                       to="/privacy"
                       className="text-[#EBEBEB] hover:text-white transition-colors text-sm"
                     >
-                      {isRTL ? "شروط خصوصية المستخدم" : "User Privacy Terms"}
+                      {t("footer.userPrivacyTerms")}
                     </Link>
                   </li>
                   <li>
@@ -230,9 +221,7 @@ const Footer: React.FC<FooterProps> = () => {
                       to="/privacy-policy"
                       className="text-[#EBEBEB] hover:text-white transition-colors text-sm"
                     >
-                      {isRTL
-                        ? "سياسة الخصوصية العامة"
-                        : "General Privacy Policy"}
+                      {t("footer.generalPrivacyPolicy")}
                     </Link>
                   </li>
                 </ul>
@@ -241,7 +230,7 @@ const Footer: React.FC<FooterProps> = () => {
               {/* Column 3 - Learn More */}
               <div className="space-y-4">
                 <h3 className="font-bold text-white text-base text-start">
-                  {isRTL ? "اعرف المزيد" : "Learn More"}
+                  {t("footer.learnMore")}
                 </h3>
                 <ul className="space-y-2 text-start">
                   <li>
@@ -249,7 +238,7 @@ const Footer: React.FC<FooterProps> = () => {
                       to="/rewards"
                       className="text-[#EBEBEB] hover:text-white transition-colors text-sm"
                     >
-                      {isRTL ? "شرح مبدأ مكافات" : "Rewards Principle"}
+                      {t("footer.rewardsPrinciple")}
                     </Link>
                   </li>
                   <li>
@@ -257,7 +246,7 @@ const Footer: React.FC<FooterProps> = () => {
                       to="/faq"
                       className="text-[#EBEBEB] hover:text-white transition-colors text-sm"
                     >
-                      {isRTL ? "أسئلة متكررة" : "FAQ"}
+                      {t("footer.faq")}
                     </Link>
                   </li>
                   <li>
@@ -265,7 +254,7 @@ const Footer: React.FC<FooterProps> = () => {
                       to="/share-offer"
                       className="text-[#EBEBEB] hover:text-white transition-colors text-sm"
                     >
-                      {isRTL ? "شارك بعرض مع مكافات" : "Share an Offer"}
+                      {t("footer.shareOffer")}
                     </Link>
                   </li>
                   <li>
@@ -273,7 +262,7 @@ const Footer: React.FC<FooterProps> = () => {
                       to="/subscriptions"
                       className="text-[#EBEBEB] hover:text-white transition-colors text-sm"
                     >
-                      {isRTL ? "اشتراكات الشركات" : "Company Subscriptions"}
+                      {t("footer.companySubscriptions")}
                     </Link>
                   </li>
                 </ul>
@@ -285,37 +274,37 @@ const Footer: React.FC<FooterProps> = () => {
               {/* Column 4 - Our Locations */}
               <div className="space-y-4">
                 <h3 className="font-bold text-[#fd671a] text-base text-start">
-                  {isRTL ? "مواقعنا" : "Our Locations"}
+                  {t("footer.ourLocations")}
                 </h3>
                 <ul className="space-y-2 text-start">
                   <li>
                     <span className="text-[#EBEBEB] text-sm">
-                      {isRTL ? "دبي" : "Dubai"}
+                      {t("footer.dubai")}
                     </span>
                   </li>
                   <li>
                     <span className="text-[#EBEBEB] text-sm">
-                      {isRTL ? "ابو ظبي" : "Abu Dhabi"}
+                      {t("footer.abuDhabi")}
                     </span>
                   </li>
                   <li>
                     <span className="text-[#EBEBEB] text-sm">
-                      {isRTL ? "البحرين" : "Bahrain"}
+                      {t("footer.bahrain")}
                     </span>
                   </li>
                   <li>
                     <span className="text-[#EBEBEB] text-sm">
-                      {isRTL ? "جدة" : "Jeddah"}
+                      {t("footer.jeddah")}
                     </span>
                   </li>
                   <li>
                     <span className="text-[#EBEBEB] text-sm">
-                      {isRTL ? "الرياض" : "Riyadh"}
+                      {t("footer.riyadh")}
                     </span>
                   </li>
                   <li>
                     <span className="text-[#EBEBEB] text-sm">
-                      {isRTL ? "الدمام" : "Dammam"}
+                      {t("footer.dammam")}
                     </span>
                   </li>
                 </ul>
@@ -331,9 +320,7 @@ const Footer: React.FC<FooterProps> = () => {
                   >
                     <FaMapMarkerAlt className="text-white w-4 h-4" />
                     <span className="text-[#EBEBEB]">
-                      {isRTL
-                        ? "جدة، المملكة العربية السعودية"
-                        : "Jeddah, Kingdom of Saudi Arabia"}
+                      {t("footer.location")}
                     </span>
                   </div>
                   <div
@@ -343,15 +330,9 @@ const Footer: React.FC<FooterProps> = () => {
                   >
                     <FaClock className="text-white w-4 h-4" />
                     <div className="text-[#EBEBEB]">
-                      <div>
-                        {isRTL
-                          ? "ساعات العمل: 9:00 صباحاً - 6:00 مساءً"
-                          : "Working hours: 9:00 AM - 6:00 PM"}
-                      </div>
+                      <div>{t("footer.workingHours")}</div>
                       <div className="text-xs">
-                        {isRTL
-                          ? "من الأحد إلى الخميس"
-                          : "From Sunday to Thursday"}
+                        {t("footer.workingDays")}
                       </div>
                     </div>
                   </div>
@@ -362,9 +343,7 @@ const Footer: React.FC<FooterProps> = () => {
                   >
                     <FaPhone className="text-white w-4 h-4" />
                     <span className="text-[#EBEBEB]">
-                      {isRTL
-                        ? "تحتاج مساعدة؟ اتصل بنا 0123456789"
-                        : "Need help? Call us 0123456789"}
+                      {t("footer.needHelp")}
                     </span>
                   </div>
                 </div>
@@ -391,10 +370,7 @@ const Footer: React.FC<FooterProps> = () => {
                   }`}
                   style={{ fontSize: "13px" }}
                 >
-                  {site?.description ??
-                    (isRTL
-                      ? "لوريم إبسوم هو نص وهمي يستخدم في الطباعة والتنضيد. الغرض منه هو السماح بتصميم تخطيط الصفحة بشكل مستقل عن المحتوى الذي سيتم ملؤه لاحقاً."
-                      : "Lorem ipsum is a dummy text used in printing and typesetting. Its purpose is to allow page layout design independently of the content that will be filled later.")}
+                  {site?.description ?? t("footer.companyDescriptionFallback")}
                 </p>
               </div>
 
@@ -431,7 +407,7 @@ const Footer: React.FC<FooterProps> = () => {
                   isRTL ? "text-right" : "text-left"
                 }`}
               >
-                {isRTL ? "روابط سريعة" : "Quick Links"}
+                {t("footer.quickLinks")}
               </h3>
               <ul className={`space-y-2 ${isRTL ? "text-right" : "text-left"}`}>
                 <li>
@@ -439,7 +415,7 @@ const Footer: React.FC<FooterProps> = () => {
                     to={APP_ROUTES.about}
                     className="text-[#EBEBEB] hover:text-white transition-colors text-sm"
                   >
-                    {isRTL ? "من نحن" : "About Us"}
+                    {t("footer.whoWeAreLink")}
                   </Link>
                 </li>
                 <li>
@@ -447,7 +423,7 @@ const Footer: React.FC<FooterProps> = () => {
                     to="/blogs"
                     className="text-[#EBEBEB] hover:text-white transition-colors text-sm"
                   >
-                    {isRTL ? "المدونة والأخبار" : "Blog & News"}
+                    {t("footer.blogNews")}
                   </Link>
                 </li>
                 <li>
@@ -455,7 +431,7 @@ const Footer: React.FC<FooterProps> = () => {
                     to={APP_ROUTES.contact}
                     className="text-[#EBEBEB] hover:text-white transition-colors text-sm"
                   >
-                    {isRTL ? "اتصل بنا" : "Contact Us"}
+                    {t("footer.contactUs")}
                   </Link>
                 </li>
                 {/* <li>
@@ -476,7 +452,7 @@ const Footer: React.FC<FooterProps> = () => {
                   isRTL ? "text-right" : "text-left"
                 }`}
               >
-                {isRTL ? "عنا" : "About Us"}
+                {t("footer.about")}
               </h3>
               <ul className={`space-y-2 ${isRTL ? "text-right" : "text-left"}`}>
                 <li>
@@ -484,7 +460,7 @@ const Footer: React.FC<FooterProps> = () => {
                     to={APP_ROUTES.contact}
                     className="text-[#EBEBEB] hover:text-white transition-colors text-sm"
                   >
-                    {isRTL ? "تواصل معنا" : "Contact Us"}
+                    {t("footer.contactUs")}
                   </Link>
                 </li>
                 {/* <li>
@@ -492,7 +468,7 @@ const Footer: React.FC<FooterProps> = () => {
                     to="/join"
                     className="text-[#EBEBEB] hover:text-white transition-colors text-sm"
                   >
-                    {isRTL ? "انضم إلى موقعنا" : "Join Our Site"}
+                    {t("footer.joinOurSite")}
                   </Link>
                 </li> */}
                 <li>
@@ -500,7 +476,7 @@ const Footer: React.FC<FooterProps> = () => {
                     to="/privacy"
                     className="text-[#EBEBEB] hover:text-white transition-colors text-sm"
                   >
-                    {isRTL ? "شروط خصوصية المستخدم" : "User Privacy Terms"}
+                    {t("footer.userPrivacyTerms")}
                   </Link>
                 </li>
                 <li>
@@ -508,7 +484,7 @@ const Footer: React.FC<FooterProps> = () => {
                     to="/privacy-policy"
                     className="text-[#EBEBEB] hover:text-white transition-colors text-sm"
                   >
-                    {isRTL ? "سياسة الخصوصية العامة" : "General Privacy Policy"}
+                    {t("footer.generalPrivacyPolicy")}
                   </Link>
                 </li>
               </ul>
@@ -521,7 +497,7 @@ const Footer: React.FC<FooterProps> = () => {
                   isRTL ? "text-right" : "text-left"
                 }`}
               >
-                {isRTL ? "اعرف المزيد" : "Learn More"}
+                {t("footer.learnMore")}
               </h3>
               <ul className={`space-y-2 ${isRTL ? "text-right" : "text-left"}`}>
                 <li>
@@ -529,7 +505,7 @@ const Footer: React.FC<FooterProps> = () => {
                     to="/rewards"
                     className="text-[#EBEBEB] hover:text-white transition-colors text-sm"
                   >
-                    {isRTL ? "شرح مبدأ مكافات" : "Rewards Principle"}
+                    {t("footer.rewardsPrinciple")}
                   </Link>
                 </li>
                 <li>
@@ -537,7 +513,7 @@ const Footer: React.FC<FooterProps> = () => {
                     to="/faq"
                     className="text-[#EBEBEB] hover:text-white transition-colors text-sm"
                   >
-                    {isRTL ? "أسئلة متكررة" : "FAQ"}
+                    {t("footer.faq")}
                   </Link>
                 </li>
                 <li>
@@ -545,7 +521,7 @@ const Footer: React.FC<FooterProps> = () => {
                     to="/share-offer"
                     className="text-[#EBEBEB] hover:text-white transition-colors text-sm"
                   >
-                    {isRTL ? "شارك بعرض مع مكافات" : "Share an Offer"}
+                    {t("footer.shareOffer")}
                   </Link>
                 </li>
                 <li>
@@ -553,7 +529,7 @@ const Footer: React.FC<FooterProps> = () => {
                     to="/subscriptions"
                     className="text-[#EBEBEB] hover:text-white transition-colors text-sm"
                   >
-                    {isRTL ? "اشتراكات الشركات" : "Company Subscriptions"}
+                    {t("footer.companySubscriptions")}
                   </Link>
                 </li>
               </ul>
@@ -566,7 +542,7 @@ const Footer: React.FC<FooterProps> = () => {
                   isRTL ? "text-right" : "text-left"
                 }`}
               >
-                {isRTL ? "مواقعنا" : "Our Locations"}
+                {t("footer.ourLocations")}
               </h3>
               <ul className={`space-y-2 ${isRTL ? "text-right" : "text-left"}`}>
                 {countries.length === 0 ? (
@@ -633,22 +609,20 @@ const Footer: React.FC<FooterProps> = () => {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-2 md:space-y-0">
             <div className="text-[#EBEBEB] text-sm text-start md:text-left">
-              {isRTL
-                ? "© 2025 مكافئات. جميع الحقوق محفوظة."
-                : "© 2025 Mukafaat. All rights reserved."}
+              {t("footer.brandCopyright")}
             </div>
             <div className="flex items-center space-x-4 text-[#EBEBEB] text-sm gap-4">
               <Link
                 to={APP_ROUTES.privacy_policy}
                 className="hover:text-white transition-colors"
               >
-                {isRTL ? "سياسة الخصوصية" : "Privacy Policy"}
+                {t("footer.privacyPolicy")}
               </Link>
               <Link
                 to={APP_ROUTES.terms_conditions}
                 className="hover:text-white transition-colors"
               >
-                {isRTL ? "شروط الاستخدام" : "Terms of Use"}
+                {t("footer.termsOfUse")}
               </Link>
             </div>
           </div>

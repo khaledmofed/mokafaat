@@ -3,6 +3,7 @@
  * المواصفات: الطلب مع الهيدر Authorization يُرجع ملف PDF للمستخدم المسجّل دخوله فقط.
  */
 import { API_BASE_URL } from "@config/api";
+import { getAcceptLanguage } from "@network/apiClient";
 
 export async function downloadVoucher(
   voucherUrl: string,
@@ -33,6 +34,7 @@ export async function downloadVoucher(
     headers: {
       Authorization: `Bearer ${token}`,
       Accept: "application/pdf",
+      "Accept-Language": getAcceptLanguage(),
     },
     credentials: "include",
   });

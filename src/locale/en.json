@@ -150,7 +150,8 @@
       "feature2": "High Quality",
       "more": "more",
       "category": "Category",
-      "company": "Company"
+      "company": "Company",
+      "demo_views": "1.2K"
     },
     "categories": {
       "restaurants": "Restaurants",
@@ -313,7 +314,14 @@
       "downloadOn": "Download on the",
       "appStore": "App Store",
       "getItOn": "GET IT ON",
-      "googlePlay": "Google Play"
+      "googlePlay": "Google Play",
+      "manImageAlt": "Mukafaat app promotion",
+      "logoAlt": "Mukafaat",
+      "priceUpTo100K": "UP to $100K",
+      "priceUpTo250K": "UP to $250K",
+      "priceUpTo500K": "UP to $500K",
+      "priceUpTo800K": "UP to $800K",
+      "priceUpTo1M": "UP to $1M"
     },
     "services": {
       "title": "services",
@@ -384,6 +392,37 @@
       "passion-description": "Fuel drives our culture, defining our mindset and energizing our business.",
       "place": "Place",
       "place-description": "We take our responsibility seriously to the environment through our actions we contribute towards creating a better place for future generation"
+    },
+    "coreValues": {
+      "heading": "Core Values",
+      "item1": {
+        "title": "Client First",
+        "description": "We create unforgettable experiences, every time."
+      },
+      "item2": {
+        "title": "Empower Freelancers",
+        "description": "We train, support, and help them grow."
+      },
+      "item3": {
+        "title": "Innovate Smart",
+        "description": "We use tech to make events better and easier."
+      },
+      "item4": {
+        "title": "Deliver Excellence",
+        "description": "We care about every detail."
+      },
+      "item5": {
+        "title": "Stronger Together",
+        "description": "We build a global, supportive community."
+      },
+      "item6": {
+        "title": "Act with Integrity",
+        "description": "We stay honest, accountable, and transparent."
+      },
+      "item7": {
+        "title": "Celebrate Diversity",
+        "description": "We welcome all voices and talents."
+      }
     }
   },
   "careers": {
@@ -847,7 +886,10 @@
   "common": {
     "viewAll": "View All",
     "moreDetails": "More Details",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "quantityAria": "Quantity",
+    "decreaseQuantityAria": "Decrease quantity",
+    "increaseQuantityAria": "Increase quantity"
   },
   "request-service": {
     "title": "Request Our Service",
@@ -988,6 +1030,8 @@
     "subtitle": "NEW PROPERTIES",
     "mainTitle": "Find your dream property",
     "viewMore": "View More",
+    "showLess": "Show Less",
+    "all": "All",
     "tabs": {
       "freehold": "Freehold",
       "instalment": "Instalment",
@@ -1143,9 +1187,106 @@
     "phoneNumber": "+123 456 7890",
     "email": "support@mm.com",
     "copyright": "© 2025 ISTANBUL. All rights reserved.",
+    "brandCopyright": "© 2025 Mukafaat. All rights reserved.",
     "privacyPolicy": "Privacy Policy",
     "termsOfUse": "Terms of Use",
-    "termsOfService": "Terms Of Service"
+    "termsOfService": "Terms Of Service",
+    "ourLocations": "Our Locations",
+    "learnMore": "Learn More",
+    "about": "About",
+    "joinOurSite": "Join Our Site",
+    "userPrivacyTerms": "User Privacy Terms",
+    "generalPrivacyPolicy": "General Privacy Policy",
+    "rewardsPrinciple": "Rewards Principle",
+    "faq": "FAQ",
+    "shareOffer": "Share an Offer",
+    "companySubscriptions": "Company Subscriptions",
+    "location": "Jeddah, Kingdom of Saudi Arabia",
+    "workingHours": "Working hours: 9:00 AM - 6:00 PM",
+    "workingDays": "From Sunday to Thursday",
+    "needHelp": "Need help? Call us 0123456789",
+    "dubai": "Dubai",
+    "abuDhabi": "Abu Dhabi",
+    "bahrain": "Bahrain",
+    "jeddah": "Jeddah",
+    "riyadh": "Riyadh",
+    "dammam": "Dammam",
+    "whoWeAreLink": "About Us",
+    "companyDescriptionFallback": "Lorem ipsum is a dummy text used in printing and typesetting. Its purpose is to allow page layout design independently of the content that will be filled later."
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "offersPage": {
+    "restaurantDiscount": "OFF",
+    "restaurantOpen": "Open",
+    "pageTitle": "Offers",
+    "patternAlt": "Offers",
+    "latestOffers": {
+      "title": "Latest Offers",
+      "subtitle": "Discover the latest offers and discounts available",
+      "empty": "No offers available at the moment"
+    },
+    "paidOffers": {
+      "title": "Paid Offers",
+      "subtitle": "Enjoy the best paid offers"
+    },
+    "freeOffers": {
+      "title": "Free Offers",
+      "subtitle": "Get great free offers now"
+    },
+    "suggestedOffers": {
+      "title": "Suggested for You",
+      "subtitle": "Personalized offers based on your preferences",
+      "filterMostViewed": "Most Viewed",
+      "filterHighestRated": "Highest Rated",
+      "filterNearby": "Nearby",
+      "locationTitle": "Share Your Location",
+      "locationDescription": "We need to know your location to show nearby offers",
+      "shareLocation": "Share Location",
+      "emptyTitle": "No offers available",
+      "emptyHint": "Try another filter or check back later"
+    }
+  },
+  "categoryOffers": {
+    "not_found": "Category not found",
+    "category_fallback": "Category",
+    "discover_in_category": "Discover the best offers in {{name}} category",
+    "discover_default": "Discover the best offers",
+    "offers_suffix": "offers in this category",
+    "search_in": "Search in {{name}}...",
+    "no_results": "No offers found for \"{{search}}\"",
+    "no_offers": "No offers available",
+    "price_min": "From {{min}}",
+    "price_max": "Up to {{max}}",
+    "price_range": "{{min}} - {{max}}"
+  },
+  "cardsPage": {
+    "pageTitle": "Cards",
+    "searchPlaceholder": "Search cards...",
+    "filter": "Filter",
+    "renewable": "Renewable",
+    "clearAll": "Clear All",
+    "filterSidebarTitle": "Filter Cards",
+    "merchants": "Merchants",
+    "merchantsSectionSubtitle": "Browse cards by merchant",
+    "validityType": "Validity type",
+    "priceRange": "Price range",
+    "min": "Min",
+    "max": "Max",
+    "reset": "Reset",
+    "apply": "Apply",
+    "priceTagMinOnly": "Min {{value}}",
+    "priceTagMaxOnly": "Max {{value}}",
+    "sections": {
+      "latestTitle": "Latest Cards",
+      "latestSubtitle": "Discover the latest cards and discounts available",
+      "topSellingTitle": "Top Selling",
+      "topSellingSubtitle": "Most requested cards by customers",
+      "mostViewedTitle": "Most Viewed",
+      "mostViewedSubtitle": "Most viewed and browsed cards"
+    }
   },
   "saved": {
     "title": "Saved Items",
@@ -1182,12 +1323,141 @@
       "cancelled": "Cancelled"
     },
     "quantity": "Quantity",
+    "status_labels": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "unknown": "Unknown"
+    },
+    "login_required": "Login required",
+    "sign_in_to_view": "Sign in to view your orders",
+    "login_cta": "Login",
+    "error_title": "Something went wrong",
+    "load_failed": "Failed to load orders",
+    "retry": "Retry",
+    "cancel_modal_title": "Confirm cancellation",
+    "cancel_modal_body": "Are you sure you want to cancel this order? This action cannot be undone.",
+    "back": "Back",
+    "confirm_cancel_order": "Cancel order",
+    "close": "Close",
+    "toast_cancel_ok": "Order cancelled successfully",
+    "toast_cancel_fail": "Failed to cancel order",
+    "table": {
+      "order_number": "Order #",
+      "date": "Date",
+      "offer": "Offer",
+      "status": "Status",
+      "total": "Total",
+      "payment_method": "Payment method",
+      "actions": "Actions"
+    },
+    "view": "View",
+    "download": "Download",
+    "cancel_action": "Cancel",
+    "more_offers": "+{{count}} more offers",
     "empty": {
       "title": "No orders",
       "title_filtered": "No {{status}} orders",
       "description": "Start adding offers and cards to your cart",
       "browse_offers": "Browse Offers"
     }
+  },
+  "sideMenu": {
+    "logoAlt": "Mukafaat logo",
+    "underlineAlt": "Decoration"
+  },
+  "offerFilterSidebar": {
+    "title": "Filter offers",
+    "sortBy": "Sort by",
+    "subcategories": "Subcategories",
+    "offerType": "Offer type",
+    "brands": "Brands",
+    "priceRange": "Price range",
+    "reset": "Reset",
+    "apply": "Apply",
+    "price_sar": "{{value}} SAR"
+  },
+  "cardOfferDetail": {
+    "cards_brand": "Cards",
+    "not_found": "Card not found",
+    "back_to_cards": "Back to Cards",
+    "back": "Back",
+    "sold": "sold",
+    "views_word": "views",
+    "tab_description": "Description",
+    "tab_terms": "Terms & conditions",
+    "tab_features": "Features",
+    "validity_type": "Validity type",
+    "renewable": "Renewable",
+    "yes": "Yes",
+    "no": "No",
+    "delivery": "Delivery",
+    "validity": {
+      "annual": "Annual",
+      "monthly": "Monthly",
+      "quarterly": "Quarterly",
+      "semi_annual": "Semi-annual"
+    },
+    "no_terms": "No terms.",
+    "no_features": "No features.",
+    "share": "Share",
+    "favorites": "Favorites",
+    "sold_badge": "sold",
+    "choose_quantity": "Choose quantity",
+    "save_pct": "Save {{pct}}%",
+    "out_of_stock": "Out of stock",
+    "total": "Total",
+    "quick_buy": "Quick Buy",
+    "payment_methods": "Payment methods",
+    "related_cards": "Related cards"
+  },
+  "cardsPurchaseSuccess": {
+    "data_error": "Data error",
+    "back_to_cards": "Back to Cards",
+    "purchase_success": "Purchase Successful",
+    "thank_you": "Thank you",
+    "card_purchased": "The card has been purchased successfully",
+    "happy": "We are glad you chose us",
+    "order_number": "Order number",
+    "company": "Company",
+    "offer": "Offer",
+    "quantity": "Quantity",
+    "total": "Total",
+    "download_pdf": "Download PDF",
+    "ok": "OK",
+    "email_notice": "Card details will be sent to your email",
+    "credit_card_alt": "Payment card illustration"
+  },
+  "orderFailureRedirect": {
+    "title": "Payment failed",
+    "description": "The payment could not be completed. You can try again or go back to orders.",
+    "try_again": "Try again",
+    "my_orders": "My orders",
+    "order_id": "Order:"
+  },
+  "offerCheckoutSuccess": {
+    "order_unknown": "Order not found",
+    "back_to_offers": "Back to Offers",
+    "login_required": "Login required",
+    "login": "Login",
+    "order_not_found": "Order not found",
+    "back_to_orders": "Back to orders",
+    "payment_success_title": "Payment successful",
+    "orders_nav": "Orders",
+    "close": "Close",
+    "qr_alt": "QR code",
+    "voucher_number": "Voucher number",
+    "purchase_date": "Purchase date",
+    "coupon_expiry": "Coupon expiry",
+    "offer": "Offer",
+    "deals_count_one": "{{count}} deal",
+    "deals_count_other": "{{count}} deals",
+    "deals_label": "Number of deals purchased",
+    "total_price": "Total price",
+    "privacy_terms": "Privacy terms",
+    "return_store": "Return to store",
+    "download_pdf": "Download PDF"
   },
   "wallet": {
     "title": "My Wallet",
@@ -1213,7 +1483,43 @@
     "subscribe_now": "Subscribe now",
     "profile_info": "Profile info",
     "preferences": "Preferences",
-    "quick_stats": "Quick stats"
+    "quick_stats": "Quick stats",
+    "membership_card_title": "Membership card",
+    "membership_card_hint": "Use this card when paying at partner stores",
+    "membership_proof_label": "Proof no.",
+    "membership_status_label": "Card status",
+    "membership_status_active": "Active",
+    "membership_status_expired": "Expired",
+    "guest_title": "Not signed in",
+    "guest_subtitle": "Please sign in to view your profile",
+    "change_photo": "Change photo",
+    "account_verified": "Verified account",
+    "account_unverified": "Unverified account",
+    "stat_favorites": "Saved",
+    "stat_orders": "Orders",
+    "stat_wallet": "Wallet",
+    "wallet_currency_suffix": " SAR",
+    "edit_profile": "Edit profile",
+    "cancel_editing": "Cancel editing",
+    "view_mode_hint": "Your account details",
+    "edit_mode_badge": "Editing",
+    "label_full_name": "Full name",
+    "label_email": "Email",
+    "label_phone": "Phone number",
+    "label_join_date": "Member since",
+    "phone_not_set": "Not set",
+    "save_changes": "Save changes",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "date_em_dash": "—",
+    "toast_profile_updated": "Profile updated",
+    "toast_profile_failed": "Could not update profile",
+    "toast_profile_error": "Something went wrong while updating your profile",
+    "toast_image_invalid": "Please choose a valid image",
+    "toast_image_too_large": "Image must be smaller than 5 MB",
+    "toast_avatar_ok": "Profile photo updated",
+    "toast_avatar_failed": "Could not update photo",
+    "toast_avatar_error": "Something went wrong while updating your photo"
   },
   "coupons": {
     "title": "Couponz",
@@ -1232,6 +1538,110 @@
     "uses_for_code": "uses for code",
     "expires": "Expires",
     "no_results": "No couponz found for \"{{search}}\"",
-    "no_coupons": "No couponz available"
+    "no_coupons": "No couponz available",
+    "filter_sidebar_title": "Filter coupons",
+    "sort_by": "Sort by",
+    "sort_newest": "Newest",
+    "sort_most_used": "Most used",
+    "sort_highest_discount": "Highest discount",
+    "coupon_type": "Coupon type",
+    "type_percentage": "Percentage",
+    "type_fixed": "Fixed amount",
+    "min_discount_pct": "Minimum discount (%)",
+    "min_discount_placeholder": "e.g. 20",
+    "merchants": "Merchants",
+    "all_categories": "All categories",
+    "latest": "Latest",
+    "filter": "Filter",
+    "coupons_suffix": "coupons",
+    "discount_min_tag": "Discount ≥ {{min}}%",
+    "clear_all": "Clear all",
+    "image_cut_coupon": "Coupon divider"
+  },
+  "languageToggle": {
+    "languagesTab": "Languages",
+    "countryTab": "Country",
+    "noCountries": "No countries available"
+  },
+  "propertyCard": {
+    "from": "From",
+    "bedroom_one": "{{count}} bedroom",
+    "bedroom_other": "{{count}} bedrooms",
+    "area_up_to": "Up to {{area}}"
+  },
+  "offerDetail": {
+    "offers_brand": "Offers",
+    "subscription_required": "Active subscription required",
+    "could_not_create_order": "Could not create order",
+    "failed_create_order": "Failed to create order",
+    "offer_not_found": "Offer not found",
+    "back_to_offers": "Back to Offers",
+    "back": "Back",
+    "reviews_word": "reviews",
+    "views_word": "views",
+    "share": "Share",
+    "aria_share": "Share",
+    "save_favorite": "Save",
+    "favorites_action": "Save",
+    "sold_badge": "sold",
+    "sold_count": "{{count}} sold",
+    "choose_option": "Choose your option",
+    "save_pct": "Save {{pct}}%",
+    "cta_price": "Get this offer now for the price below",
+    "cta_free": "Get this offer now for free",
+    "free": "Free",
+    "already_used": "You have already used this offer",
+    "offer_ended": "Offer ended",
+    "max_purchase_one": "Max quantity: {{max}} unit",
+    "max_purchase_other": "Max quantity: {{max}} units",
+    "total": "Total",
+    "creating_order": "Creating order...",
+    "quick_buy": "Quick Buy",
+    "payment_methods": "Payment methods",
+    "related_offers": "Related offers",
+    "gallery_aria": "Image gallery",
+    "gallery_close": "Close",
+    "tab_description": "Offer description",
+    "tab_terms": "Terms & Conditions",
+    "tab_privacy": "Privacy Policy",
+    "offer_validity": "Offer validity",
+    "discount": "Discount",
+    "privacy_fallback": "For more on how we collect and use your data, please see our privacy policy.",
+    "privacy_link": "Privacy Policy"
+  },
+  "offerCard": {
+    "cardDetails": "Card Details",
+    "purchases_one": "{{count}} purchase",
+    "purchases_other": "{{count}} purchases",
+    "moreFeatures": "+{{count}} more features",
+    "popular": "Popular",
+    "new": "New",
+    "card": "Card",
+    "bestSeller": "Best Seller",
+    "typeOffer": "Offer",
+    "discountOff": "OFF",
+    "viewDetails": "View Details",
+    "free": "Free"
+  },
+  "couponModal": {
+    "removedFromFavorites": "Removed from favorites",
+    "addedToFavorites": "Added to favorites",
+    "errorGeneric": "Something went wrong",
+    "shareCodeLabel": "Code",
+    "shareLinkLabel": "Link",
+    "shareCopied": "Share text copied",
+    "shareFailed": "Unable to share",
+    "closeAria": "Close",
+    "working": "Working",
+    "notWorking": "Not working",
+    "removeFavorite": "Remove from favorites",
+    "addFavorite": "Add to favorites",
+    "share": "Share",
+    "shopOnSite": "Shop on site",
+    "copied": "Copied!",
+    "expiresOn": "Expires {{date}}",
+    "validityUnknown": "Validity not specified",
+    "noExpiryDate": "No expiry date",
+    "goToStore": "Go to store"
   }
 }

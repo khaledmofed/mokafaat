@@ -11,6 +11,7 @@ import {
 } from "react-icons/fi";
 import { BsHeart, BsHeartFill, BsShare } from "react-icons/bs";
 import { useIsRTL } from "@hooks";
+import { useTranslation } from "react-i18next";
 import {
   type Offer,
   getOfferImage,
@@ -25,6 +26,7 @@ import { normalizeFavoritesList } from "@utils/favorites";
 import { toast } from "react-toastify";
 import { stripHtml } from "@utils/stripHtml";
 import { useShareSheetStore } from "@stores/shareSheetStore";
+import { pickLocalized } from "@utils/pickLocalized";
 
 interface OfferCardProps {
   offer: Offer;
@@ -33,6 +35,8 @@ interface OfferCardProps {
 
 const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
   const isRTL = useIsRTL();
+  const { t, i18n } = useTranslation();
+  const langBase = i18n.language?.split("-")[0] || "en";
   const navigate = useNavigate();
   const openShare = useShareSheetStore((s) => s.openShare);
   const isAuthenticated = useUserStore((s) => !!s.token);
@@ -67,15 +71,11 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
         onSuccess: () => {
           toast.success(
             isFavorite
-              ? isRTL
-                ? "تمت إزالته من المفضلة"
-                : "Removed from favorites"
-              : isRTL
-                ? "تمت الإضافة إلى المفضلة"
-                : "Added to favorites",
+              ? t("couponModal.removedFromFavorites")
+              : t("couponModal.addedToFavorites"),
           );
         },
-        onError: () => toast.error(isRTL ? "حدث خطأ" : "Something went wrong"),
+        onError: () => toast.error(t("couponModal.errorGeneric")),
       },
     );
   };
@@ -86,10 +86,14 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
   );
   const displayCategoryName =
     offer.categoryName ||
-    (categoryInfo ? (isRTL ? categoryInfo.ar : categoryInfo.en) : "");
+    (categoryInfo
+      ? langBase === "ar"
+        ? categoryInfo.ar
+        : categoryInfo.en
+      : "");
   const displayMerchantName =
     offer.merchantName ||
-    (company ? (isRTL ? company.name.ar : company.name.en) : "");
+    (company ? pickLocalized(company.name, langBase) : "");
 
   const storeImageUrl = useMemo(() => {
     if (offer.merchantLogo) {
@@ -111,7 +115,7 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
     return null;
   }, [offer.merchantLogo, company?.logo]);
 
-  const validityText = offer.validity?.[isRTL ? "ar" : "en"] || "";
+  const validityText = pickLocalized(offer.validity, langBase) || "";
 
   const getOfferTypeIcon = () => {
     if (offer.isBestSeller) {
@@ -125,12 +129,12 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
 
   const getOfferTypeText = () => {
     if (offer.isBestSeller) {
-      return isRTL ? "الأكثر مبيعاً" : "Best Seller";
+      return t("offerCard.bestSeller");
     }
     if (offer.isNew) {
-      return isRTL ? "جديد" : "New";
+      return t("offerCard.new");
     }
-    return isRTL ? "عرض" : "Offer";
+    return t("offerCard.typeOffer");
   };
 
   const getOfferTypeColor = () => {
@@ -143,15 +147,15 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
     return "bg-purple-500";
   };
 
-  const visitButtonText = isRTL ? "عرض التفاصيل" : "View Details";
-  const purchaseText = isRTL
-    ? `${offer.purchases} عملية شراء`
-    : `${offer.purchases} purchases`;
+  const visitButtonText = t("offerCard.viewDetails");
+  const purchaseText = t("offerCard.purchases", {
+    count: offer.purchases,
+  });
   const featuresMoreText =
     offer.features.length > 3
-      ? isRTL
-        ? `+${offer.features.length - 3} مميزات أخرى`
-        : `+${offer.features.length - 3} more features`
+      ? t("offerCard.moreFeatures", {
+          count: offer.features.length - 3,
+        })
       : "";
 
   const offerDetailPath = `/offers/${offer.category}/${offer.companyId}/offer/${offer.id}`;
@@ -166,7 +170,7 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
       <div className="relative h-[185px] overflow-hidden">
         <img
           src={getOfferImage(offer.image)}
-          alt={offer.title[isRTL ? "ar" : "en"]}
+          alt={pickLocalized(offer.title, langBase)}
           className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
         />
 
@@ -177,7 +181,7 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
               e.preventDefault();
               e.stopPropagation();
               openShare({
-                title: stripHtml(offer.title[isRTL ? "ar" : "en"] ?? ""),
+                title: stripHtml(pickLocalized(offer.title, langBase) ?? ""),
                 url: `${window.location.origin}${offerDetailPath}`,
               });
             }}
@@ -212,7 +216,7 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
         <div className="absolute bottom-3 left-3 flex gap-2">
           {offer.discountPercentage > 0 && (
             <span className="bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">
-              {offer.discountPercentage}% {isRTL ? "خصم" : "OFF"}
+              {offer.discountPercentage}% {t("offerCard.discountOff")}
             </span>
           )}
           {validityText && (
@@ -235,11 +239,11 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
         </div>
 
         <h3 className="text-md font-bold text-gray-900 mb-2 line-clamp-2">
-          {offer.title[isRTL ? "ar" : "en"]}
+          {pickLocalized(offer.title, langBase)}
         </h3>
 
         <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-          {stripHtml(offer.description[isRTL ? "ar" : "en"])}
+          {stripHtml(pickLocalized(offer.description, langBase))}
         </p>
 
         {/* التصنيف والمتجر - مع الأيقونة وصورة المتجر */}
@@ -343,7 +347,7 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
               </span>
             ) : (
               <span className="text-lg font-bold text-green-600">
-                {isRTL ? "مجاني" : "Free"}
+                {t("offerCard.free")}
               </span>
             )}
             {/* لا نعرض السعر القديم */} 

@@ -1,5 +1,5 @@
 import React from "react";
-import { useIsRTL } from "@hooks";
+import { useTranslation } from "react-i18next";
 
 interface PaginationProps {
   currentPage: number;
@@ -14,7 +14,7 @@ const Pagination: React.FC<PaginationProps> = ({
   onPageChange,
   isLoading = false,
 }) => {
-  const isRTL = useIsRTL();
+  const { t } = useTranslation();
   // Generate page numbers to display
   const getPageNumbers = () => {
     const pages = [];
@@ -59,7 +59,7 @@ const Pagination: React.FC<PaginationProps> = ({
             : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
         }`}
       >
-        {isRTL ? "السابق" : "Previous"}
+        {t("pagination.previous")}
       </button>
 
       {/* Page Numbers */}
@@ -90,7 +90,7 @@ const Pagination: React.FC<PaginationProps> = ({
             : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
         }`}
       >
-        {isRTL ? "التالي" : "Next"}
+        {t("pagination.next")}
       </button>
     </div>
   );

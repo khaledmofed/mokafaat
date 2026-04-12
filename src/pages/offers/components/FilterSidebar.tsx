@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { IoMdClose } from "react-icons/io";
 import { useIsRTL } from "@hooks";
+import { useTranslation } from "react-i18next";
 import { UnderTitle } from "@assets";
 import { useFilters } from "@hooks/api/useMokafaatQueries";
 
@@ -64,6 +65,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
   appliedFilters,
 }) => {
   const isRTL = useIsRTL();
+  const { t } = useTranslation();
   const { data: filtersResponse, isLoading } = useFilters(categoryId);
 
   const { sortOptions, subcategories, offerTypes, brands, priceRange: apiPriceRange } = normalizeFiltersData(
@@ -177,7 +179,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                           fontFamily: isRTL ? "Readex Pro, sans-serif" : "Jost, sans-serif",
                         }}
                       >
-                        {isRTL ? "ترتيب حسب" : "Sort By"}
+                        {t("offerFilterSidebar.sortBy")}
                       </span>
                       <img src={UnderTitle} alt="" className="h-1 mt-2" />
                     </div>
@@ -212,7 +214,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                           fontFamily: isRTL ? "Readex Pro, sans-serif" : "Jost, sans-serif",
                         }}
                       >
-                        {isRTL ? "فئات فرعية" : "Subcategories"}
+                        {t("offerFilterSidebar.subcategories")}
                       </span>
                       <img src={UnderTitle} alt="" className="h-1 mt-2" />
                     </div>
@@ -247,7 +249,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                           fontFamily: isRTL ? "Readex Pro, sans-serif" : "Jost, sans-serif",
                         }}
                       >
-                        {isRTL ? "نوع العرض" : "Offer Type"}
+                        {t("offerFilterSidebar.offerType")}
                       </span>
                       <img src={UnderTitle} alt="" className="h-1 mt-2" />
                     </div>
@@ -282,7 +284,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                           fontFamily: isRTL ? "Readex Pro, sans-serif" : "Jost, sans-serif",
                         }}
                       >
-                        {isRTL ? "العلامات التجارية" : "Brands"}
+                        {t("offerFilterSidebar.brands")}
                       </span>
                       <img src={UnderTitle} alt="" className="h-1 mt-2" />
                     </div>
@@ -323,7 +325,7 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                         fontFamily: isRTL ? "Readex Pro, sans-serif" : "Jost, sans-serif",
                       }}
                     >
-                      {isRTL ? "نطاق السعر" : "Price Range"}
+                      {t("offerFilterSidebar.priceRange")}
                     </span>
                     <img src={UnderTitle} alt="" className="h-1 mt-2" />
                   </div>
@@ -360,8 +362,16 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
                       />
                     </div>
                     <div className="flex justify-between text-sm text-gray-600 mt-1">
-                      <span>{priceMinVal} ر.س</span>
-                      <span>{priceMaxVal} ر.س</span>
+                      <span>
+                        {t("offerFilterSidebar.price_sar", {
+                          value: priceMinVal,
+                        })}
+                      </span>
+                      <span>
+                        {t("offerFilterSidebar.price_sar", {
+                          value: priceMaxVal,
+                        })}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -376,13 +386,13 @@ const FilterSidebar: React.FC<FilterSidebarProps> = ({
               onClick={handleResetFilters}
               className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
             >
-              {isRTL ? "إعادة تعيين" : "Reset"}
+              {t("offerFilterSidebar.reset")}
             </button>
             <button
               onClick={handleApplyFilters}
               className="flex-1 px-4 py-2 bg-[#fd671a] text-white rounded-lg font-medium hover:bg-[#e55a17] transition-colors"
             >
-              {isRTL ? "تطبيق" : "Apply"}
+              {t("offerFilterSidebar.apply")}
             </button>
           </div>
         </div>

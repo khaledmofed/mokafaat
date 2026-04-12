@@ -153,7 +153,8 @@
       "feature2": "جودة عالية",
       "more": "أخرى",
       "category": "التصنيف",
-      "company": "الشركة"
+      "company": "الشركة",
+      "demo_views": "1.2 ألف"
     },
     "categories": {
       "restaurants": "المطاعم",
@@ -316,7 +317,14 @@
       "downloadOn": "حمل من",
       "appStore": "App Store",
       "getItOn": "احصل عليه من",
-      "googlePlay": "Google Play"
+      "googlePlay": "Google Play",
+      "manImageAlt": "تطبيق مكافآت",
+      "logoAlt": "مكافآت",
+      "priceUpTo100K": "حتى 100 ألف دولار",
+      "priceUpTo250K": "حتى 250 ألف دولار",
+      "priceUpTo500K": "حتى 500 ألف دولار",
+      "priceUpTo800K": "حتى 800 ألف دولار",
+      "priceUpTo1M": "حتى مليون دولار"
     },
     "services": {
       "our": "خدماتنا",
@@ -384,6 +392,37 @@
       "passion-description": "الوقود الذي يدفع ثقافتنا، ويحدد عقليتنا، ويحفز أعمالنا.",
       "place": "المكان",
       "place-description": "نحن نأخذ مسؤوليتنا تجاه البيئة على محمل الجد، ومن خلال أفعالنا نساهم في خلق مكان أفضل للأجيال القادمة."
+    },
+    "coreValues": {
+      "heading": "القيم الأساسية",
+      "item1": {
+        "title": "العميل أولاً",
+        "description": "نحن نخلق تجارب لا تُنسى، في كل مرة"
+      },
+      "item2": {
+        "title": "تمكين المستقلين",
+        "description": "نحن ندرب، ندعم، ونساعدهم على النمو"
+      },
+      "item3": {
+        "title": "الابتكار الذكي",
+        "description": "نحن نستخدم التكنولوجيا لجعل الفعاليات أفضل وأسهل"
+      },
+      "item4": {
+        "title": "تقديم التميز",
+        "description": "نحن نهتم بكل تفصيل"
+      },
+      "item5": {
+        "title": "أقوى معاً",
+        "description": "نحن نبني مجتمع عالمي داعم"
+      },
+      "item6": {
+        "title": "التصرف بالنزاهة",
+        "description": "نحن نبقى صادقين، مسؤولين، وشفافين"
+      },
+      "item7": {
+        "title": "الاحتفال بالتنوع",
+        "description": "نحن نرحب بجميع الأصوات والمواهب"
+      }
     }
   },
   "careers": {
@@ -846,7 +885,10 @@
   "common": {
     "viewAll": "عرض الكل",
     "moreDetails": "المزيد من التفاصيل",
-    "loading": "جاري التحميل..."
+    "loading": "جاري التحميل...",
+    "quantityAria": "الكمية",
+    "decreaseQuantityAria": "تقليل الكمية",
+    "increaseQuantityAria": "زيادة الكمية"
   },
   "request-service": {
     "title": "اطلب الخدمة",
@@ -993,6 +1035,8 @@
     "subtitle": "عقارات جديدة",
     "mainTitle": "اعثر على عقار أحلامك",
     "viewMore": "رؤية المزيد ",
+    "showLess": "عرض أقل",
+    "all": "الكل",
     "tabs": {
       "freehold": "ملكية كاملة",
       "instalment": "تقسيط",
@@ -1174,7 +1218,84 @@
     "bahrain": "البحرين",
     "jeddah": "جدة",
     "riyadh": "الرياض",
-    "dammam": "الدمام"
+    "dammam": "الدمام",
+    "brandCopyright": "© 2025 مكافئات. جميع الحقوق محفوظة.",
+    "whoWeAreLink": "من نحن",
+    "companyDescriptionFallback": "لوريم إبسوم هو نص وهمي يستخدم في الطباعة والتنضيد. الغرض منه هو السماح بتصميم تخطيط الصفحة بشكل مستقل عن المحتوى الذي سيتم ملؤه لاحقاً."
+  },
+  "pagination": {
+    "previous": "السابق",
+    "next": "التالي"
+  },
+  "offersPage": {
+    "restaurantDiscount": "خصم",
+    "restaurantOpen": "مفتوح",
+    "pageTitle": "العروض",
+    "patternAlt": "العروض",
+    "latestOffers": {
+      "title": "أحدث العروض",
+      "subtitle": "اكتشف أحدث العروض والخصومات المتاحة",
+      "empty": "لا توجد عروض متاحة حالياً"
+    },
+    "paidOffers": {
+      "title": "عروض مدفوعة",
+      "subtitle": "استفد من أفضل العروض المدفوعة"
+    },
+    "freeOffers": {
+      "title": "عروض مجانية",
+      "subtitle": "احصل على عروض مجانية مميزة الآن"
+    },
+    "suggestedOffers": {
+      "title": "نقترحها عليك",
+      "subtitle": "عروض مخصصة لك بناءً على تفضيلاتك",
+      "filterMostViewed": "الأعلى زيارة",
+      "filterHighestRated": "الأعلى تقييماً",
+      "filterNearby": "قريبة منك",
+      "locationTitle": "تحديد موقعك",
+      "locationDescription": "نحتاج إلى معرفة موقعك لعرض العروض القريبة منك",
+      "shareLocation": "تحديد الموقع",
+      "emptyTitle": "لا توجد عروض متاحة",
+      "emptyHint": "جرب فلتر آخر أو تحقق مرة أخرى لاحقاً"
+    }
+  },
+  "categoryOffers": {
+    "not_found": "الفئة غير موجودة",
+    "category_fallback": "تصنيف",
+    "discover_in_category": "اكتشف أفضل العروض في فئة {{name}}",
+    "discover_default": "اكتشف أفضل العروض",
+    "offers_suffix": "عرض في هذه الفئة",
+    "search_in": "البحث في {{name}}...",
+    "no_results": "لم يتم العثور على عروض لـ \"{{search}}\"",
+    "no_offers": "لا توجد عروض متاحة",
+    "price_min": "من {{min}}",
+    "price_max": "إلى {{max}}",
+    "price_range": "{{min}} - {{max}}"
+  },
+  "cardsPage": {
+    "pageTitle": "البطاقات",
+    "searchPlaceholder": "بحث في البطاقات...",
+    "filter": "فلترة",
+    "renewable": "قابلة للتجديد",
+    "clearAll": "مسح الكل",
+    "filterSidebarTitle": "فلترة البطاقات",
+    "merchants": "التجار",
+    "merchantsSectionSubtitle": "تصفح البطاقات حسب التاجر",
+    "validityType": "نوع الصلاحية",
+    "priceRange": "نطاق السعر",
+    "min": "من",
+    "max": "إلى",
+    "reset": "إعادة تعيين",
+    "apply": "تطبيق",
+    "priceTagMinOnly": "من {{value}}",
+    "priceTagMaxOnly": "إلى {{value}}",
+    "sections": {
+      "latestTitle": "أحدث البطاقات",
+      "latestSubtitle": "اكتشف أحدث البطاقات والخصومات المتاحة",
+      "topSellingTitle": "الأكثر مبيعاً",
+      "topSellingSubtitle": "البطاقات الأكثر طلباً من قبل العملاء",
+      "mostViewedTitle": "الأكثر مشاهدة",
+      "mostViewedSubtitle": "البطاقات الأكثر مشاهدة وتصفحاً"
+    }
   },
   "saved": {
     "title": "العناصر المفضلة",
@@ -1211,12 +1332,141 @@
       "cancelled": "ملغي"
     },
     "quantity": "الكمية",
+    "status_labels": {
+      "pending": "في الانتظار",
+      "confirmed": "مؤكد",
+      "completed": "مكتمل",
+      "cancelled": "ملغي",
+      "unknown": "غير محدد"
+    },
+    "login_required": "تسجيل الدخول مطلوب",
+    "sign_in_to_view": "سجّل دخولك لعرض طلباتك",
+    "login_cta": "تسجيل الدخول",
+    "error_title": "حدث خطأ",
+    "load_failed": "تعذر تحميل الطلبات",
+    "retry": "إعادة المحاولة",
+    "cancel_modal_title": "تأكيد إلغاء الطلب",
+    "cancel_modal_body": "هل أنت متأكد من أنك تريد إلغاء هذا الطلب؟ لا يمكن التراجع عن هذه العملية.",
+    "back": "رجوع",
+    "confirm_cancel_order": "تأكيد الإلغاء",
+    "close": "إغلاق",
+    "toast_cancel_ok": "تم إلغاء الطلب بنجاح",
+    "toast_cancel_fail": "تعذر إلغاء الطلب",
+    "table": {
+      "order_number": "رقم الطلب",
+      "date": "التاريخ",
+      "offer": "اسم العرض",
+      "status": "الحالة",
+      "total": "المبلغ الإجمالي",
+      "payment_method": "طريقة الدفع",
+      "actions": "الإجراءات"
+    },
+    "view": "عرض",
+    "download": "تنزيل",
+    "cancel_action": "إلغاء",
+    "more_offers": "+{{count}} عروض أخرى",
     "empty": {
       "title": "لا توجد طلبات",
       "title_filtered": "لا توجد طلبات {{status}}",
       "description": "ابدأ بإضافة العروض والبطاقات إلى سلة التسوق",
       "browse_offers": "تصفح العروض"
     }
+  },
+  "sideMenu": {
+    "logoAlt": "شعار مكافآت",
+    "underlineAlt": "زخرفة"
+  },
+  "offerFilterSidebar": {
+    "title": "تصفية العروض",
+    "sortBy": "ترتيب حسب",
+    "subcategories": "فئات فرعية",
+    "offerType": "نوع العرض",
+    "brands": "العلامات التجارية",
+    "priceRange": "نطاق السعر",
+    "reset": "إعادة تعيين",
+    "apply": "تطبيق",
+    "price_sar": "{{value}} ر.س"
+  },
+  "cardOfferDetail": {
+    "cards_brand": "البطاقات",
+    "not_found": "البطاقة غير موجودة",
+    "back_to_cards": "العودة للبطاقات",
+    "back": "العودة",
+    "sold": "مبيعات",
+    "views_word": "مشاهدات",
+    "tab_description": "الوصف",
+    "tab_terms": "الشروط والأحكام",
+    "tab_features": "المميزات",
+    "validity_type": "نوع الصلاحية",
+    "renewable": "قابل للتجديد",
+    "yes": "نعم",
+    "no": "لا",
+    "delivery": "نوع التوصيل",
+    "validity": {
+      "annual": "سنوي",
+      "monthly": "شهري",
+      "quarterly": "ربع سنوي",
+      "semi_annual": "نصف سنوي"
+    },
+    "no_terms": "لا توجد شروط.",
+    "no_features": "لا توجد مميزات.",
+    "share": "مشاركة",
+    "favorites": "المفضلة",
+    "sold_badge": "مبيعة",
+    "choose_quantity": "اختر الكمية",
+    "save_pct": "خصم {{pct}}%",
+    "out_of_stock": "غير متوفر حالياً",
+    "total": "المجموع",
+    "quick_buy": "شراء سريع",
+    "payment_methods": "طرق الدفع",
+    "related_cards": "بطاقات قد تعجبك"
+  },
+  "cardsPurchaseSuccess": {
+    "data_error": "خطأ في البيانات",
+    "back_to_cards": "العودة للبطاقات",
+    "purchase_success": "تم الشراء بنجاح",
+    "thank_you": "شكراً لك",
+    "card_purchased": "تم شراء البطاقة بنجاح",
+    "happy": "نسعد بتجربتك معنا",
+    "order_number": "رقم الطلب",
+    "company": "الشركة",
+    "offer": "العرض",
+    "quantity": "الكمية",
+    "total": "المجموع",
+    "download_pdf": "تنزيل ملف PDF",
+    "ok": "موافق",
+    "email_notice": "سيتم إرسال تفاصيل البطاقة إلى بريدك الإلكتروني",
+    "credit_card_alt": "بطاقة دفع"
+  },
+  "orderFailureRedirect": {
+    "title": "فشلت العملية",
+    "description": "لم تكتمل عملية الدفع. يمكنك المحاولة مرة أخرى أو العودة للطلبات.",
+    "try_again": "إعادة المحاولة",
+    "my_orders": "الطلبات",
+    "order_id": "رقم الطلب:"
+  },
+  "offerCheckoutSuccess": {
+    "order_unknown": "الطلب غير معروف",
+    "back_to_offers": "العودة للعروض",
+    "login_required": "تسجيل الدخول مطلوب",
+    "login": "تسجيل الدخول",
+    "order_not_found": "الطلب غير موجود",
+    "back_to_orders": "العودة للطلبات",
+    "payment_success_title": "تم الدفع بنجاح",
+    "orders_nav": "الطلبات",
+    "close": "إغلاق",
+    "qr_alt": "رمز الاستجابة السريعة",
+    "voucher_number": "رقم القسيمة",
+    "purchase_date": "تاريخ الشراء",
+    "coupon_expiry": "انتهاء الكوبون",
+    "offer": "العرض",
+    "deals_count_one": "{{count}} صفقة",
+    "deals_count_other": "{{count}} صفقات",
+    "deals_label": "عدد الصفقات المشتراة",
+    "total_price": "السعر الإجمالي",
+    "privacy_terms": "تابع شروط الخصوصية",
+    "return_store": "عودة للمتجر",
+    "download_pdf": "تنزيل ملف PDF"
   },
   "wallet": {
     "title": "محفظتي",
@@ -1242,7 +1492,43 @@
     "subscribe_now": "اشترك الآن",
     "profile_info": "معلومات البروفايل",
     "preferences": "التفضيلات",
-    "quick_stats": "إحصائيات سريعة"
+    "quick_stats": "إحصائيات سريعة",
+    "membership_card_title": "البطاقة التعريفية",
+    "membership_card_hint": "تستخدم هذه البطاقة في الدفع للمتاجر",
+    "membership_proof_label": "رقم إثبات",
+    "membership_status_label": "حالة البطاقة",
+    "membership_status_active": "فعالة",
+    "membership_status_expired": "الحالة منتهية",
+    "guest_title": "غير مسجل دخول",
+    "guest_subtitle": "يجب تسجيل الدخول لعرض البروفايل",
+    "change_photo": "تغيير الصورة",
+    "account_verified": "حساب موثق",
+    "account_unverified": "حساب غير موثق",
+    "stat_favorites": "المفضلة",
+    "stat_orders": "الطلبات",
+    "stat_wallet": "المحفظة",
+    "wallet_currency_suffix": " ريال",
+    "edit_profile": "تعديل البروفايل",
+    "cancel_editing": "إلغاء التعديل",
+    "view_mode_hint": "تفاصيل حسابك",
+    "edit_mode_badge": "وضع التعديل",
+    "label_full_name": "الاسم الكامل",
+    "label_email": "البريد الإلكتروني",
+    "label_phone": "رقم الهاتف",
+    "label_join_date": "تاريخ الانضمام",
+    "phone_not_set": "غير محدد",
+    "save_changes": "حفظ التغييرات",
+    "saving": "جاري الحفظ...",
+    "cancel": "إلغاء",
+    "date_em_dash": "—",
+    "toast_profile_updated": "تم تحديث البروفايل",
+    "toast_profile_failed": "فشل تحديث البروفايل",
+    "toast_profile_error": "حدث خطأ أثناء تحديث البروفايل",
+    "toast_image_invalid": "يرجى اختيار صورة صالحة",
+    "toast_image_too_large": "حجم الصورة يجب أن يكون أقل من 5 ميجابايت",
+    "toast_avatar_ok": "تم تحديث الصورة بنجاح",
+    "toast_avatar_failed": "فشل تحديث الصورة",
+    "toast_avatar_error": "حدث خطأ أثناء تحديث الصورة"
   },
   "coupons": {
     "title": "الكوبونز",
@@ -1261,6 +1547,110 @@
     "uses_for_code": "استخدام للكود",
     "expires": "ينتهي",
     "no_results": "لم يتم العثور على كوبونز لـ \"{{search}}\"",
-    "no_coupons": "لا توجد كوبونز متاحة"
+    "no_coupons": "لا توجد كوبونز متاحة",
+    "filter_sidebar_title": "فلترة الكوبونات",
+    "sort_by": "ترتيب حسب",
+    "sort_newest": "الأحدث",
+    "sort_most_used": "الأكثر استخدامًا",
+    "sort_highest_discount": "أعلى خصم",
+    "coupon_type": "نوع الكوبون",
+    "type_percentage": "نسبة",
+    "type_fixed": "ثابت",
+    "min_discount_pct": "أقل خصم (%)",
+    "min_discount_placeholder": "مثال: 20",
+    "merchants": "التجار",
+    "all_categories": "كل التصنيفات",
+    "latest": "الأحدث",
+    "filter": "فلترة",
+    "coupons_suffix": "كوبون",
+    "discount_min_tag": "خصم من {{min}}%",
+    "clear_all": "مسح الكل",
+    "image_cut_coupon": "فاصل الكوبون"
+  },
+  "languageToggle": {
+    "languagesTab": "اللغات",
+    "countryTab": "البلد",
+    "noCountries": "لا توجد دول متاحة"
+  },
+  "propertyCard": {
+    "from": "من",
+    "bedroom_one": "غرفة نوم",
+    "bedroom_other": "{{count}} غرف نوم",
+    "area_up_to": "حتى {{area}}"
+  },
+  "offerDetail": {
+    "offers_brand": "عروض",
+    "subscription_required": "يلزم اشتراك نشط",
+    "could_not_create_order": "تعذر إنشاء الطلب",
+    "failed_create_order": "فشل إنشاء الطلب",
+    "offer_not_found": "العرض غير موجود",
+    "back_to_offers": "العودة إلى العروض",
+    "back": "رجوع",
+    "reviews_word": "تقييمات",
+    "views_word": "مشاهدات",
+    "share": "مشاركة",
+    "aria_share": "مشاركة",
+    "save_favorite": "حفظ",
+    "favorites_action": "المفضلة",
+    "sold_badge": "مباع",
+    "sold_count": "{{count}} قسيمة مباعة",
+    "choose_option": "اختر خيارك",
+    "save_pct": "وفر {{pct}}٪",
+    "cta_price": "احصل على هذا العرض الآن بالسعر أدناه",
+    "cta_free": "احصل على هذا العرض الآن مجاناً",
+    "free": "مجاناً",
+    "already_used": "لقد استخدمت هذا العرض مسبقاً",
+    "offer_ended": "انتهى العرض",
+    "max_purchase_one": "الحد الأقصى للكمية: {{max}} وحدة",
+    "max_purchase_other": "الحد الأقصى للكمية: {{max}} وحدات",
+    "total": "الإجمالي",
+    "creating_order": "جاري إنشاء الطلب...",
+    "quick_buy": "شراء سريع",
+    "payment_methods": "طرق الدفع",
+    "related_offers": "عروض ذات صلة",
+    "gallery_aria": "معرض الصور",
+    "gallery_close": "إغلاق",
+    "tab_description": "وصف العرض",
+    "tab_terms": "الشروط والأحكام",
+    "tab_privacy": "سياسة الخصوصية",
+    "offer_validity": "صلاحية العرض",
+    "discount": "الخصم",
+    "privacy_fallback": "لمزيد من المعلومات حول كيفية جمع واستخدام بياناتك، راجع سياسة الخصوصية.",
+    "privacy_link": "سياسة الخصوصية"
+  },
+  "offerCard": {
+    "cardDetails": "تفاصيل البطاقة",
+    "purchases_one": "{{count}} عملية شراء",
+    "purchases_other": "{{count}} عملية شراء",
+    "moreFeatures": "+{{count}} مميزات أخرى",
+    "popular": "شائع",
+    "new": "جديد",
+    "card": "بطاقة",
+    "bestSeller": "الأكثر مبيعاً",
+    "typeOffer": "عرض",
+    "discountOff": "خصم",
+    "viewDetails": "عرض التفاصيل",
+    "free": "مجاناً"
+  },
+  "couponModal": {
+    "removedFromFavorites": "تمت إزالته من المفضلة",
+    "addedToFavorites": "تمت الإضافة إلى المفضلة",
+    "errorGeneric": "حدث خطأ",
+    "shareCodeLabel": "الكود",
+    "shareLinkLabel": "الرابط",
+    "shareCopied": "تم نسخ نص المشاركة",
+    "shareFailed": "تعذر المشاركة",
+    "closeAria": "إغلاق",
+    "working": "فعال",
+    "notWorking": "غير فعال",
+    "removeFavorite": "إزالة من المفضلة",
+    "addFavorite": "أضف للمفضلة",
+    "share": "مشاركة",
+    "shopOnSite": "تسوق بالموقع",
+    "copied": "تم النسخ",
+    "expiresOn": "ينتهي {{date}}",
+    "validityUnknown": "الصلاحية غير محددة",
+    "noExpiryDate": "لا تاريخ انتهاء",
+    "goToStore": "الذهاب للمتجر"
   }
 }

@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useIsRTL } from "@hooks";
 import { useUserStore } from "@stores/userStore";
 import { toast } from "react-toastify";
 import {
@@ -49,6 +50,8 @@ function ProfileMembershipCard({
   /** رابط صورة QR من API البروفايل (membership_qr_url) — يُستخدم عند توفره */
   membershipQrUrl?: string | null;
 }) {
+  const { t } = useTranslation();
+  const isRTL = useIsRTL();
   const proofLine = String(idNumber || membershipNumber || "").trim();
   const qrValue = useMemo(
     () =>
@@ -75,7 +78,7 @@ function ProfileMembershipCard({
         backgroundImage: cardGradient,
         backgroundAttachment: "fixed",
       }}
-      dir="rtl"
+      dir={isRTL ? "rtl" : "ltr"}
     >
       <div
         className="px-4 py-3.5 text-center text-white sm:py-4"
@@ -85,7 +88,7 @@ function ProfileMembershipCard({
         }}
       >
         <h3 className="text-base font-bold tracking-wide sm:text-lg">
-          البطاقة التعريفية
+          {t("profile.membership_card_title")}
         </h3>
       </div>
       <div className="relative mx-auto max-w-sm overflow-hidden rounded-2xl bg-white shadow-[0_8px_32px_rgba(0,0,0,0.18)] sm:rounded-3xl">
@@ -115,7 +118,7 @@ function ProfileMembershipCard({
 
         <div className="px-5 pb-8 pt-5 text-center sm:px-6 sm:pb-10 sm:pt-6">
           <p className="mb-4 text-xs leading-relaxed text-gray-600 sm:text-sm">
-            تستخدم هذه البطاقة في الدفع للمتاجر
+            {t("profile.membership_card_hint")}
           </p>
 
           <div className="mb-5 flex justify-center sm:mb-6">
@@ -136,7 +139,7 @@ function ProfileMembershipCard({
             {fullName}
           </p>
           <p className="mb-4 text-xs text-gray-600 sm:mb-4 sm:text-sm">
-            رقم إثبات /{" "}
+            {t("profile.membership_proof_label")} /{" "}
             <span className="font-mono font-semibold text-gray-800">
               {proofLine}
             </span>
@@ -205,14 +208,16 @@ function ProfileMembershipCard({
               )}
             </div>
             <span className="text-[11px] text-gray-500 sm:text-xs">
-              حالة البطاقة
+              {t("profile.membership_status_label")}
             </span>
             <span
               className={`text-base font-bold sm:text-lg ${
                 isActive ? "text-gray-900" : "text-gray-600"
               }`}
             >
-              {isActive ? "فعالة" : "الحالة منتهية"}
+              {isActive
+                ? t("profile.membership_status_active")
+                : t("profile.membership_status_expired")}
             </span>
           </div>
         </div>
@@ -222,8 +227,16 @@ function ProfileMembershipCard({
 }
 
 const ProfilePage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const isRTL = useIsRTL();
   const navigate = useNavigate();
+  const dateLocale = useMemo(() => {
+    const b = i18n.language?.split("-")[0] || "en";
+    if (b === "ar") return "ar-SA";
+    if (b === "ur") return "ur-PK";
+    if (b === "hi") return "hi-IN";
+    return "en-US";
+  }, [i18n.language]);
   const { user } = useUserStore();
   const { data: profileData, refetch: refetchProfile } = useProfile();
   const { data: subscriptionData } = useSubscriptionStatus(!!user);
@@ -380,12 +393,16 @@ const ProfilePage: React.FC = () => {
       if (ok) {
         setIsEditing(false);
         toast.success(
-          (payload?.msg ?? payload?.message ?? "تم تحديث البروفايل") as string,
+          (payload?.msg ??
+            payload?.message ??
+            t("profile.toast_profile_updated")) as string,
         );
         await refetchProfile();
       } else {
         toast.error(
-          (payload?.msg ?? payload?.message ?? "فشل تحديث البروفايل") as string,
+          (payload?.msg ??
+            payload?.message ??
+            t("profile.toast_profile_failed")) as string,
         );
       }
     } catch (error) {
@@ -397,7 +414,7 @@ const ProfilePage: React.FC = () => {
         errResponse?.message ??
         (error as { response?: { data?: { msg?: string } } })?.response?.data
           ?.msg;
-      toast.error(msg ?? "حدث خطأ أثناء تحديث البروفايل");
+      toast.error(msg ?? t("profile.toast_profile_error"));
     } finally {
       setIsLoading(false);
     }
@@ -419,11 +436,11 @@ const ProfilePage: React.FC = () => {
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !file.type.startsWith("image/")) {
-      toast.error("يرجى اختيار صورة صالحة");
+      toast.error(t("profile.toast_image_invalid"));
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("حجم الصورة يجب أن يكون أقل من 5 ميجابايت");
+      toast.error(t("profile.toast_image_too_large"));
       return;
     }
     setAvatarPreview(URL.createObjectURL(file));
@@ -434,12 +451,14 @@ const ProfilePage: React.FC = () => {
       const payload = (res?.data ?? res) as Record<string, unknown>;
       const ok = payload?.status !== false && payload?.status !== "error";
       if (ok) {
-        toast.success("تم تحديث الصورة بنجاح");
+        toast.success(t("profile.toast_avatar_ok"));
         setAvatarPreview(null);
         await refetchProfile();
       } else {
         toast.error(
-          (payload?.msg ?? payload?.message ?? "فشل تحديث الصورة") as string,
+          (payload?.msg ??
+            payload?.message ??
+            t("profile.toast_avatar_failed")) as string,
         );
         setAvatarPreview(null);
       }
@@ -452,7 +471,7 @@ const ProfilePage: React.FC = () => {
         errResponse?.message ??
         (error as { response?: { data?: { msg?: string } } })?.response?.data
           ?.msg;
-      toast.error(msg ?? "حدث خطأ أثناء تحديث الصورة");
+      toast.error(msg ?? t("profile.toast_avatar_error"));
       setAvatarPreview(null);
     } finally {
       setIsUploadingAvatar(false);
@@ -466,9 +485,9 @@ const ProfilePage: React.FC = () => {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            غير مسجل دخول
+            {t("profile.guest_title")}
           </h2>
-          <p className="text-gray-600">يجب تسجيل الدخول لعرض البروفايل</p>
+          <p className="text-gray-600">{t("profile.guest_subtitle")}</p>
         </div>
       </div>
     );
@@ -483,7 +502,7 @@ const ProfilePage: React.FC = () => {
         {/* هيدر: يمين = المستخدم | يسار = إحصائيات (بدون عنوان) + تعديل */}
         <div
           className="mb-6 rounded-2xl border border-gray-200/80 bg-white shadow-md overflow-hidden"
-          dir="rtl"
+          dir={isRTL ? "rtl" : "ltr"}
         >
           <div className="p-5 sm:p-6 lg:p-8">
             <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between lg:gap-6">
@@ -510,7 +529,7 @@ const ProfilePage: React.FC = () => {
                     onClick={handleAvatarClick}
                     disabled={isUploadingAvatar}
                     className="absolute -bottom-1 -left-1 bg-[#440798] text-white p-2 rounded-xl shadow-lg hover:bg-[#350775] transition-colors disabled:opacity-70"
-                    title="تغيير الصورة"
+                    title={t("profile.change_photo")}
                   >
                     {isUploadingAvatar ? (
                       <span className="w-4 h-4 block border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -519,7 +538,9 @@ const ProfilePage: React.FC = () => {
                     )}
                   </button>
                 </div>
-                <div className="min-w-0 text-right">
+                <div
+                  className={`min-w-0 ${isRTL ? "text-right" : "text-left"}`}
+                >
                   <h1 className="text-xl sm:text-2xl font-bold text-gray-900 truncate">
                     {displayUser.name}
                   </h1>
@@ -530,10 +551,12 @@ const ProfilePage: React.FC = () => {
                     {displayUser.isVerified ? (
                       <>
                         <IoCheckmarkCircleOutline className="w-4 h-4 shrink-0" />
-                        حساب موثق
+                        {t("profile.account_verified")}
                       </>
                     ) : (
-                      <span className="text-amber-700">حساب غير موثق</span>
+                      <span className="text-amber-700">
+                        {t("profile.account_unverified")}
+                      </span>
                     )}
                   </div>
                 </div>
@@ -545,38 +568,42 @@ const ProfilePage: React.FC = () => {
                   {(
                     [
                       {
-                        label: "المفضلة",
+                        labelKey: "profile.stat_favorites",
                         to: "/saved",
                         value:
                           (displayUser as { favoritesCount?: number })
                             .favoritesCount ?? 0,
                       },
                       {
-                        label: "الطلبات",
+                        labelKey: "profile.stat_orders",
                         to: "/orders",
                         value:
                           (displayUser as { ordersCount?: number })
                             .ordersCount ?? 0,
                       },
                       {
-                        label: "المحفظة",
+                        labelKey: "profile.stat_wallet",
                         to: "/wallet",
                         value: `${walletBalance}`,
-                        suffix: " ريال",
+                        suffixKey: "profile.wallet_currency_suffix",
                       },
                     ] as const
                   ).map((item) => (
                     <Link
-                      key={item.label}
+                      key={item.labelKey}
                       to={item.to}
-                      className="rounded-xl bg-white border border-gray-100 px-2 py-2 sm:py-2.5 text-center sm:text-right hover:border-[#440798]/40 hover:shadow-md hover:bg-[#440798]/[0.03] transition-all cursor-pointer block focus:outline-none focus-visible:ring-2 focus-visible:ring-[#440798]/50"
+                      className={`rounded-xl bg-white border border-gray-100 px-2 py-2 sm:py-2.5 text-center hover:border-[#440798]/40 hover:shadow-md hover:bg-[#440798]/[0.03] transition-all cursor-pointer block focus:outline-none focus-visible:ring-2 focus-visible:ring-[#440798]/50 ${
+                        isRTL ? "sm:text-right" : "sm:text-left"
+                      }`}
                     >
                       <p className="text-[10px] sm:text-[11px] text-gray-500 mb-0.5 truncate">
-                        {item.label}
+                        {t(item.labelKey)}
                       </p>
                       <p className="text-sm sm:text-base font-bold text-[#440798] tabular-nums leading-tight">
                         {item.value}
-                        {"suffix" in item ? item.suffix : ""}
+                        {"suffixKey" in item
+                          ? t(item.suffixKey as "profile.wallet_currency_suffix")
+                          : ""}
                       </p>
                     </Link>
                   ))}
@@ -586,7 +613,9 @@ const ProfilePage: React.FC = () => {
                   onClick={() => setIsEditing(!isEditing)}
                   className="shrink-0 rounded-xl bg-[#440798] px-5 py-3 text-sm font-bold text-white shadow-md hover:bg-[#350775] transition-colors w-full sm:w-auto order-1 sm:order-2"
                 >
-                  {isEditing ? "إلغاء التعديل" : "تعديل البروفايل"}
+                  {isEditing
+                    ? t("profile.cancel_editing")
+                    : t("profile.edit_profile")}
                 </button>
               </div>
             </div>
@@ -597,18 +626,21 @@ const ProfilePage: React.FC = () => {
           {/* Main content */}
           <div className="lg:col-span-8">
             {/* Profile Information */}
-            <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden" dir="rtl">
+            <div
+              className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden"
+              dir={isRTL ? "rtl" : "ltr"}
+            >
               <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between gap-3">
                 <h2 className="text-lg sm:text-xl font-bold text-gray-900">
                   {t("profile.profile_info")}
                 </h2>
                 {!isEditing ? (
                   <span className="text-xs sm:text-sm text-gray-500">
-                    {t("profile.profile_info")}
+                    {t("profile.view_mode_hint")}
                   </span>
                 ) : (
                   <span className="text-xs sm:text-sm text-[#440798] font-semibold">
-                    وضع التعديل
+                    {t("profile.edit_mode_badge")}
                   </span>
                 )}
               </div>
@@ -618,7 +650,7 @@ const ProfilePage: React.FC = () => {
                   <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-4">
                     <label className="block text-xs font-semibold text-gray-600 mb-2">
                       <IoPersonOutline className="inline w-4 h-4 ml-1" />
-                      الاسم الكامل
+                      {t("profile.label_full_name")}
                     </label>
                     {isEditing ? (
                       <input
@@ -636,7 +668,7 @@ const ProfilePage: React.FC = () => {
                   <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-4">
                     <label className="block text-xs font-semibold text-gray-600 mb-2">
                       <IoMailOutline className="inline w-4 h-4 ml-1" />
-                      البريد الإلكتروني
+                      {t("profile.label_email")}
                     </label>
                     {isEditing ? (
                       <input
@@ -654,7 +686,7 @@ const ProfilePage: React.FC = () => {
                   <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-4">
                     <label className="block text-xs font-semibold text-gray-600 mb-2">
                       <IoCallOutline className="inline w-4 h-4 ml-1" />
-                      رقم الهاتف
+                      {t("profile.label_phone")}
                     </label>
                     {isEditing ? (
                       <input
@@ -665,19 +697,23 @@ const ProfilePage: React.FC = () => {
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-[#440798] focus:border-[#440798]"
                       />
                     ) : (
-                      <p className="text-gray-900">{displayUser.phone || "غير محدد"}</p>
+                      <p className="text-gray-900">
+                        {displayUser.phone || t("profile.phone_not_set")}
+                      </p>
                     )}
                   </div>
 
                   <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-4">
                     <label className="block text-xs font-semibold text-gray-600 mb-2">
                       <IoCalendarOutline className="inline w-4 h-4 ml-1" />
-                      تاريخ الانضمام
+                      {t("profile.label_join_date")}
                     </label>
                     <p className="text-gray-900">
                       {displayUser.createdAt
-                        ? new Date(displayUser.createdAt).toLocaleDateString("ar-SA")
-                        : "—"}
+                        ? new Date(displayUser.createdAt).toLocaleDateString(
+                            dateLocale,
+                          )
+                        : t("profile.date_em_dash")}
                     </p>
                   </div>
                 </div>
@@ -689,13 +725,15 @@ const ProfilePage: React.FC = () => {
                       disabled={isLoading}
                       className="bg-[#440798] text-white px-6 py-3 rounded-xl hover:bg-[#350775] transition-colors disabled:opacity-50 font-bold"
                     >
-                      {isLoading ? "جاري الحفظ..." : "حفظ التغييرات"}
+                      {isLoading
+                        ? t("profile.saving")
+                        : t("profile.save_changes")}
                     </button>
                     <button
                       onClick={handleCancel}
                       className="bg-gray-100 text-gray-800 px-6 py-3 rounded-xl hover:bg-gray-200 transition-colors font-bold border border-gray-200"
                     >
-                      إلغاء
+                      {t("profile.cancel")}
                     </button>
                   </div>
                 )}
@@ -713,7 +751,7 @@ const ProfilePage: React.FC = () => {
                     ? "bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-200"
                     : "bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200"
                 }`}
-                dir="rtl"
+                dir={isRTL ? "rtl" : "ltr"}
               >
               <div className="flex items-start gap-4">
                 <div
@@ -743,7 +781,7 @@ const ProfilePage: React.FC = () => {
                   {isSubscribed && expiresAt && (
                     <p className="text-sm text-emerald-600 mt-0.5">
                       {t("profile.subscription_expires")}:{" "}
-                      {new Date(expiresAt).toLocaleDateString("ar-SA")}
+                      {new Date(expiresAt).toLocaleDateString(dateLocale)}
                     </p>
                   )}
                   {!isSubscribed && (

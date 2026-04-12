@@ -99,6 +99,8 @@ import OmanFlag from "./images/oman.png";
 
 import EnglishUK from "./images/English-UK.png";
 import EnglishUS from "./images/English-US.png";
+import UrduFlag from "./images/urdo.jpg";
+import HindiFlag from "./images/india.png";
 import Spanish from "./images/Spanish.png";
 import Francais from "./images/Francais.png";
 import Nederlands from "./images/Nederlands.png";
@@ -301,6 +303,8 @@ export {
   OmanFlag,
   EnglishUK,
   EnglishUS,
+  UrduFlag,
+  HindiFlag,
   Spanish,
   Francais,
   Nederlands,

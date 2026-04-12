@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { useIsRTL } from "@hooks";
+import { useTranslation } from "react-i18next";
 import { FiArrowLeft, FiFilter, FiGrid, FiList } from "react-icons/fi";
 import { offerCategories, type Offer } from "@data/offers";
 import { AboutPattern } from "@assets";
@@ -41,7 +41,8 @@ function buildCategoryIconUrl(
 const CategoryOffersPage = () => {
   const { category } = useParams<{ category: string }>();
   const navigate = useNavigate();
-  const isRTL = useIsRTL();
+  const { t, i18n } = useTranslation();
+  const langBase = i18n.language?.split("-")[0] || "en";
 
   const [search, setSearch] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -72,7 +73,7 @@ const CategoryOffersPage = () => {
         <div className="absolute -bottom-10 transform z-9">
           <img
             src={AboutPattern}
-            alt="Pattern"
+            alt={t("offersPage.patternAlt")}
             className="w-full h-96 animate-float"
           />
         </div>
@@ -294,18 +295,21 @@ const CategoryOffersPage = () => {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">
-            {isRTL ? "الفئة غير موجودة" : "Category not found"}
+            {t("categoryOffers.not_found")}
           </h2>
           <button
             onClick={() => navigate("/offers")}
             className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors"
           >
-            {isRTL ? "العودة للعروض" : "Back to Offers"}
+            {t("offerDetail.back_to_offers")}
           </button>
         </div>
       </div>
     );
   }
+
+  const categoryDisplayName =
+    langBase === "ar" ? categoryInfo.ar : categoryInfo.en;
 
   const totalPages = pagination.lastPage || 1;
   const paginatedOffers = filteredOffers;
@@ -318,14 +322,9 @@ const CategoryOffersPage = () => {
     <>
       <Helmet>
         <title>
-          {categoryInfo
-            ? isRTL
-              ? categoryInfo.ar
-              : categoryInfo.en
-            : isRTL
-              ? "تصنيف"
-              : "Category"}{" "}
-          - {isRTL ? "العروض" : "Offers"}
+          {(categoryDisplayName || t("categoryOffers.category_fallback")) +
+            " - " +
+            t("offerDetail.offers_brand")}
         </title>
         <link
           rel="canonical"
@@ -343,7 +342,7 @@ const CategoryOffersPage = () => {
             className="absolute top-4 left-4 text-white hover:text-purple-300 transition-colors flex items-center gap-2"
           >
             <FiArrowLeft className="text-xl" />
-            <span className="text-sm">{isRTL ? "العودة" : "Back"}</span>
+            <span className="text-sm">{t("offerDetail.back")}</span>
           </button>
 
           {/* Category Icon and Title */}
@@ -355,37 +354,23 @@ const CategoryOffersPage = () => {
               <img
                 src={categoryInfo?.icon}
                 alt={
-                  categoryInfo
-                    ? isRTL
-                      ? categoryInfo.ar
-                      : categoryInfo.en
-                    : isRTL
-                      ? "تصنيف"
-                      : "Category"
+                  categoryDisplayName || t("categoryOffers.category_fallback")
                 }
                 className="w-6 h-6 object-contain"
               />
             </div>
             <h1 className="text-3xl md:text-4xl font-bold text-white">
-              {categoryInfo
-                ? isRTL
-                  ? categoryInfo.ar
-                  : categoryInfo.en
-                : isRTL
-                  ? "تصنيف"
-                  : "Category"}
+              {categoryDisplayName || t("categoryOffers.category_fallback")}
             </h1>
           </div>
 
           {/* Description */}
           <p className="text-white/80 text-lg mb-4">
-            {categoryInfo
-              ? isRTL
-                ? `اكتشف أفضل العروض في فئة ${categoryInfo.ar}`
-                : `Discover the best offers in ${categoryInfo.en} category`
-              : isRTL
-                ? "اكتشف أفضل العروض"
-                : "Discover the best offers"}
+            {categoryDisplayName
+              ? t("categoryOffers.discover_in_category", {
+                  name: categoryDisplayName,
+                })
+              : t("categoryOffers.discover_default")}
           </p>
 
           {/* Breadcrumb */}
@@ -394,24 +379,18 @@ const CategoryOffersPage = () => {
               to="/"
               className="text-white hover:text-purple-300 transition-colors cursor-pointer text-xs"
             >
-              {isRTL ? "الرئيسية" : "Home"}
+              {t("propertyDetail.breadcrumb.home")}
             </Link>
             <span className="text-white text-xs mx-2">|</span>
             <Link
               to="/offers"
               className="text-white hover:text-purple-300 transition-colors cursor-pointer text-xs"
             >
-              {isRTL ? "العروض" : "Offers"}
+              {t("home.navbar.offers")}
             </Link>
             <span className="text-white text-xs mx-2">|</span>
             <span className="text-[#fd671a] font-medium text-xs">
-              {categoryInfo
-                ? isRTL
-                  ? categoryInfo.ar
-                  : categoryInfo.en
-                : isRTL
-                  ? "تصنيف"
-                  : "Category"}
+              {categoryDisplayName || t("categoryOffers.category_fallback")}
             </span>
           </div>
         </div>
@@ -420,7 +399,7 @@ const CategoryOffersPage = () => {
         <div className="absolute -bottom-10 transform z-9">
           <img
             src={AboutPattern}
-            alt="Pattern"
+            alt={t("offersPage.patternAlt")}
             className="w-full h-96 animate-float"
           />
         </div>
@@ -437,9 +416,7 @@ const CategoryOffersPage = () => {
               position: "relative",
             }}
           >
-            {/* <h3 className="text-sm font-semibold text-gray-700 mb-3">
-              {isRTL ? "فئات فرعية" : "Subcategories"}
-            </h3> */}
+            {/* Optional: subcategories section title */}
             <div className="flex flex-wrap justify-center gap-2">
               {apiSubcategories.map((sub) => {
                 const isSelected = appliedFilters?.subcategoryIds?.includes(
@@ -492,7 +469,7 @@ const CategoryOffersPage = () => {
                 {filteredOffers.length}
               </h2>
 
-              {isRTL ? ` عرض في هذه الفئة` : ` offers in this category`}
+              {t("categoryOffers.offers_suffix")}
             </div>
 
             {/* Applied Filters Tags */}
@@ -605,10 +582,17 @@ const CategoryOffersPage = () => {
                   <span className="inline-flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium">
                     {appliedFilters.priceRange.min != null &&
                     appliedFilters.priceRange.max != null
-                      ? `${appliedFilters.priceRange.min} - ${appliedFilters.priceRange.max}`
+                      ? t("categoryOffers.price_range", {
+                          min: appliedFilters.priceRange.min,
+                          max: appliedFilters.priceRange.max,
+                        })
                       : appliedFilters.priceRange.min != null
-                        ? `من ${appliedFilters.priceRange.min}`
-                        : `إلى ${appliedFilters.priceRange.max}`}
+                        ? t("categoryOffers.price_min", {
+                            min: appliedFilters.priceRange.min,
+                          })
+                        : t("categoryOffers.price_max", {
+                            max: appliedFilters.priceRange.max!,
+                          })}
                     <button
                       onClick={() => {
                         const next = { ...appliedFilters, priceRange: {} };
@@ -641,7 +625,7 @@ const CategoryOffersPage = () => {
                     }}
                     className="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium hover:bg-red-200 transition-colors"
                   >
-                    {isRTL ? "مسح الكل" : "Clear All"}
+                    {t("cardsPage.clearAll")}
                   </button>
                 )}
               </div>
@@ -659,11 +643,9 @@ const CategoryOffersPage = () => {
                   setSearch(e.target.value);
                   setCurrentPage(1);
                 }}
-                placeholder={
-                  isRTL
-                    ? `البحث في ${categoryInfo.ar}...`
-                    : `Search in ${categoryInfo.en}...`
-                }
+                placeholder={t("categoryOffers.search_in", {
+                  name: categoryDisplayName,
+                })}
                 className="w-full px-5 py-3 rounded-full font-medium text-sm shadow-md transition-all duration-300 bg-white text-gray-700 hover:bg-gray-100 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#400198] focus:border-transparent"
               />
             </div>
@@ -674,7 +656,7 @@ const CategoryOffersPage = () => {
             >
               <FiFilter className="text-gray-600" />
               <span className="text-sm font-medium text-gray-700">
-                {isRTL ? "فلترة" : "Filter"}
+                {t("cardsPage.filter")}
               </span>
             </button>
 
@@ -729,12 +711,8 @@ const CategoryOffersPage = () => {
           <div className="text-center py-20">
             <p className="text-gray-500 text-xl">
               {search
-                ? isRTL
-                  ? `لم يتم العثور على عروض لـ "${search}"`
-                  : `No offers found for "${search}"`
-                : isRTL
-                  ? "لا توجد عروض متاحة"
-                  : "No offers available"}
+                ? t("categoryOffers.no_results", { search })
+                : t("categoryOffers.no_offers")}
             </p>
           </div>
         )}

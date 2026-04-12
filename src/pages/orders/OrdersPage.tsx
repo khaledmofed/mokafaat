@@ -18,9 +18,11 @@ import { normalizeOrdersList } from "@utils/orders";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import { downloadVoucher } from "@utils/voucherDownload";
 import { toast } from "react-toastify";
+import { pickLocalized } from "@utils/pickLocalized";
 
 const OrdersPage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const langBase = i18n.language?.split("-")[0] || "en";
   const isRTL = useIsRTL();
   const token = useUserStore((s) => s.token);
   const getToken = useUserStore.getState;
@@ -52,18 +54,27 @@ const OrdersPage: React.FC = () => {
     setCurrentPage(1);
   }, [filter]);
 
+  const dateLocale =
+    langBase === "ar"
+      ? "ar-SA"
+      : langBase === "ur"
+        ? "ur-PK"
+        : langBase === "hi"
+          ? "hi-IN"
+          : "en-US";
+
   const getStatusLabel = (status: string) => {
     switch (status) {
       case "pending":
-        return "في الانتظار";
+        return t("orders.status_labels.pending");
       case "confirmed":
-        return "مؤكد";
+        return t("orders.status_labels.confirmed");
       case "completed":
-        return "مكتمل";
+        return t("orders.status_labels.completed");
       case "cancelled":
-        return "ملغي";
+        return t("orders.status_labels.cancelled");
       default:
-        return "غير محدد";
+        return t("orders.status_labels.unknown");
     }
   };
 
@@ -145,7 +156,7 @@ const OrdersPage: React.FC = () => {
         const msg =
           (nestedMessage as string | undefined) ||
           (p?.msg as string | undefined) ||
-          (isRTL ? "تم إلغاء الطلب بنجاح" : "Order cancelled successfully");
+          t("orders.toast_cancel_ok");
         toast.success(msg);
         closeCancelModal();
       },
@@ -155,7 +166,7 @@ const OrdersPage: React.FC = () => {
             ?.response?.data?.msg ||
           (err as { response?: { data?: { msg?: string; message?: string } } })
             ?.response?.data?.message ||
-          (isRTL ? "تعذر إلغاء الطلب" : "Failed to cancel order");
+          t("orders.toast_cancel_fail");
         toast.error(String(msg));
       },
     });
@@ -166,10 +177,12 @@ const OrdersPage: React.FC = () => {
       <div className="min-h-screen bg-gray-50 pt-24 pb-28 flex items-center justify-center" style={{ marginTop: "77px" }}>
         <div className="text-center bg-white rounded-xl p-8 shadow-sm max-w-md">
           <IoReceiptOutline className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-gray-900 mb-2">{isRTL ? "تسجيل الدخول مطلوب" : "Login required"}</h2>
-          <p className="text-gray-600 mb-6">{isRTL ? "سجّل دخولك لعرض طلباتك" : "Sign in to view your orders"}</p>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">
+            {t("orders.login_required")}
+          </h2>
+          <p className="text-gray-600 mb-6">{t("orders.sign_in_to_view")}</p>
           <Link to="/login?returnUrl=/orders" className="bg-[#440798] text-white px-6 py-3 rounded-lg hover:bg-[#440798c9] transition-colors inline-block">
-            {isRTL ? "تسجيل الدخول" : "Login"}
+            {t("orders.login_cta")}
           </Link>
         </div>
       </div>
@@ -189,14 +202,18 @@ const OrdersPage: React.FC = () => {
       <div className="min-h-screen bg-gray-50 pt-8 pb-28 flex items-center justify-center" style={{ marginTop: "77px" }}>
         <div className="text-center bg-white rounded-xl p-8 shadow-sm max-w-md">
           <IoCloseCircleOutline className="w-16 h-16 text-red-400 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-gray-900 mb-2">{isRTL ? "حدث خطأ" : "Something went wrong"}</h2>
-          <p className="text-gray-600 mb-6">{String(error?.message || (isRTL ? "تعذر تحميل الطلبات" : "Failed to load orders"))}</p>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">
+            {t("orders.error_title")}
+          </h2>
+          <p className="text-gray-600 mb-6">
+            {String(error?.message || t("orders.load_failed"))}
+          </p>
           <button
             type="button"
             onClick={() => window.location.reload()}
             className="bg-[#440798] text-white px-6 py-3 rounded-lg hover:bg-[#440798c9] transition-colors"
           >
-            {isRTL ? "إعادة المحاولة" : "Retry"}
+            {t("orders.retry")}
           </button>
         </div>
       </div>
@@ -226,7 +243,7 @@ const OrdersPage: React.FC = () => {
                 type="button"
                 onClick={closeCancelModal}
                 className="absolute top-4 end-4 p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors z-10"
-                aria-label={isRTL ? "إغلاق" : "Close"}
+                aria-label={t("orders.close")}
                 disabled={cancelOrderMutation.isPending}
               >
                 <IoCloseCircleOutline className="text-2xl" />
@@ -240,12 +257,10 @@ const OrdersPage: React.FC = () => {
                   id="cancel-order-title"
                   className="text-xl font-bold text-gray-900 mb-2"
                 >
-                  {isRTL ? "تأكيد إلغاء الطلب" : "Confirm cancellation"}
+                  {t("orders.cancel_modal_title")}
                 </h2>
                 <p className="text-gray-600 text-sm leading-relaxed mb-6">
-                  {isRTL
-                    ? "هل أنت متأكد من أنك تريد إلغاء هذا الطلب؟ لا يمكن التراجع عن هذه العملية."
-                    : "Are you sure you want to cancel this order? This action cannot be undone."}
+                  {t("orders.cancel_modal_body")}
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -255,7 +270,7 @@ const OrdersPage: React.FC = () => {
                     disabled={cancelOrderMutation.isPending}
                     className="order-2 sm:order-1 px-6 py-3 border border-gray-300 text-gray-700 rounded-full font-bold hover:bg-gray-50 transition-colors disabled:opacity-60"
                   >
-                    {isRTL ? "رجوع" : "Back"}
+                    {t("orders.back")}
                   </button>
                   <button
                     type="button"
@@ -265,9 +280,7 @@ const OrdersPage: React.FC = () => {
                   >
                     {cancelOrderMutation.isPending
                       ? "..."
-                      : isRTL
-                        ? "تأكيد الإلغاء"
-                        : "Cancel order"}
+                      : t("orders.confirm_cancel_order")}
                   </button>
                 </div>
               </div>
@@ -363,25 +376,25 @@ const OrdersPage: React.FC = () => {
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        رقم الطلب
+                        {t("orders.table.order_number")}
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        التاريخ
+                        {t("orders.table.date")}
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        {isRTL ? "اسم العرض" : "Offer"}
+                        {t("orders.table.offer")}
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        الحالة
+                        {t("orders.table.status")}
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        المبلغ الإجمالي
+                        {t("orders.table.total")}
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        طريقة الدفع
+                        {t("orders.table.payment_method")}
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        الإجراءات
+                        {t("orders.table.actions")}
                       </th>
                     </tr>
                   </thead>
@@ -396,16 +409,16 @@ const OrdersPage: React.FC = () => {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">
                             {new Date(order.createdAt).toLocaleDateString(
-                              "ar-SA"
+                              dateLocale,
                             )}
                           </div>
                           <div className="text-sm text-gray-500">
                             {new Date(order.createdAt).toLocaleTimeString(
-                              "ar-SA",
+                              dateLocale,
                               {
                                 hour: "2-digit",
                                 minute: "2-digit",
-                              }
+                              },
                             )}
                           </div>
                         </td>
@@ -414,7 +427,14 @@ const OrdersPage: React.FC = () => {
                             {(order.items[0]?.image) ? (
                               <img
                                 src={order.items[0].image}
-                                alt={order.items[0]?.title?.[isRTL ? "ar" : "en"] ?? ""}
+                                alt={
+                                  order.items[0]?.title
+                                    ? pickLocalized(
+                                        order.items[0].title,
+                                        langBase,
+                                      )
+                                    : ""
+                                }
                                 className="w-10 h-10 rounded-lg object-cover"
                               />
                             ) : (
@@ -424,11 +444,18 @@ const OrdersPage: React.FC = () => {
                             )}
                             <div>
                               <div className="text-sm font-medium text-gray-900">
-                                {order.items[0]?.title?.[isRTL ? "ar" : "en"] ?? "—"}
+                                {order.items[0]?.title
+                                  ? pickLocalized(
+                                      order.items[0].title,
+                                      langBase,
+                                    )
+                                  : "—"}
                               </div>
                               <div className="text-sm text-gray-500">
                                 {order.items.length > 1 &&
-                                  (isRTL ? `+${order.items.length - 1} عروض أخرى` : `+${order.items.length - 1} more offers`)}
+                                  t("orders.more_offers", {
+                                    count: order.items.length - 1,
+                                  })}
                               </div>
                             </div>
                           </div>
@@ -466,7 +493,7 @@ const OrdersPage: React.FC = () => {
                               className="text-[#440798] hover:text-[#440798c9] transition-colors inline-flex items-center gap-1"
                             >
                               <IoEyeOutline className="w-4 h-4" />
-                              {isRTL ? "عرض" : "View"}
+                              {t("orders.view")}
                             </Link>
                             {order.status === "completed" && order.voucherUrl && (
                               <button
@@ -478,7 +505,7 @@ const OrdersPage: React.FC = () => {
                                 className="text-green-600 hover:text-green-700 transition-colors inline-flex items-center gap-1"
                               >
                                 <IoDownloadOutline className="w-4 h-4" />
-                                {isRTL ? "تنزيل" : "Download"}
+                                {t("orders.download")}
                               </button>
                             )}
                             {canCancelOrder(order) && (
@@ -489,7 +516,7 @@ const OrdersPage: React.FC = () => {
                                 className="text-red-600 hover:text-red-700 transition-colors inline-flex items-center gap-1 disabled:opacity-60"
                               >
                                 <IoTrashOutline className="w-4 h-4" />
-                                {isRTL ? "إلغاء" : "Cancel"}
+                                {t("orders.cancel_action")}
                               </button>
                             )}
                           </div>
@@ -509,7 +536,7 @@ const OrdersPage: React.FC = () => {
                   disabled={currentPage === 1}
                   className="px-3 py-2 rounded-md text-sm font-medium bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  السابق
+                  {t("pagination.previous")}
                 </button>
 
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map(
@@ -535,7 +562,7 @@ const OrdersPage: React.FC = () => {
                   disabled={currentPage === totalPages}
                   className="px-3 py-2 rounded-md text-sm font-medium bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  التالي
+                  {t("pagination.next")}
                 </button>
               </div>
             )}
@@ -545,18 +572,20 @@ const OrdersPage: React.FC = () => {
             <IoReceiptOutline className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">
               {filter === "all"
-                ? "لا توجد طلبات"
-                : `لا توجد طلبات ${getStatusLabel(filter)}`}
+                ? t("orders.empty.title")
+                : t("orders.empty.title_filtered", {
+                    status: getStatusLabel(filter),
+                  })}
             </h3>
             <p className="text-gray-600 mb-6">
-              ابدأ بإضافة العروض والبطاقات إلى سلة التسوق
+              {t("orders.empty.description")}
             </p>
-            <a
-              href="/offers"
+            <Link
+              to="/offers"
               className="bg-[#440798] text-white px-6 py-2 rounded-md hover:bg-[#440798c9] transition-colors inline-block"
             >
-              تصفح العروض
-            </a>
+              {t("orders.empty.browse_offers")}
+            </Link>
           </div>
         )}
       </div>

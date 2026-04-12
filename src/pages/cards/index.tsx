@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import CardsHero from "./components/CardsHero";
 import CardsCategorySection from "./components/CardsCategorySection";
@@ -29,6 +30,7 @@ interface ApiMerchant {
 }
 
 const CardsPage = () => {
+  const { t } = useTranslation();
   const isRTL = useIsRTL();
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("all");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -151,7 +153,7 @@ const CardsPage = () => {
     return (
       <>
         <Helmet>
-          <title>{isRTL ? "البطاقات" : "Cards"}</title>
+          <title>{t("cardsPage.pageTitle")}</title>
           <link rel="canonical" href="https://mukafaat.com/cards" />
         </Helmet>
         <CardsHero />
@@ -165,7 +167,7 @@ const CardsPage = () => {
   return (
     <>
       <Helmet>
-        <title>{isRTL ? "البطاقات" : "Cards"}</title>
+        <title>{t("cardsPage.pageTitle")}</title>
         <link rel="canonical" href="https://mukafaat.com/cards" />
       </Helmet>
 
@@ -186,7 +188,7 @@ const CardsPage = () => {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder={isRTL ? "بحث في البطاقات..." : "Search cards..."}
+              placeholder={t("cardsPage.searchPlaceholder")}
               className="w-full px-5 py-3 rounded-full font-medium text-sm shadow-md transition-all duration-300 bg-white text-gray-700 hover:bg-gray-100 border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#400198] focus:border-transparent"
             />
           </div>
@@ -199,7 +201,7 @@ const CardsPage = () => {
             className="px-5 py-3 rounded-full font-medium text-sm shadow-md transition-all duration-300 bg-white text-gray-700 hover:bg-gray-100 border border-gray-200 inline-flex items-center gap-2"
           >
             <FiFilter size={18} />
-            {isRTL ? "فلترة" : "Filter"}
+            {t("cardsPage.filter")}
           </button>
         </div>
 
@@ -256,7 +258,7 @@ const CardsPage = () => {
 
             {appliedCardsFilters.isRenewable && (
               <span className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-medium">
-                {isRTL ? "قابلة للتجديد" : "Renewable"}
+                {t("cardsPage.renewable")}
                 <button
                   type="button"
                   onClick={() =>
@@ -276,12 +278,12 @@ const CardsPage = () => {
                 appliedCardsFilters.priceMax != null
                   ? `${appliedCardsFilters.priceMin} - ${appliedCardsFilters.priceMax}`
                   : appliedCardsFilters.priceMin != null
-                    ? isRTL
-                      ? `من ${appliedCardsFilters.priceMin}`
-                      : `Min ${appliedCardsFilters.priceMin}`
-                    : isRTL
-                      ? `إلى ${appliedCardsFilters.priceMax}`
-                      : `Max ${appliedCardsFilters.priceMax}`}
+                    ? t("cardsPage.priceTagMinOnly", {
+                        value: appliedCardsFilters.priceMin,
+                      })
+                    : t("cardsPage.priceTagMaxOnly", {
+                        value: appliedCardsFilters.priceMax as number,
+                      })}
                 <button
                   type="button"
                   onClick={() =>
@@ -315,7 +317,7 @@ const CardsPage = () => {
                 }}
                 className="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium hover:bg-red-200 transition-colors"
               >
-                {isRTL ? "مسح الكل" : "Clear All"}
+                {t("cardsPage.clearAll")}
               </button>
             )}
           </div>
@@ -342,7 +344,7 @@ const CardsPage = () => {
       >
         <div className="flex items-center justify-between py-4 px-6 border-b border-gray-200">
           <h2 className="text-lg font-semibold text-gray-800">
-            {isRTL ? "فلترة البطاقات" : "Filter Cards"}
+            {t("cardsPage.filterSidebarTitle")}
           </h2>
           <button
             type="button"
@@ -359,7 +361,7 @@ const CardsPage = () => {
             {merchants.length > 0 && (
               <div>
                 <p className="text-sm font-semibold text-gray-800 mb-3">
-                  {isRTL ? "التجار" : "Merchants"}
+                  {t("cardsPage.merchants")}
                 </p>
                 <div className="grid grid-cols-2 gap-2">
                   {merchants.map((m) => {
@@ -398,7 +400,7 @@ const CardsPage = () => {
             {/* Validity types */}
             <div className="border-t border-gray-200 pt-5">
               <p className="text-sm font-semibold text-gray-800 mb-3">
-                {isRTL ? "نوع الصلاحية" : "Validity type"}
+                {t("cardsPage.validityType")}
               </p>
               <div className="flex flex-wrap gap-2">
                 {(
@@ -451,14 +453,14 @@ const CardsPage = () => {
                     }))
                   }
                 />
-                {isRTL ? "قابلة للتجديد" : "Renewable"}
+                {t("cardsPage.renewable")}
               </label>
             </div>
 
             {/* Price range */}
             <div className="border-t border-gray-200 pt-5">
               <p className="text-sm font-semibold text-gray-800 mb-3">
-                {isRTL ? "نطاق السعر" : "Price range"}
+                {t("cardsPage.priceRange")}
               </p>
               <div className="grid grid-cols-2 gap-3">
                 <input
@@ -472,7 +474,7 @@ const CardsPage = () => {
                     }))
                   }
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#400198]/30"
-                  placeholder={isRTL ? "من" : "Min"}
+                  placeholder={t("cardsPage.min")}
                 />
                 <input
                   type="number"
@@ -485,7 +487,7 @@ const CardsPage = () => {
                     }))
                   }
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#400198]/30"
-                  placeholder={isRTL ? "إلى" : "Max"}
+                  placeholder={t("cardsPage.max")}
                 />
               </div>
             </div>
@@ -507,7 +509,7 @@ const CardsPage = () => {
               }
               className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
             >
-              {isRTL ? "إعادة تعيين" : "Reset"}
+              {t("cardsPage.reset")}
             </button>
             <button
               type="button"
@@ -517,7 +519,7 @@ const CardsPage = () => {
               }}
               className="flex-1 px-4 py-2 bg-[#fd671a] text-white rounded-lg font-medium hover:bg-[#e55a17] transition-colors"
             >
-              {isRTL ? "تطبيق" : "Apply"}
+              {t("cardsPage.apply")}
             </button>
           </div>
         </div>
@@ -527,10 +529,10 @@ const CardsPage = () => {
         <section className="container mx-auto px-4 pb-10">
           <div className="text-start mb-4">
             <h2 className="text-[#400198] text-3xl font-bold">
-              {isRTL ? "التجار" : "Merchants"}
+              {t("cardsPage.merchants")}
             </h2>
             <p className="text-md text-gray-700 leading-relaxed">
-              {isRTL ? "تصفح البطاقات حسب التاجر" : "Browse cards by merchant"}
+              {t("cardsPage.merchantsSectionSubtitle")}
             </p>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
@@ -557,36 +559,24 @@ const CardsPage = () => {
       )}
 
       <CardsSliderSection
-        title={isRTL ? "أحدث البطاقات" : "Latest Cards"}
-        subtitle={
-          isRTL
-            ? "اكتشف أحدث البطاقات والخصومات المتاحة"
-            : "Discover the latest cards and discounts available"
-        }
+        title={t("cardsPage.sections.latestTitle")}
+        subtitle={t("cardsPage.sections.latestSubtitle")}
         cards={latestCards}
         isLoading={isLoading}
         categories={categoryItems}
       />
 
       <CardsSliderSection
-        title={isRTL ? "الأكثر مبيعاً" : "Top Selling"}
-        subtitle={
-          isRTL
-            ? "البطاقات الأكثر طلباً من قبل العملاء"
-            : "Most requested cards by customers"
-        }
+        title={t("cardsPage.sections.topSellingTitle")}
+        subtitle={t("cardsPage.sections.topSellingSubtitle")}
         cards={topSellingCards}
         isLoading={isLoading}
         categories={categoryItems}
       />
 
       <CardsSliderSection
-        title={isRTL ? "الأكثر مشاهدة" : "Most Viewed"}
-        subtitle={
-          isRTL
-            ? "البطاقات الأكثر مشاهدة وتصفحاً"
-            : "Most viewed and browsed cards"
-        }
+        title={t("cardsPage.sections.mostViewedTitle")}
+        subtitle={t("cardsPage.sections.mostViewedSubtitle")}
         cards={mostViewedCards}
         isLoading={isLoading}
         categories={categoryItems}

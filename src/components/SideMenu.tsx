@@ -85,7 +85,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose }) => {
         {/* Header */}
         <div className="flex items-center justify-between py-4 px-6 border-b border-gray-200">
           <div className="flex items-center space-x-3">
-            <img src={Logo} alt="Mukafaat Logo" className="h-10 w-auto" />
+            <img src={Logo} alt={t("sideMenu.logoAlt")} className="h-10 w-auto" />
           </div>
           <button
             onClick={onClose}
@@ -114,7 +114,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose }) => {
                   </span>
                   <img
                     src={UnderTitle}
-                    alt="underlineDecoration"
+                    alt={t("sideMenu.underlineAlt")}
                     className="h-1 mt-2"
                   />
                 </div>
@@ -148,7 +148,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose }) => {
                   </span>
                   <img
                     src={UnderTitle}
-                    alt="underlineDecoration"
+                    alt={t("sideMenu.underlineAlt")}
                     className="h-1 mt-2"
                   />
                 </div>
@@ -195,7 +195,7 @@ const SideMenu: React.FC<SideMenuProps> = ({ isOpen, onClose }) => {
                 </span>
                 <img
                   src={UnderTitle}
-                  alt="underlineDecoration"
+                  alt={t("sideMenu.underlineAlt")}
                   className="h-1 mt-2"
                 />
               </div>

@@ -1,4 +1,5 @@
 import useIsRTL from "./useIsRTL";
+import useArabicHardcodedOnly from "./useArabicHardcodedOnly";
 import { useInputValue } from "./useInputValue";
 import { useTranslate } from "./useTranslate";
 import { useWebsiteProvider } from "./useWebsiteProvider";
@@ -18,6 +19,7 @@ export * from "./api/useMokafaatQueries";
 
 export {
   useIsRTL,
+  useArabicHardcodedOnly,
   useInputValue,
   useTranslate,
   useWebsiteProvider,

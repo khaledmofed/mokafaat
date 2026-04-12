@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useIsRTL } from "@hooks";
 import { type Offer } from "@data/offers";
@@ -20,6 +21,7 @@ function extractOffersArray(res: unknown): Array<Record<string, unknown>> {
 }
 
 const LatestOffersSection: React.FC = () => {
+  const { t } = useTranslation();
   const isRTL = useIsRTL();
   const navigate = useNavigate();
   const [carouselKey, setCarouselKey] = useState(0);
@@ -97,16 +99,18 @@ const LatestOffersSection: React.FC = () => {
         } z-0 hidden sm:block`}
         style={{ transform: "rotate(-20deg)" }}
       >
-        <img src={Pattern} alt="offers" className="h-auto animate-float" />
+        <img
+          src={Pattern}
+          alt={t("offersPage.patternAlt")}
+          className="h-auto animate-float"
+        />
       </div>
       <div className="text-start mb-4">
         <h2 className="text-[#400198] text-3xl font-bold">
-          {isRTL ? "أحدث العروض" : "Latest Offers"}
+          {t("offersPage.latestOffers.title")}
         </h2>
         <p className="text-md text-gray-700 leading-relaxed">
-          {isRTL
-            ? "اكتشف أحدث العروض والخصومات المتاحة"
-            : "Discover the latest offers and discounts available"}
+          {t("offersPage.latestOffers.subtitle")}
         </p>
       </div>
 
@@ -160,9 +164,7 @@ const LatestOffersSection: React.FC = () => {
         )}
         {!apiLoading && offers.length === 0 && (
           <div className="text-center py-12 text-gray-500">
-            {isRTL
-              ? "لا توجد عروض متاحة حالياً"
-              : "No offers available at the moment"}
+            {t("offersPage.latestOffers.empty")}
           </div>
         )}
       </div>

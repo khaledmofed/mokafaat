@@ -180,7 +180,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           </div>
           <div className="flex items-center gap-1">
             <FiEye className="w-4 h-4" />
-            <span>1.2K</span>
+            <span>{t("home.product.demo_views")}</span>
           </div>
         </div>
 

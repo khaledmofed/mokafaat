@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useIsRTL } from "@hooks";
+import { useTranslation } from "react-i18next";
 import { IoMdClose } from "react-icons/io";
 import {
   FiCheck,
@@ -38,6 +39,16 @@ const CouponModal: React.FC<CouponModalProps> = ({
   getLogoUrl,
 }) => {
   const isRTL = useIsRTL();
+  const { t, i18n } = useTranslation();
+  const langBase = i18n.language?.split("-")[0] || "en";
+  const dateLocale =
+    langBase === "ar"
+      ? "ar-SA"
+      : langBase === "ur"
+        ? "ur-PK"
+        : langBase === "hi"
+          ? "hi-IN"
+          : "en-US";
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
   const isAuthenticated = useUserStore((s) => !!s.token);
@@ -77,15 +88,11 @@ const CouponModal: React.FC<CouponModalProps> = ({
         onSuccess: () => {
           toast.success(
             isFavorite
-              ? isRTL
-                ? "تمت إزالته من المفضلة"
-                : "Removed from favorites"
-              : isRTL
-                ? "تمت الإضافة إلى المفضلة"
-                : "Added to favorites",
+              ? t("couponModal.removedFromFavorites")
+              : t("couponModal.addedToFavorites"),
           );
         },
-        onError: () => toast.error(isRTL ? "حدث خطأ" : "Something went wrong"),
+        onError: () => toast.error(t("couponModal.errorGeneric")),
       },
     );
   }, [
@@ -95,7 +102,7 @@ const CouponModal: React.FC<CouponModalProps> = ({
     toggleFavorite,
     coupon.id,
     isFavorite,
-    isRTL,
+    t,
   ]);
 
   const code =
@@ -113,12 +120,14 @@ const CouponModal: React.FC<CouponModalProps> = ({
   const shareCoupon = useCallback(async () => {
     const title = stripHtml(coupon.title);
     const storeUrl =
-      coupon.storeUrl && coupon.storeUrl.trim().length > 0 ? coupon.storeUrl : "";
+      coupon.storeUrl && coupon.storeUrl.trim().length > 0
+        ? coupon.storeUrl
+        : "";
 
     const lines = [
       title,
-      `${isRTL ? "الكود" : "Code"}: ${code}`,
-      storeUrl ? `${isRTL ? "الرابط" : "Link"}: ${storeUrl}` : "",
+      `${t("couponModal.shareCodeLabel")}: ${code}`,
+      storeUrl ? `${t("couponModal.shareLinkLabel")}: ${storeUrl}` : "",
     ].filter(Boolean);
     const text = lines.join("\n");
 
@@ -137,11 +146,11 @@ const CouponModal: React.FC<CouponModalProps> = ({
 
     try {
       await navigator.clipboard?.writeText(text);
-      toast.success(isRTL ? "تم نسخ نص المشاركة" : "Share text copied");
+      toast.success(t("couponModal.shareCopied"));
     } catch {
-      toast.error(isRTL ? "تعذر المشاركة" : "Unable to share");
+      toast.error(t("couponModal.shareFailed"));
     }
-  }, [coupon.title, coupon.storeUrl, code, isRTL]);
+  }, [coupon.title, coupon.storeUrl, code, t]);
 
   const submitVote = useCallback(
     (vote: "working" | "not_working") => {
@@ -197,12 +206,11 @@ const CouponModal: React.FC<CouponModalProps> = ({
             };
             setVoteState(next);
           },
-          onError: () =>
-            toast.error(isRTL ? "حدث خطأ" : "Something went wrong"),
+          onError: () => toast.error(t("couponModal.errorGeneric")),
         },
       );
     },
-    [coupon.id, couponVote, isAuthenticated, isRTL, navigate, onClose],
+    [coupon.id, couponVote, isAuthenticated, navigate, onClose, t],
   );
 
   const goToStore = () => {
@@ -239,7 +247,7 @@ const CouponModal: React.FC<CouponModalProps> = ({
         <button
           onClick={onClose}
           className="absolute top-2 end-2 w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded-full transition-colors z-10"
-          aria-label={isRTL ? "إغلاق" : "Close"}
+          aria-label={t("couponModal.closeAria")}
         >
           <IoMdClose className="text-xl" />
         </button>
@@ -316,7 +324,7 @@ const CouponModal: React.FC<CouponModalProps> = ({
                 <FiCheck className="w-6 h-6 text-green-700" />
               </div>
               <span className="text-xs font-medium">
-                {isRTL ? "فعال" : "Working"} ({workingCount})
+                {t("couponModal.working")} ({workingCount})
               </span>
             </button>
 
@@ -339,7 +347,7 @@ const CouponModal: React.FC<CouponModalProps> = ({
                 <span className="text-xl font-bold text-red-700">×</span>
               </div>
               <span className="text-xs font-medium">
-                {isRTL ? "غير فعال" : "Not working"} ({notWorkingCount})
+                {t("couponModal.notWorking")} ({notWorkingCount})
               </span>
             </button>
             <button
@@ -358,13 +366,9 @@ const CouponModal: React.FC<CouponModalProps> = ({
                 )}
               </div>
               <span className="text-xs font-medium">
-                {isRTL
-                  ? isFavorite
-                    ? "إزالة من المفضلة"
-                    : "أضف للمفضلة"
-                  : isFavorite
-                    ? "Remove from favorites"
-                    : "Add to favorites"}
+                {isFavorite
+                  ? t("couponModal.removeFavorite")
+                  : t("couponModal.addFavorite")}
               </span>
             </button>
             <button
@@ -376,7 +380,7 @@ const CouponModal: React.FC<CouponModalProps> = ({
                 <FiShare2 className="w-5 h-5" />
               </div>
               <span className="text-xs font-medium">
-                {isRTL ? "مشاركة" : "Share"}
+                {t("couponModal.share")}
               </span>
             </button>
             <a
@@ -393,7 +397,7 @@ const CouponModal: React.FC<CouponModalProps> = ({
                 <FiExternalLink className="w-5 h-5" />
               </div>
               <span className="text-xs font-medium">
-                {isRTL ? "تسوق بالموقع" : "Shop on site"}
+                {t("couponModal.shopOnSite")}
               </span>
             </a>
           </div>
@@ -410,7 +414,7 @@ const CouponModal: React.FC<CouponModalProps> = ({
               <FaRegCopy className="w-5 h-5 text-gray-500" />
               {copied && (
                 <span className="text-sm text-green-600 font-medium">
-                  {isRTL ? "تم النسخ" : "Copied!"}
+                  {t("couponModal.copied")}
                 </span>
               )}
             </div>
@@ -423,16 +427,16 @@ const CouponModal: React.FC<CouponModalProps> = ({
                   const d = new Date(coupon.endDate as string);
                   const formatted = Number.isNaN(d.getTime())
                     ? coupon.endDate
-                    : d.toLocaleDateString(isRTL ? "ar-SA" : "en-US", {
+                    : d.toLocaleDateString(dateLocale, {
                         day: "numeric",
                         month: "short",
                         year: "numeric",
                       });
-                  return (isRTL ? "ينتهي " : "Expires ") + String(formatted);
+                  return t("couponModal.expiresOn", {
+                    date: String(formatted),
+                  });
                 })()
-              : isRTL
-                ? "الصلاحية غير محددة"
-                : "No expiry date"}
+              : t("couponModal.noExpiryDate")}
           </p>
 
           {/* CTA - الذهاب إلى متجر الكوبون (إن وجد) */}
@@ -441,7 +445,7 @@ const CouponModal: React.FC<CouponModalProps> = ({
             onClick={goToStore}
             className="block w-full py-4 rounded-2xl bg-[#fd671a] text-white text-center font-bold text-lg hover:opacity-95 transition-opacity"
           >
-            {isRTL ? "الذهاب للمتجر" : "Go to store"}
+            {t("couponModal.goToStore")}
           </button>
         </div>
       </div>

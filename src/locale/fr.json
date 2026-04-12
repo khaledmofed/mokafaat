@@ -671,5 +671,46 @@
       "dominos": "Domino's",
       "starbucks": "Starbucks"
     }
+  },
+  "languageToggle": {
+    "languagesTab": "Langues",
+    "countryTab": "Pays",
+    "noCountries": "Aucun pays disponible"
+  },
+  "propertyCard": {
+    "from": "À partir de",
+    "bedroom_one": "{{count}} chambre",
+    "bedroom_other": "{{count}} chambres",
+    "area_up_to": "Jusqu'à {{area}}"
+  },
+  "offerCard": {
+    "cardDetails": "Détails de la carte",
+    "purchases_one": "{{count}} achat",
+    "purchases_other": "{{count}} achats",
+    "moreFeatures": "+{{count}} fonctionnalités supplémentaires",
+    "popular": "Populaire",
+    "new": "Nouveau",
+    "card": "Carte"
+  },
+  "couponModal": {
+    "removedFromFavorites": "Retiré des favoris",
+    "addedToFavorites": "Ajouté aux favoris",
+    "errorGeneric": "Une erreur s'est produite",
+    "shareCodeLabel": "Code",
+    "shareLinkLabel": "Lien",
+    "shareCopied": "Texte de partage copié",
+    "shareFailed": "Impossible de partager",
+    "closeAria": "Fermer",
+    "working": "Actif",
+    "notWorking": "Inactif",
+    "removeFavorite": "Retirer des favoris",
+    "addFavorite": "Ajouter aux favoris",
+    "share": "Partager",
+    "shopOnSite": "Acheter sur le site",
+    "copied": "Copié !",
+    "expiresOn": "Expire le {{date}}",
+    "validityUnknown": "Validité non précisée",
+    "noExpiryDate": "Pas de date d'expiration",
+    "goToStore": "Aller au magasin"
   }
 }

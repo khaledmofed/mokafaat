@@ -18,6 +18,23 @@ const LanguageContext = createContext<LanguageContextType | undefined>(
   undefined
 );
 
+const SUPPORTED_LANGUAGES = ["ar", "en", "ur", "hi"] as const;
+
+function normalizeSavedLanguage(raw: string | null): string {
+  if (!raw) return "ar";
+  const base = raw.split("-")[0];
+  return SUPPORTED_LANGUAGES.includes(base as (typeof SUPPORTED_LANGUAGES)[number])
+    ? base
+    : "ar";
+}
+
+function applyDocumentLanguage(lng: string) {
+  const base = lng.split("-")[0];
+  const rtl = base === "ar" || base === "ur";
+  document.documentElement.setAttribute("dir", rtl ? "rtl" : "ltr");
+  document.documentElement.setAttribute("lang", base);
+}
+
 interface LanguageProviderProps {
   children: ReactNode;
 }
@@ -28,11 +45,14 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({
   const { i18n } = useTranslation();
   const token = useUserStore((s) => s.token);
 
-  // Try to get the saved language from localStorage or fallback to 'ar' (Arabic is now default)
-  const savedLanguage = localStorage.getItem("language") || "ar";
+  const [currentLanguage, setCurrentLanguage] = useState<string>(() =>
+    normalizeSavedLanguage(
+      typeof window !== "undefined" ? localStorage.getItem("language") : null
+    )
+  );
 
-  const [currentLanguage, setCurrentLanguage] = useState<string>(
-    savedLanguage === "ar" ? "ar" : "en"
+  const savedLanguage = normalizeSavedLanguage(
+    typeof window !== "undefined" ? localStorage.getItem("language") : null
   );
 
   // Initialize language on mount
@@ -54,14 +74,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({
       setCurrentLanguage(savedLanguage);
     }
 
-    // Set document attributes on mount
-    if (savedLanguage === "ar") {
-      document.documentElement.setAttribute("dir", "rtl");
-      document.documentElement.setAttribute("lang", "ar");
-    } else {
-      document.documentElement.setAttribute("dir", "ltr");
-      document.documentElement.setAttribute("lang", "en");
-    }
+    applyDocumentLanguage(savedLanguage);
   }, []); // Only run once on mount
 
   // Handle language changes
@@ -75,14 +88,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({
     i18n.changeLanguage(currentLanguage);
     localStorage.setItem("language", currentLanguage);
 
-    // Change the document direction based on the language
-    if (currentLanguage === "ar") {
-      document.documentElement.setAttribute("dir", "rtl");
-      document.documentElement.setAttribute("lang", "ar");
-    } else {
-      document.documentElement.setAttribute("dir", "ltr");
-      document.documentElement.setAttribute("lang", currentLanguage);
-    }
+    applyDocumentLanguage(currentLanguage);
   }, [currentLanguage, i18n]);
 
   const setLanguage = (lng: string) => {
@@ -92,13 +98,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({
     // Persist immediately so reload boots in correct language.
     localStorage.setItem("language", lng);
 
-    if (lng === "ar") {
-      document.documentElement.setAttribute("dir", "rtl");
-      document.documentElement.setAttribute("lang", "ar");
-    } else {
-      document.documentElement.setAttribute("dir", "ltr");
-      document.documentElement.setAttribute("lang", lng);
-    }
+    applyDocumentLanguage(lng);
 
     // Best-effort update backend preference (if logged in).
     if (token) settingsApi.updateLanguage(lng).catch(() => {});
