@@ -12,7 +12,10 @@ import { useOrderDetail } from "@hooks/api/useMokafaatQueries";
 import { useUserStore } from "@stores/userStore";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import { normalizeOrdersList, type NormalizedOrder } from "@utils/orders";
-import { downloadVoucher } from "@utils/voucherDownload";
+import {
+  downloadVoucher,
+  resolveOrderVoucherUrl,
+} from "@utils/voucherDownload";
 import { toast } from "react-toastify";
 
 /** شكل الطلب الخام من API تفاصيل الطلب (عرض أو بطاقة) */
@@ -32,6 +35,7 @@ interface RawOrder {
   unit_price?: string | number;
   status?: string;
   voucher_url?: string;
+  voucherUrl?: string;
   item?: {
     id?: number;
     name?: string;
@@ -110,8 +114,17 @@ const OrderDetailPage: React.FC = () => {
     return (single as RawOrder) ?? null;
   }, [rawOrder]);
 
+  const voucherDownloadUrl = React.useMemo(
+    () =>
+      resolveOrderVoucherUrl(rawOrder) ??
+      rawOrderData?.voucher_url ??
+      rawOrderData?.voucherUrl ??
+      order?.voucherUrl,
+    [rawOrder, rawOrderData, order],
+  );
+
   const handleDownloadVoucher = () => {
-    const url = rawOrderData?.voucher_url ?? order?.voucherUrl;
+    const url = voucherDownloadUrl;
     if (!url || !token) return;
     downloadVoucher(url, () => getToken().token).catch((e) => {
       const msg =
@@ -188,7 +201,7 @@ const OrderDetailPage: React.FC = () => {
         : rawOrderData.total_price
       : (order?.totalAmount ?? 0);
   const terms = rawOrderData?.item?.terms;
-  const hasVoucher = !!(rawOrderData?.voucher_url ?? order?.voucherUrl);
+  const hasVoucher = !!voucherDownloadUrl;
   const isCardOrder = (rawOrderData?.order_type ?? order?.orderType) === "card";
   const showActivateDealButton = !isCardOrder && Number(totalPrice) <= 0;
   const barcodeUrl = rawOrderData?.barcode_url ?? order?.barcodeUrl;

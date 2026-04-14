@@ -20,7 +20,11 @@ import { useOrderDetail } from "@hooks/api/useMokafaatQueries";
 import { useUserStore } from "@stores/userStore";
 import { LoadingSpinner } from "@components/LoadingSpinner";
 import { normalizeOrdersList, type NormalizedOrder } from "@utils/orders";
-import { downloadVoucher } from "@utils/voucherDownload";
+import {
+  downloadVoucher,
+  resolveOrderVoucherUrl,
+} from "@utils/voucherDownload";
+import { toast } from "react-toastify";
 
 /** شكل الطلب الخام من API تفاصيل الطلب (مطابق لـ OrderDetailPage) */
 interface RawOrder {
@@ -38,6 +42,7 @@ interface RawOrder {
   unit_price?: string | number;
   status?: string;
   voucher_url?: string;
+  voucherUrl?: string;
   item?: {
     id?: number;
     name?: string;
@@ -133,10 +138,25 @@ const SuccessPage: React.FC = () => {
     return (single as RawOrder) ?? null;
   }, [rawOrderResponse]);
 
+  const voucherDownloadUrl = React.useMemo(
+    () =>
+      resolveOrderVoucherUrl(rawOrderResponse) ??
+      rawOrderData?.voucher_url ??
+      rawOrderData?.voucherUrl ??
+      order?.voucherUrl,
+    [rawOrderResponse, rawOrderData, order],
+  );
+
   const handleDownloadVoucher = () => {
-    const url = rawOrderData?.voucher_url ?? order?.voucherUrl;
+    const url = voucherDownloadUrl;
     if (!url || !token) return;
-    downloadVoucher(url, () => getToken().token).catch(() => {});
+    downloadVoucher(url, () => getToken().token).catch((e) => {
+      const msg =
+        e instanceof Error && e.message
+          ? e.message
+          : t("offerCheckoutSuccess.download_failed");
+      toast.error(msg);
+    });
   };
 
   if (!orderId) {
@@ -235,7 +255,7 @@ const SuccessPage: React.FC = () => {
         : rawOrderData.total_price
       : order?.totalAmount ?? 0;
   const terms = rawOrderData?.item?.terms;
-  const hasVoucher = !!(rawOrderData?.voucher_url ?? order?.voucherUrl);
+  const hasVoucher = !!voucherDownloadUrl;
 
   return (
     <>

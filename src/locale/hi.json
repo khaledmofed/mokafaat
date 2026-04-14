@@ -1459,7 +1459,8 @@
     "total_price": "कुल मूल्य",
     "privacy_terms": "गोपनीयता शर्तें",
     "return_store": "स्टोर पर वापस",
-    "download_pdf": "PDF डाउनलोड"
+    "download_pdf": "PDF डाउनलोड",
+    "download_failed": "वाउचर डाउनलोड नहीं हो सका। पुनः प्रयास करें या मेरे ऑर्डर से खोलें।"
   },
   "wallet": {
     "title": "मेरा बटुआ",

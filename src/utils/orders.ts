@@ -142,7 +142,12 @@ function normalizeOrderRow(row: unknown): NormalizedOrder | null {
     qrCodeUrl: typeof r.qr_code_url === "string" ? r.qr_code_url : undefined,
     barcodeUrl: typeof r.barcode_url === "string" ? r.barcode_url : undefined,
     cardCodes: Array.isArray(r.card_codes) ? (r.card_codes as string[]) : undefined,
-    voucherUrl: typeof r.voucher_url === "string" ? r.voucher_url : undefined,
+    voucherUrl:
+      typeof r.voucher_url === "string"
+        ? r.voucher_url
+        : typeof r.voucherUrl === "string"
+          ? r.voucherUrl
+          : undefined,
     usedAt: r.used_at != null ? String(r.used_at) : undefined,
     activatedAt: r.activated_at != null ? String(r.activated_at) : undefined,
     expiresAt: r.expires_at != null ? String(r.expires_at) : undefined,

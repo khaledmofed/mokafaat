@@ -1457,7 +1457,8 @@
     "total_price": "Total price",
     "privacy_terms": "Privacy terms",
     "return_store": "Return to store",
-    "download_pdf": "Download PDF"
+    "download_pdf": "Download PDF",
+    "download_failed": "Could not download the voucher. Try again or open the order from My Orders."
   },
   "wallet": {
     "title": "My Wallet",

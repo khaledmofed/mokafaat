@@ -1459,7 +1459,8 @@
     "total_price": "کل قیمت",
     "privacy_terms": "رازداری کی شرائط",
     "return_store": "اسٹور پر واپس",
-    "download_pdf": "PDF ڈاؤن لوڈ"
+    "download_pdf": "PDF ڈاؤن لوڈ",
+    "download_failed": "واؤچر ڈاؤن لوڈ نہیں ہو سکا۔ دوبارہ کوشش کریں یا میرے آرڈر سے کھولیں۔"
   },
   "wallet": {
     "title": "میرا پرس",

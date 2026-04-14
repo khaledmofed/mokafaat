@@ -1466,7 +1466,8 @@
     "total_price": "السعر الإجمالي",
     "privacy_terms": "تابع شروط الخصوصية",
     "return_store": "عودة للمتجر",
-    "download_pdf": "تنزيل ملف PDF"
+    "download_pdf": "تنزيل ملف PDF",
+    "download_failed": "تعذر تنزيل القسيمة. أعد المحاولة أو افتح الطلب من صفحة طلباتي."
   },
   "wallet": {
     "title": "محفظتي",
