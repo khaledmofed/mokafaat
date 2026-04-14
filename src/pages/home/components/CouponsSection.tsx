@@ -8,6 +8,7 @@ import { FaTag, FaPercent, FaUtensils } from "react-icons/fa";
 import { useWebHome } from "@hooks/api/useMokafaatQueries";
 import { mapApiCouponsToModels } from "@network/mappers/couponsMapper";
 import CouponModal, { type CouponWithIcon } from "./CouponModal";
+import { stripHtml } from "@utils/stripHtml";
 
 const CouponsSection: React.FC = () => {
   const isRTL = useIsRTL();
@@ -187,14 +188,14 @@ const CouponsSection: React.FC = () => {
             <div className="flex-1">
               <div className="flex items-baseline gap-2 mb-1">
                 <h3 className="text-base font-bold text-gray-800 line-clamp-1">
-                  {coupon.title}
+                  {stripHtml(coupon.title)}
                 </h3>
                 {/* <span className="text-base font-bold text-gray-800">
                   {coupon.price}
                 </span> */}
               </div>
               <p className="text-sm text-gray-500 mb-2 line-clamp-1">
-                {coupon.savings}
+                {stripHtml(coupon.savings)}
               </p>
               <p className="text-xs text-gray-400">{coupon.validity}</p>
             </div>

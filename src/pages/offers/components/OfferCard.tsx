@@ -148,8 +148,11 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
   };
 
   const visitButtonText = t("offerCard.viewDetails");
+  const purchasesCount = Number.isFinite(Number(offer.purchases))
+    ? Number(offer.purchases)
+    : 0;
   const purchaseText = t("offerCard.purchases", {
-    count: offer.purchases,
+    count: purchasesCount,
   });
   const featuresMoreText =
     offer.features.length > 3
@@ -159,10 +162,17 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
       : "";
 
   const offerDetailPath = `/offers/${offer.category}/${offer.companyId}/offer/${offer.id}`;
-  // في كارد العرض نعرض price فقط، ونعامل null كـ 0 (مجاني)
-  const displayPrice = offer.platformPrice ?? 0;
-  const hasPrice = Number.isFinite(displayPrice) && displayPrice > 0;
-  // لا نعرض السعر القديم (originalPrice) في كارد العرض
+  /** من API `price_after` (مع fallback لـ discountPrice للداتا المحلية) */
+  const priceAfter = Number(offer.priceAfter ?? offer.discountPrice ?? 0);
+  /** من API `price_before` (مع fallback لـ originalPrice) */
+  const priceBefore = Number(offer.priceBefore ?? offer.originalPrice ?? 0);
+  // const platform = offer.platformPrice;
+  // const isFree =
+  //   platform !== undefined && platform !== null
+  //     ? Number(platform) <= 0
+  //     : !(priceAfter > 0);
+  // const showStrikethrough =
+  //   !isFree && priceBefore > 0 && priceBefore > priceAfter;
 
   const cardContent = (
     <>
@@ -339,18 +349,25 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer }) => {
 
         {/* السعر والزر */}
         <div className="flex items-center justify-between gap-1">
-          <div className="flex items-center gap-2">
-            {hasPrice ? (
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* {!isFree ? ( */}
+            <>
               <span className="text-lg font-bold text-[#400198] flex items-center gap-1">
-                {displayPrice}
+                {priceAfter}
                 <CurrencyIcon className="text-[#400198]" size={16} />
               </span>
-            ) : (
+              {/* {showStrikethrough && ( */}
+              <span className="text-sm text-gray-500 line-through flex items-center gap-1">
+                {priceBefore}
+                <CurrencyIcon className="text-gray-500" size={12} />
+              </span>
+              {/* )} */}
+            </>
+            {/* ) : (
               <span className="text-lg font-bold text-green-600">
                 {t("offerCard.free")}
               </span>
-            )}
-            {/* لا نعرض السعر القديم */} 
+            )} */}
           </div>
           <span className="flex items-center gap-1 text-sm font-semibold text-[#400198] cursor-pointer hover:text-[#fd671a] transition-colors">
             {visitButtonText}

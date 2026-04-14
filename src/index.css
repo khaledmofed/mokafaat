@@ -10,6 +10,106 @@
 @tailwind components;
 @tailwind utilities;
 
+.md-country-picker-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+}
+
+.md-country-picker-flag {
+  width: 26px;
+  height: 18px;
+  object-fit: cover;
+  border-radius: 2px;
+}
+
+.md-country-picker-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.md-country-picker-dial {
+  flex: 0 0 auto;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.country-code-flags-select {
+  width: 100%;
+}
+
+.country-code-flags-select button {
+  width: 100%;
+  border: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  min-height: 0 !important;
+}
+
+.country-code-flags-select .ReactFlagsSelect-module_selectBtn__19wW7,
+.country-code-flags-select .ReactFlagsSelect-module_selectBtn__2qv5l,
+.country-code-flags-select .ReactFlagsSelect-module_selectBtn__1Jw1R {
+  border: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.country-code-flags-select .ReactFlagsSelect-module_selectValue__152eS,
+.country-code-flags-select .ReactFlagsSelect-module_selectValue__3yY0I {
+  padding: 0 !important;
+  margin: 0 !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  color: #374151 !important;
+}
+
+.country-code-flags-select .ReactFlagsSelect-module_selectBtn__19wW7:after,
+.country-code-flags-select .ReactFlagsSelect-module_selectBtn__2qv5l:after,
+.country-code-flags-select .ReactFlagsSelect-module_selectBtn__1Jw1R:after {
+  display: none !important;
+}
+
+.country-code-flags-select [data-testid="rfs-btn"] [class*="ReactFlagsSelect-module_label"] {
+  display: none !important;
+}
+
+.country-code-flags-select [data-testid="rfs-btn"] [class*="ReactFlagsSelect-module_selectFlag"] {
+  width: 24px;
+  height: 24px;
+  border-radius: 9999px;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+}
+
+.country-code-flags-select [data-testid="rfs-btn"] [class*="ReactFlagsSelect-module_selectFlag"] svg {
+  width: 100%;
+  height: 100%;
+  border-radius: 9999px;
+}
+
+/* ReactFlagsSelect dropdown positioning (LTR/RTL) */
+.country-code-flags-select [class*="ReactFlagsSelect-module_fullWidthOptions"] {
+  right: 0;
+  left: auto;
+}
+
+html[lang="ar"]
+  .country-code-flags-select
+  [class*="ReactFlagsSelect-module_fullWidthOptions"] {
+  right: auto;
+  left: 0;
+}
+
 /* Floating animation for pattern images */
 @keyframes float {
   0%,

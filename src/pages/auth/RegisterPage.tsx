@@ -2,9 +2,14 @@ import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useUserStore } from "@stores/userStore";
 import { useTranslation } from "react-i18next";
-import { AkaratCircle, Splash, LogoLight, Soudi } from "@assets";
+import { AkaratCircle, Splash, LogoLight } from "@assets";
+import CountryCodeSelect from "@components/CountryCodeSelect";
 import { IoMailOutline } from "react-icons/io5";
-import { useCountries, useRegions, useCities } from "@hooks/api/useMokafaatQueries";
+import {
+  useCountries,
+  useRegions,
+  useCities,
+} from "@hooks/api/useMokafaatQueries";
 
 const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
@@ -23,7 +28,7 @@ const RegisterPage: React.FC = () => {
   const [searchParams] = useSearchParams();
 
   const [phone, setPhone] = useState("");
-  const [countryCode] = useState("966");
+  const [countryCode, setCountryCode] = useState("966");
   const [code, setCode] = useState(["", "", "", ""]);
   const [timer, setTimer] = useState(45);
   const [toast, setToast] = useState<{
@@ -54,7 +59,9 @@ const RegisterPage: React.FC = () => {
       (c) =>
         String(c.code ?? "").toUpperCase() === "SA" ||
         String(c.name ?? "").includes("سعود") ||
-        String(c.name ?? "").toLowerCase().includes("saudi"),
+        String(c.name ?? "")
+          .toLowerCase()
+          .includes("saudi"),
     );
     return sa?.id ?? countries[0]?.id ?? null;
   }, [countries]);
@@ -367,8 +374,7 @@ const RegisterPage: React.FC = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      البريد الإلكتروني{" "}
-                      <span className="text-red-500">*</span>
+                      البريد الإلكتروني <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -456,9 +462,7 @@ const RegisterPage: React.FC = () => {
                     disabled={!cities.length}
                   >
                     <option value="">
-                      {cities.length
-                        ? "اختر المدينة"
-                        : "جاري تحميل المدن…"}
+                      {cities.length ? "اختر المدينة" : "جاري تحميل المدن…"}
                     </option>
                     {cities.map((c) => (
                       <option key={String(c.id)} value={String(c.id)}>
@@ -551,27 +555,60 @@ const RegisterPage: React.FC = () => {
                 </label>
                 <div
                   className={`flex gap-2 ${error ? "border border-red-400 rounded-full p-1" : ""}`}
+                  style={{ direction: "ltr" }}
                 >
-                  <div className="w-24 flex items-center justify-center bg-gray-50 border border-gray-300 rounded-full px-2 py-2 shrink-0">
-                    <div className="flex items-center gap-2">
-                      <img
-                        src={Soudi}
-                        alt=""
-                        className="w-8 h-8 object-cover rounded-sm"
-                      />
-                      <span className="text-sm font-medium text-gray-700">
-                        +966
-                      </span>
-                    </div>
+                  <div
+                    className="w-24 flex items-center justify-center gap-2 bg-gray-50 border border-gray-300 rounded-full px-2 py-2 shrink-0 cursor-pointer"
+                    role="button"
+                    tabIndex={0}
+                    onPointerDown={(e) => {
+                      const target = e.target as Element | null;
+                      if (target?.closest?.('[data-testid="rfs-btn"]')) return;
+                      const btn = e.currentTarget.querySelector(
+                        '[data-testid="rfs-btn"]',
+                      ) as HTMLButtonElement | null;
+                      if (!btn) return;
+                      if (btn.getAttribute("aria-expanded") === "true") return;
+                      btn.focus();
+                      btn.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
+                      btn.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+                      btn.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));
+                      btn.click();
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key !== "Enter" && e.key !== " ") return;
+                      e.preventDefault();
+                      const btn = e.currentTarget.querySelector(
+                        '[data-testid="rfs-btn"]',
+                      ) as HTMLButtonElement | null;
+                      if (!btn) return;
+                      if (btn.getAttribute("aria-expanded") === "true") return;
+                      btn.focus();
+                      btn.click();
+                    }}
+                  >
+                    <CountryCodeSelect
+                      value={countryCode}
+                      onChange={setCountryCode}
+                      className="w-auto"
+                    />
+                    <span className="text-sm font-medium text-gray-700 whitespace-nowrap">{`+${countryCode}`}</span>
                   </div>
                   <input
                     type="tel"
-                    className={`text-end flex-1 border border-gray-300 px-4 py-2 text-base rounded-full focus:outline-none focus:ring-[#440798] focus:border-[#440798] min-h-[49px] ${
+                    dir="ltr"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    autoComplete="tel"
+                    className={`text-start flex-1 border border-gray-300 px-4 py-2 text-base rounded-full focus:outline-none focus:ring-[#440798] focus:border-[#440798] min-h-[49px] ${
                       error ? "text-red-500 placeholder-red-400" : ""
                     }`}
                     placeholder={error ? "رقم الجوال مطلوب" : "أدخل رقم الجوال"}
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onChange={(e) =>
+                      setPhone(e.target.value.replace(/[^\d]/g, ""))
+                    }
+                    style={{ direction: "ltr" }}
                   />
                 </div>
                 {error && <p className="text-md text-red-500 mt-1">{error}</p>}

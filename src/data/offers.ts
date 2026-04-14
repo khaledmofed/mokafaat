@@ -158,6 +158,10 @@ export interface Offer {
   images?: string[];
   originalPrice: number;
   discountPrice: number;
+  /** من API `price_after` — للعرض (عند غيابه يُستخدم discountPrice) */
+  priceAfter?: number;
+  /** من API `price_before` — للعرض (عند غيابه يُستخدم originalPrice) */
+  priceBefore?: number;
   discountPercentage: number;
   validity: { ar: string; en: string };
   features: string[];

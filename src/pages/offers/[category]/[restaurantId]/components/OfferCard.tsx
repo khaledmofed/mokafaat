@@ -192,17 +192,20 @@ const OfferCard: React.FC<OfferCardProps> = ({ offer, onOfferClick }) => {
           </div>
         </div>
 
-        {/* Price */}
+        {/* Price — price_after / price_before من الموديل (من الـ API) */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <span className="text-xl font-bold text-orange-500 flex items-center gap-1">
-              {offer.discountPrice}
+              {offer.priceAfter ?? offer.discountPrice}
               <CurrencyIcon className="text-orange-500" size={16} />
             </span>
-            <span className="text-sm text-gray-500 line-through flex items-center gap-1">
-              {offer.originalPrice}
-              <CurrencyIcon className="text-gray-500" size={12} />
-            </span>
+            {(offer.priceBefore ?? offer.originalPrice) >
+              (offer.priceAfter ?? offer.discountPrice) && (
+              <span className="text-sm text-gray-500 line-through flex items-center gap-1">
+                {offer.priceBefore ?? offer.originalPrice}
+                <CurrencyIcon className="text-gray-500" size={12} />
+              </span>
+            )}
           </div>
 
           <button className="text-orange-500 font-semibold text-sm hover:text-orange-600 transition-colors">

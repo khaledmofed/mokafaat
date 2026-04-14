@@ -4,7 +4,7 @@
  */
 export interface NormalizedFavorite {
   id: string;
-  type: "offer" | "card" | "coupon" | "booking";
+  type: "offer" | "card" | "coupon" | "booking" | "merchant";
   favorable_type: string;
   favorable_id: string | number;
   image: string;
@@ -31,7 +31,12 @@ function normalizeFavoriteItem(row: unknown): NormalizedFavorite | null {
   const r = row as Record<string, unknown> | undefined;
   if (!r || typeof r !== "object") return null;
   const type = String(r.favorable_type ?? r.type ?? "offer").toLowerCase();
-  const favorableType = type === "card" || type === "coupon" ? type : type === "booking" ? "coupon" : "offer";
+  const favorableType =
+    type === "card" || type === "coupon" || type === "merchant"
+      ? type
+      : type === "booking"
+        ? "coupon"
+        : "offer";
   const favorableId = r.favorable_id ?? r.favorable_id ?? r.id;
   if (favorableId == null) return null;
   const favorable = (r.favorable ?? r.item ?? r) as Record<string, unknown> | undefined;

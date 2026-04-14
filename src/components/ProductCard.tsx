@@ -186,13 +186,19 @@ const ProductCard: React.FC<ProductCardProps> = ({
 
         <hr className="my-4 border-t-1 border-[#e6e6e6]" />
 
-        {/* Price and Action */}
+        {/* Price and Action — السعر بعد الخصم واضح، السعر قبل بخط يتوسطه */}
         <div className="flex items-center justify-between gap-1">
-          <div className="text-lg font-bold text-[#400198]">
+          <div className="flex items-center gap-2 flex-wrap text-lg font-bold text-[#400198]">
             <span className="flex items-center gap-1">
               {discountPrice}
               <CurrencyIcon size={16} className="text-[#400198]" />
             </span>
+            {originalPrice > 0 && originalPrice > discountPrice && (
+              <span className="text-sm font-normal text-gray-500 line-through flex items-center gap-1">
+                {originalPrice}
+                <CurrencyIcon size={12} className="text-gray-500" />
+              </span>
+            )}
           </div>
           <a
             href="#"

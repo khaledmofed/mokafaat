@@ -150,7 +150,12 @@ const OfferCard: React.FC<OfferCardProps> = ({
   const visitButtonText = useMemo(() => t("offerCard.cardDetails"), [t]);
 
   const purchaseText = useMemo(
-    () => t("offerCard.purchases", { count: offer.purchases }),
+    () => {
+      const purchasesCount = Number.isFinite(Number(offer.purchases))
+        ? Number(offer.purchases)
+        : 0;
+      return t("offerCard.purchases", { count: purchasesCount });
+    },
     [offer.purchases, t],
   );
 
@@ -191,6 +196,11 @@ const OfferCard: React.FC<OfferCardProps> = ({
     }
     return "bg-purple-500";
   };
+
+  const priceAfter = Number(offer.price ?? 0);
+  const priceBefore =
+    offer.originalPrice != null ? Number(offer.originalPrice) : 0;
+  const showStrikethrough = priceBefore > 0 && priceBefore > priceAfter;
 
   const cardContent = (
     <>
@@ -353,14 +363,14 @@ const OfferCard: React.FC<OfferCardProps> = ({
         <hr className="my-4 border-t border-[#e6e6e6] flex-shrink-0" />
 
         <div className="flex items-center justify-between gap-1 flex-shrink-0">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="text-lg font-bold text-[#400198] flex items-center gap-1">
-              {offer.price}
+              {priceAfter}
               <CurrencyIcon className="text-[#400198]" size={16} />
             </span>
-            {offer.originalPrice && (
+            {showStrikethrough && (
               <span className="text-sm text-gray-500 line-through flex items-center gap-1">
-                {offer.originalPrice}
+                {priceBefore}
                 <CurrencyIcon className="text-gray-500" size={12} />
               </span>
             )}

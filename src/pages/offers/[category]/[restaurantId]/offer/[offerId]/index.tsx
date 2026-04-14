@@ -530,10 +530,16 @@ const OfferDetailPage = () => {
   const isFree =
     offer.platformPrice == null || Number(offer.platformPrice) <= 0;
 
-  // Price shown/used for checkout is price_after (discountPrice) unless it's free.
+  /** عرض وحساب: `price_after` / `price_before` من الموديل (من الـ API) */
+  const displayPriceAfter = offer.priceAfter ?? offer.discountPrice;
+  const displayPriceBefore = offer.priceBefore ?? offer.originalPrice;
+
+  // Price shown/used for checkout is price_after unless it's free.
   const unitPrice = isFree
     ? 0
-    : Number(offer.discountPrice ?? offer.platformPrice ?? 0) || 0;
+    : Number(
+        offer.priceAfter ?? offer.discountPrice ?? offer.platformPrice ?? 0,
+      ) || 0;
 
   const totalPrice = unitPrice * quantity;
 
@@ -935,10 +941,10 @@ const OfferDetailPage = () => {
                     </p>
                     <div className="flex items-center gap-2 flex-wrap">
                       <span className="text-gray-400 line-through text-sm">
-                        {offer.originalPrice}
+                        {displayPriceBefore}
                       </span>
                       <span className="text-xl font-bold text-gray-900">
-                        {offer.discountPrice}
+                        {displayPriceAfter}
                       </span>
                       <CurrencyIcon className="text-gray-700" size={20} />
                       <span className="text-green-600 text-sm font-medium bg-green-50 px-2 py-0.5 rounded-full">

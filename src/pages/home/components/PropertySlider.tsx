@@ -2,27 +2,33 @@ import React, { useMemo, useCallback, useEffect, useState } from "react";
 import OwlCarousel from "react-owl-carousel";
 import { useIsRTL } from "@hooks";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaMapMarkerAlt, FaCheck, FaEye, FaStar } from "react-icons/fa";
 import { PatternNewProperty, Restu1, Restu2, Restu3 } from "@assets";
 import { IoIosArrowRoundForward } from "react-icons/io";
-import { BsHeart, BsShare } from "react-icons/bs";
+import { BsHeart, BsHeartFill, BsShare } from "react-icons/bs";
 import { useWebHome } from "@hooks/api/useMokafaatQueries";
 import { useShareSheetStore } from "@stores/shareSheetStore";
+import { offerCategories } from "@data/offers";
+import { useFavorites, useFavoriteToggle } from "@hooks/api/useMokafaatQueries";
+import { normalizeFavoritesList } from "@utils/favorites";
+import { useUserStore } from "@stores/userStore";
+import { toast } from "react-toastify";
 
 interface RestaurantType {
   id: number;
   name: string;
-  location: string;
-  distance: string;
-  discount: string;
-  offer: string;
-  categories: string;
+  categoryKey: string;
+  categoryLabel: string;
+  city: string;
+  coverImage?: string | null;
+  latestOfferTitle: string;
+  latestOfferDiscount?: string | null;
+  offersCount: number;
   saves: number;
   views: number;
   rating: number;
   logo: string;
-  slug: string;
   topColor: string;
   hasDiscountTag?: boolean;
 }
@@ -40,14 +46,71 @@ const TOP_COLORS = [
 
 const DEFAULT_LOGOS = [Restu1, Restu2, Restu3];
 
+function resolveCategoryKey(categoryLabel: string): string {
+  const exact = offerCategories.find(
+    (c) =>
+      c.ar === categoryLabel ||
+      c.en === categoryLabel ||
+      c.key === categoryLabel,
+  );
+  if (exact) return exact.key;
+
+  const label = String(categoryLabel ?? "").toLowerCase();
+  if (
+    label.includes("مطاعم") &&
+    (label.includes("كاف") || label.includes("مقه"))
+  )
+    return "restaurants-cafes";
+  if (label.includes("مطاعم")) return "restaurants";
+  if (label.includes("كاف") || label.includes("مقه")) return "cafes";
+  if (label.includes("ترفي")) return "entertainment";
+  if (
+    label.includes("متاجر") ||
+    label.includes("تسوق") ||
+    label.includes("shop")
+  )
+    return "shopping";
+  if (label.includes("فندق") || label.includes("hotel")) return "hotels";
+  if (label.includes("سيار") || label.includes("car")) return "cars";
+  if (label.includes("خدم") || label.includes("service")) return "services";
+
+  return "restaurants-cafes";
+}
+
 function mapMerchantToRestaurant(
   merchant: Record<string, unknown>,
-  index: number
+  index: number,
 ): RestaurantType {
   const id = Number(merchant.id ?? 0);
   const name = String(merchant.name ?? "");
   const description = String(merchant.description ?? "");
   let logo = String(merchant.logo ?? "");
+  const coverImageRaw = merchant.cover_image;
+  const coverImage =
+    typeof coverImageRaw === "string" && coverImageRaw.trim()
+      ? coverImageRaw.trim()
+      : null;
+
+  const categoryLabelRaw = merchant.category;
+  const categoryLabel =
+    typeof categoryLabelRaw === "string" && categoryLabelRaw.trim()
+      ? categoryLabelRaw.trim()
+      : "—";
+
+  const cityRaw = merchant.city;
+  const city =
+    typeof cityRaw === "string" && cityRaw.trim() ? cityRaw.trim() : "—";
+
+  const latestOffersRaw = merchant.latest_offers;
+  const latestOffers = Array.isArray(latestOffersRaw) ? latestOffersRaw : [];
+  const latestOffer = (latestOffers[0] ?? null) as Record<
+    string,
+    unknown
+  > | null;
+  const latestOfferTitle = String(latestOffer?.name ?? "").trim();
+  const latestOfferDiscount = String(
+    latestOffer?.discount_percent ?? "",
+  ).trim();
   const rating = Number(merchant.rating ?? 0) || 0;
 
   if (!logo || logo === "null") {
@@ -62,18 +125,19 @@ function mapMerchantToRestaurant(
   return {
     id,
     name: name || `تاجر ${id}`,
-    location: "—",
-    distance: "—",
-    discount: "",
-    offer: description || "عروض متاحة",
-    categories: "—",
+    categoryKey: resolveCategoryKey(categoryLabel),
+    categoryLabel,
+    city,
+    coverImage,
+    latestOfferTitle: latestOfferTitle || description || "عروض متاحة",
+    latestOfferDiscount: latestOfferDiscount || null,
+    offersCount: latestOffers.length,
     saves: 0,
     views: 0,
     rating: rating || 0,
     logo,
-    slug: `merchant-${id}`,
     topColor: TOP_COLORS[index % TOP_COLORS.length],
-    hasDiscountTag: false,
+    hasDiscountTag: Boolean(latestOfferDiscount),
   };
 }
 
@@ -83,8 +147,25 @@ const PropertySlider: React.FC = () => {
   const navigate = useNavigate();
   const [key, setKey] = useState(0); // Key for forcing re-render
   const openShareSheet = useShareSheetStore((s) => s.openShare);
+  const isAuthenticated = useUserStore((s) => !!s.token);
 
   const { data: webHomeResponse } = useWebHome();
+  const { data: favoritesData } = useFavorites();
+  const toggleFavorite = useFavoriteToggle();
+  const favoritesList = useMemo(
+    () => normalizeFavoritesList(favoritesData ?? null),
+    [favoritesData],
+  );
+  const [optimisticFavs, setOptimisticFavs] = useState<Set<string>>(new Set());
+  const [pendingFavIds, setPendingFavIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const next = new Set<string>();
+    for (const f of favoritesList) {
+      if (f.favorable_type === "merchant") next.add(String(f.favorable_id));
+    }
+    setOptimisticFavs(next);
+  }, [favoritesList]);
 
   const apiMerchants = useMemo(() => {
     if (!webHomeResponse) return [];
@@ -98,7 +179,7 @@ const PropertySlider: React.FC = () => {
 
   const restaurantsFromApi = useMemo(
     () => apiMerchants.map((m, i) => mapMerchantToRestaurant(m, i)),
-    [apiMerchants]
+    [apiMerchants],
   );
 
   // Force re-render when language changes
@@ -110,7 +191,7 @@ const PropertySlider: React.FC = () => {
     (payload: { title?: string; url: string }) => {
       openShareSheet(payload);
     },
-    [openShareSheet]
+    [openShareSheet],
   );
 
   const restaurantsStatic: RestaurantType[] = useMemo(
@@ -118,107 +199,113 @@ const PropertySlider: React.FC = () => {
       {
         id: 1,
         name: t("propertySlider.restaurants.hungerStation"),
-        location: "شارع التحلية",
-        distance: "1.5 KM",
-        discount: "17% خصم",
-        offer: "خصم 17% علي فاتورة مشترياتك",
-        categories: "منتجات , مشروبات , أدوات منزلية",
+        categoryKey: "restaurants-cafes",
+        categoryLabel: isRTL ? "مطاعم وكافيهات" : "Restaurants & Cafes",
+        city: "شارع التحلية • 1.5 KM",
+        coverImage: null,
+        latestOfferTitle: "خصم 17% علي فاتورة مشترياتك",
+        latestOfferDiscount: "17",
+        offersCount: 0,
         saves: 168,
         views: 1270,
         rating: 5.0,
         logo: Restu1,
-        slug: "hunger-station",
         topColor: "bg-orange-500",
         hasDiscountTag: false,
       },
       {
         id: 2,
         name: t("propertySlider.restaurants.popeyes"),
-        location: "شارع التحلية",
-        distance: "1.5 KM",
-        discount: "50% خصم",
-        offer: "خصم 50% علي فاتورة طلبا",
-        categories: "منتجات , مشروبات , أدوات منزلية",
+        categoryKey: "restaurants-cafes",
+        categoryLabel: isRTL ? "مطاعم وكافيهات" : "Restaurants & Cafes",
+        city: "شارع التحلية • 1.5 KM",
+        coverImage: null,
+        latestOfferTitle: "خصم 50% علي فاتورة طلبا",
+        latestOfferDiscount: "50",
+        offersCount: 0,
         saves: 168,
         views: 270,
         rating: 4.9,
         logo: Restu2,
-        slug: "popeyes",
         topColor: "bg-orange-600",
         hasDiscountTag: true,
       },
       {
         id: 3,
         name: t("propertySlider.restaurants.crispyBread"),
-        location: "شارع التحلية",
-        distance: "1.5 KM",
-        discount: "اشتري وجبه واحصل الثانية مجاناً",
-        offer: "اشتري وجبه واحصل الثانية مجاناً",
-        categories: "منتجات , مشروبات , أدوات منزلية",
+        categoryKey: "restaurants-cafes",
+        categoryLabel: isRTL ? "مطاعم وكافيهات" : "Restaurants & Cafes",
+        city: "شارع التحلية • 1.5 KM",
+        coverImage: null,
+        latestOfferTitle: "اشتري وجبه واحصل الثانية مجاناً",
+        latestOfferDiscount: null,
+        offersCount: 0,
         saves: 168,
         views: 180,
         rating: 4.7,
         logo: Restu3,
-        slug: "crispy-bread",
         topColor: "bg-pink-500",
         hasDiscountTag: false,
       },
       {
         id: 4,
         name: t("propertySlider.restaurants.kfc"),
-        location: "شارع الملك فهد",
-        distance: "2.1 KM",
-        discount: "30% خصم",
-        offer: "خصم 30% علي جميع الوجبات",
-        categories: "وجبات سريعة , مشروبات",
+        categoryKey: "restaurants-cafes",
+        categoryLabel: isRTL ? "مطاعم وكافيهات" : "Restaurants & Cafes",
+        city: "شارع الملك فهد • 2.1 KM",
+        coverImage: null,
+        latestOfferTitle: "خصم 30% علي جميع الوجبات",
+        latestOfferDiscount: "30",
+        offersCount: 0,
         saves: 245,
         views: 320,
         rating: 4.7,
         logo: Restu1,
-        slug: "kfc",
         topColor: "bg-red-500",
         hasDiscountTag: true,
       },
       {
         id: 5,
         name: t("propertySlider.restaurants.mcdonalds"),
-        location: "شارع العليا",
-        distance: "0.8 KM",
-        discount: "25% خصم",
-        offer: "خصم 25% علي البرجر",
-        categories: "برجر , مشروبات , وجبات سريعة",
+        categoryKey: "restaurants-cafes",
+        categoryLabel: isRTL ? "مطاعم وكافيهات" : "Restaurants & Cafes",
+        city: "شارع العليا • 0.8 KM",
+        coverImage: null,
+        latestOfferTitle: "خصم 25% علي البرجر",
+        latestOfferDiscount: "25",
+        offersCount: 0,
         saves: 189,
         views: 298,
         rating: 4.5,
         logo: Restu2,
-        slug: "mcdonalds",
         topColor: "bg-yellow-500",
         hasDiscountTag: false,
       },
       {
         id: 6,
         name: t("propertySlider.restaurants.pandaExpress"),
-        location: "شارع التحلية",
-        distance: "1.2 KM",
-        discount: "40% خصم",
-        offer: "خصم 40% علي الوجبات الصينية",
-        categories: "وجبات صينية , مشروبات , معجنات",
+        categoryKey: "restaurants-cafes",
+        categoryLabel: isRTL ? "مطاعم وكافيهات" : "Restaurants & Cafes",
+        city: "شارع التحلية • 1.2 KM",
+        coverImage: null,
+        latestOfferTitle: "خصم 40% علي الوجبات الصينية",
+        latestOfferDiscount: "40",
+        offersCount: 0,
         saves: 156,
         views: 234,
         rating: 4.6,
         logo: Restu3,
-        slug: "panda-express",
         topColor: "bg-green-500",
         hasDiscountTag: true,
       },
     ],
-    [t]
+    [t, isRTL],
   );
 
   const restaurants: RestaurantType[] = useMemo(
     () =>
       restaurantsFromApi.length > 0 ? restaurantsFromApi : restaurantsStatic,
-    [restaurantsFromApi, restaurantsStatic]
+    [restaurantsFromApi, restaurantsStatic],
   );
 
   const owlCarouselOptions = useMemo(
@@ -246,14 +333,66 @@ const PropertySlider: React.FC = () => {
         '<svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 24 24" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><polyline fill="none" stroke-width="2" points="9 6 15 12 9 18"></polyline></svg>',
       ],
     }),
-    []
+    [],
   );
 
-  const handleRestaurantClick = useCallback(
-    (slug: string) => {
-      navigate(`/restaurants/${slug}`);
+  const handleFavoriteClick = useCallback(
+    (merchant: RestaurantType) => {
+      if (!isAuthenticated) {
+        navigate(
+          `/login?returnUrl=${encodeURIComponent(window.location.pathname)}`,
+        );
+        return;
+      }
+      const id = String(merchant.id);
+      const isFav = optimisticFavs.has(id);
+
+      // Optimistic UI update
+      setOptimisticFavs((prev) => {
+        const next = new Set(prev);
+        if (isFav) next.delete(id);
+        else next.add(id);
+        return next;
+      });
+      setPendingFavIds((prev) => new Set(prev).add(id));
+
+      toggleFavorite.mutate(
+        { favorable_type: "merchant", favorable_id: merchant.id },
+        {
+          onSuccess: () => {
+            toast.success(
+              isFav
+                ? isRTL
+                  ? "تمت إزالته من المفضلة"
+                  : "Removed from favorites"
+                : isRTL
+                  ? "تمت الإضافة إلى المفضلة"
+                  : "Added to favorites",
+            );
+            setPendingFavIds((prev) => {
+              const next = new Set(prev);
+              next.delete(id);
+              return next;
+            });
+          },
+          onError: () => {
+            toast.error(isRTL ? "حدث خطأ" : "Something went wrong");
+            setOptimisticFavs((prev) => {
+              const next = new Set(prev);
+              if (isFav) next.add(id);
+              else next.delete(id);
+              return next;
+            });
+            setPendingFavIds((prev) => {
+              const next = new Set(prev);
+              next.delete(id);
+              return next;
+            });
+          },
+        },
+      );
     },
-    [navigate]
+    [isAuthenticated, isRTL, navigate, optimisticFavs, toggleFavorite],
   );
 
   return (
@@ -324,14 +463,24 @@ const PropertySlider: React.FC = () => {
                 className="item"
                 style={{ direction: isRTL ? "rtl" : "ltr" }}
               >
-                <div
-                  onClick={() => handleRestaurantClick(restaurant.slug)}
-                  className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden relative"
-                >
+                <div className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden relative">
+                  <Link
+                    to={`/offers/${restaurant.categoryKey}/${restaurant.id}`}
+                    className="absolute inset-0 z-0 rounded-xl"
+                    aria-label={restaurant.name}
+                  />
                   {/* Top Section - Dynamic Color Background */}
                   <div
-                    className={`${restaurant.topColor} relative h-24 flex items-center justify-between px-3`}
+                    className={`${restaurant.topColor} relative z-10 h-24 flex items-center justify-between px-3 pointer-events-none`}
                   >
+                    {restaurant.coverImage && (
+                      <img
+                        src={restaurant.coverImage}
+                        alt=""
+                        className="absolute inset-0 h-full w-full object-cover opacity-30"
+                      />
+                    )}
+                    <div className="absolute inset-0 bg-black/15" />
                     {/* Restaurant Logo */}
                     <div className="w-12 h-12 rounded-full flex items-center justify-center shadow-lg relative z-10">
                       <img
@@ -342,35 +491,37 @@ const PropertySlider: React.FC = () => {
                     </div>
 
                     {/* Right Side - Restaurant Info */}
-                    <div className="flex-1 text-right ms-2 text-start">
+                    <div className="flex-1 text-right ms-2 text-start z-10">
                       <h3 className="text-white font-bold text-base mb-1">
                         {restaurant.name}
                       </h3>
                       <div className="flex items-center justify-start gap-1 text-white text-xs">
                         <FaMapMarkerAlt className="text-xs" />
-                        <span>
-                          {restaurant.location}, {restaurant.distance}
-                        </span>
+                        <span>{restaurant.city}</span>
+                      </div>
+                      <div className="mt-1 text-[11px] text-white/90 line-clamp-1">
+                        {restaurant.categoryLabel}
                       </div>
                     </div>
                     {/* Left Side - Icons */}
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 relative z-20 pointer-events-auto">
                       <button
                         type="button"
                         className="w-8 h-8 border border-white rounded-full flex items-center justify-center hover:bg-white hover:bg-opacity-20 transition-all duration-200"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          // Placeholder: no favorites behavior here yet
-                        }}
+                        onClick={() => handleFavoriteClick(restaurant)}
+                        disabled={pendingFavIds.has(String(restaurant.id))}
                       >
-                        <BsHeart className="text-white text-sm" />
+                        {optimisticFavs.has(String(restaurant.id)) ? (
+                          <BsHeartFill className="text-white text-sm" />
+                        ) : (
+                          <BsHeart className="text-white text-sm" />
+                        )}
                       </button>
                       <button
                         type="button"
                         className="w-8 h-8 border border-white rounded-full flex items-center justify-center hover:bg-white hover:bg-opacity-20 transition-all duration-200"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const url = `${window.location.origin}/restaurants/${restaurant.slug}`;
+                        onClick={() => {
+                          const url = `${window.location.origin}/offers/${restaurant.categoryKey}/${restaurant.id}`;
                           openShare({ title: restaurant.name, url });
                         }}
                       >
@@ -390,22 +541,25 @@ const PropertySlider: React.FC = () => {
                   </div>
 
                   {/* Bottom Section - White Background */}
-                  <div className="p-4 h-28 flex flex-col justify-between">
+                  <div className="relative z-10 p-4 h-28 flex flex-col justify-between pointer-events-none">
                     {/* Discount Badge and Offer */}
                     <div className="flex items-start gap-3">
                       <div className="flex-1">
                         <h4 className="text-black font-bold text-sm mb-1 leading-tight">
-                          {restaurant.offer}
+                          {restaurant.latestOfferTitle}
                         </h4>
                         <p className="text-gray-500 text-xs">
-                          {restaurant.categories}
+                          {restaurant.offersCount > 0
+                            ? `${restaurant.offersCount} عروض`
+                            : "لا توجد عروض حالياً"}
                         </p>
                       </div>
-                      {restaurant.hasDiscountTag && (
-                        <div className="bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-bold flex-shrink-0">
-                          {restaurant.discount}
-                        </div>
-                      )}
+                      {restaurant.hasDiscountTag &&
+                        restaurant.latestOfferDiscount && (
+                          <div className="bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-bold flex-shrink-0">
+                            {`${Number(restaurant.latestOfferDiscount)}% خصم`}
+                          </div>
+                        )}
                     </div>
 
                     {/* Stats Row */}

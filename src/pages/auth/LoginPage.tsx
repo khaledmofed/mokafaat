@@ -2,7 +2,8 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useUserStore } from "@stores/userStore";
 import { useTranslation } from "react-i18next";
-import { AkaratCircle, Splash, LogoLight, Soudi } from "@assets";
+import { AkaratCircle, Splash, LogoLight } from "@assets";
+import CountryCodeSelect from "@components/CountryCodeSelect";
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ const LoginPage: React.FC = () => {
   const { sendOtp, verifyOtp, loading, error, otpSent } = useUserStore();
 
   const [phone, setPhone] = useState("");
-  const [countryCode] = useState("966");
+  const [countryCode, setCountryCode] = useState("966");
   const [code, setCode] = useState(["", "", "", ""]);
   const [timer, setTimer] = useState(45);
   const [isRegisterMode, setIsRegisterMode] = useState(false);
@@ -200,22 +201,52 @@ const LoginPage: React.FC = () => {
                   className={`flex gap-2 ${
                     error ? "border border-red-400" : ""
                   } p-0`}
+                  style={{ direction: "ltr" }}
                 >
-                  <div className="w-24 flex items-center justify-center bg-gray-50 border border-gray-300 rounded-full px-2 py-2">
-                    <div className="flex items-center gap-2">
-                      <img
-                        src={Soudi}
-                        alt="Saudi Arabia Flag"
-                        className="w-8 h-8 object-cover rounded-sm"
-                      />
-                      <span className="text-sm font-medium text-gray-700">
-                        +966
-                      </span>
-                    </div>
+                  <div
+                    className="w-24 flex items-center justify-center gap-2 bg-gray-50 border border-gray-300 rounded-full px-2 py-2 cursor-pointer"
+                    role="button"
+                    tabIndex={0}
+                    onPointerDown={(e) => {
+                      const target = e.target as Element | null;
+                      if (target?.closest?.('[data-testid="rfs-btn"]')) return;
+                      const btn = e.currentTarget.querySelector(
+                        '[data-testid="rfs-btn"]',
+                      ) as HTMLButtonElement | null;
+                      if (!btn) return;
+                      if (btn.getAttribute("aria-expanded") === "true") return;
+                      btn.focus();
+                      btn.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true }));
+                      btn.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+                      btn.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));
+                      btn.click();
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key !== "Enter" && e.key !== " ") return;
+                      e.preventDefault();
+                      const btn = e.currentTarget.querySelector(
+                        '[data-testid="rfs-btn"]',
+                      ) as HTMLButtonElement | null;
+                      if (!btn) return;
+                      if (btn.getAttribute("aria-expanded") === "true") return;
+                      btn.focus();
+                      btn.click();
+                    }}
+                  >
+                    <CountryCodeSelect
+                      value={countryCode}
+                      onChange={setCountryCode}
+                      className="w-auto"
+                    />
+                    <span className="text-sm font-medium text-gray-700 whitespace-nowrap">{`+${countryCode}`}</span>
                   </div>
                   <input
                     type="tel"
-                    className={`text-end flex-1 border border-gray-300 px-4 py-2 text-base rounded-full focus:outline-none focus:ring-[#440798] focus:border-[#440798] ${
+                    dir="ltr"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    autoComplete="tel"
+                    className={`text-start flex-1 border border-gray-300 px-4 py-2 text-base rounded-full focus:outline-none focus:ring-[#440798] focus:border-[#440798] ${
                       error ? "text-red-500 placeholder-red-400" : ""
                     }`}
                     placeholder={
@@ -224,8 +255,10 @@ const LoginPage: React.FC = () => {
                         : t("home.login.mobile_placeholder")
                     }
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    style={{ background: "transparent" }}
+                    onChange={(e) =>
+                      setPhone(e.target.value.replace(/[^\d]/g, ""))
+                    }
+                    style={{ background: "transparent", direction: "ltr" }}
                   />
                 </div>
                 {error && <p className="text-md text-red-500 mt-1">{error}</p>}
@@ -252,10 +285,7 @@ const LoginPage: React.FC = () => {
               <p className="mb-6 text-center text-gray-600">
                 {t("home.login.verify_desc")}
               </p>
-              <div
-                className="flex justify-center gap-2 mb-4"
-                dir="ltr"
-              >
+              <div className="flex justify-center gap-2 mb-4" dir="ltr">
                 {code.map((v, i) => (
                   <input
                     key={i}

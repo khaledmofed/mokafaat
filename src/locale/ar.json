@@ -1620,7 +1620,11 @@
   },
   "offerCard": {
     "cardDetails": "تفاصيل البطاقة",
+    "purchases_zero": "0 عملية شراء",
     "purchases_one": "{{count}} عملية شراء",
+    "purchases_two": "{{count}} عمليتا شراء",
+    "purchases_few": "{{count}} عمليات شراء",
+    "purchases_many": "{{count}} عملية شراء",
     "purchases_other": "{{count}} عملية شراء",
     "moreFeatures": "+{{count}} مميزات أخرى",
     "popular": "شائع",
