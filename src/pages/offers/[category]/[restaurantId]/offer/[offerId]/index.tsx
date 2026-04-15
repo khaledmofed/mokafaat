@@ -526,19 +526,21 @@ const OfferDetailPage = () => {
     );
   }
 
-  // Free offers are determined by API `price` (platformPrice), not price_after.
+  // مجاني: من API `pricing_type === "free"`؛ عند غياب الحقل نستخدم سعر المنصة كما سابقاً.
   const isFree =
-    offer.platformPrice == null || Number(offer.platformPrice) <= 0;
+    offer.pricingType === "free" ||
+    (offer.pricingType == null &&
+      (offer.platformPrice == null || Number(offer.platformPrice) <= 0));
 
   /** عرض وحساب: `price_after` / `price_before` من الموديل (من الـ API) */
   const displayPriceAfter = offer.priceAfter ?? offer.discountPrice;
   const displayPriceBefore = offer.priceBefore ?? offer.originalPrice;
 
-  // Price shown/used for checkout is price_after unless it's free.
+  // سعر الدفع على المنصة: من API `price` → `platformPrice`؛ إن لم يُرسل نستخدم price_after.
   const unitPrice = isFree
     ? 0
     : Number(
-        offer.priceAfter ?? offer.discountPrice ?? offer.platformPrice ?? 0,
+        offer.platformPrice ?? offer.priceAfter ?? offer.discountPrice ?? 0,
       ) || 0;
 
   const totalPrice = unitPrice * quantity;
@@ -988,10 +990,7 @@ const OfferDetailPage = () => {
                             onQuantityChange={handleQuantityChange}
                           />
                           <p className="text-xs text-gray-500 mt-1">
-                            {t("offerDetail.max_purchase", {
-                              max: maxQty,
-                              count: maxQty,
-                            })}
+                            {t("offerDetail.max_purchase", { max: maxQty })}
                           </p>
                         </div>
                         <p className="text-sm font-medium text-gray-700 mt-2">

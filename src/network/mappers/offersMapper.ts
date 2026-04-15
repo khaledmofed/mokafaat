@@ -22,6 +22,11 @@ export function mapApiOfferToModel(
     const discountPercent = parseFloat(
       String(apiOffer.discount_percent ?? "0")
     );
+    const pricingTypeRaw = apiOffer.pricing_type;
+    const pricingType =
+      typeof pricingTypeRaw === "string" && pricingTypeRaw.trim().length > 0
+        ? pricingTypeRaw.trim().toLowerCase()
+        : undefined;
     const category = apiOffer.category as Record<string, unknown> | undefined;
     const merchant = apiOffer.merchant as Record<string, unknown> | undefined;
     const featuresRaw = apiOffer.features as
@@ -148,6 +153,7 @@ export function mapApiOfferToModel(
       merchantName: merchantName || undefined,
       merchantLogo: merchantLogo || undefined,
       platformPrice: platformPrice,
+      pricingType,
       userPurchaseCount:
         apiOffer.user_purchase_count != null
           ? Number(apiOffer.user_purchase_count)
@@ -203,6 +209,11 @@ export function mapRelatedOfferToModel(
     const priceBefore = parseFloat(String(item.price_before ?? "0"));
     const priceAfter = parseFloat(String(item.price_after ?? "0"));
     const discountPercent = parseFloat(String(item.discount_percent ?? "0"));
+    const pricingTypeRaw = item.pricing_type;
+    const pricingType =
+      typeof pricingTypeRaw === "string" && pricingTypeRaw.trim().length > 0
+        ? pricingTypeRaw.trim().toLowerCase()
+        : undefined;
     const merchant = item.merchant as Record<string, unknown> | undefined;
     const companyId = merchant ? String(merchant.id ?? "") : "";
     const merchantName = merchant ? String(merchant.name ?? "") : "";
@@ -246,6 +257,7 @@ export function mapRelatedOfferToModel(
       categoryName: undefined,
       merchantName: merchantName || undefined,
       merchantLogo: merchantLogo ?? undefined,
+      pricingType,
     };
   } catch (error) {
     console.error("Error mapping related offer:", error, item);

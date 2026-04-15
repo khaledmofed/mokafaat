@@ -683,6 +683,9 @@
     "bedroom_other": "{{count}} chambres",
     "area_up_to": "Jusqu'à {{area}}"
   },
+  "offerDetail": {
+    "max_purchase": "Quantité maximale : {{max}}"
+  },
   "offerCard": {
     "cardDetails": "Détails de la carte",
     "purchases_one": "{{count}} achat",

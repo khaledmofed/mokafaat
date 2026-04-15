@@ -186,6 +186,8 @@ export interface Offer {
   merchantLogo?: string | null; // From API merchant.logo
   /** المبلغ الذي يدفعه الزبون على المنصة (من API price) - إن وُجد يُستخدم للمجموع وعرض "المبلغ الذي تدفعه عندنا" */
   platformPrice?: number;
+  /** من API `pricing_type` — مثل `free` أو `paid` */
+  pricingType?: string;
   /** عدد مرات شراء المستخدم الحالي لهذا العرض (من API - offer detail) */
   userPurchaseCount?: number;
   /** الحد الأقصى لعدد مرات بيع العرض (من API usage_limit) - null = غير محدود */

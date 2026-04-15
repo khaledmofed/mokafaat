@@ -70,6 +70,7 @@ export const API_ENDPOINTS = {
   subscription: {
     plans: `${API}/subscription/plans`,
     subscribe: `${API}/subscription/subscribe`,
+    subscribeForOther: `${API}/subscription/subscribe-for-other`,
     status: `${API}/subscription/status`,
     history: `${API}/subscription/history`,
   },
@@ -86,6 +87,8 @@ export const API_ENDPOINTS = {
   orders: `${API}/orders`,
   orderDetail: (id: string | number) => `${API}/orders/${id}`,
   orderCancel: (id: string | number) => `${API}/orders/${id}/cancel`,
+  orderVerifyMerchantCode: (id: string | number) =>
+    `${API}/orders/${id}/verify-merchant-code`,
 
   // ========== Coupons (app) ==========
   coupons: {

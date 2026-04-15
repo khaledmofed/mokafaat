@@ -25,6 +25,7 @@ import {
   profileApi,
   filtersApi,
   membershipApi,
+  type SubscribeForOtherBody,
 } from "@network/services/mokafaatService";
 
 /** لغة حالية للـ query key (يعيد طلب البيانات عند تغيير اللغة) */
@@ -291,6 +292,26 @@ export function useCancelOrder() {
   });
 }
 
+/** تفعيل عرض مجاني: المستخدم يُدخل رمز التحقق الذي يعطيه التاجر بعد مسح QR */
+export function useVerifyMerchantOrderCode() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      orderId,
+      verification_code,
+    }: {
+      orderId: string | number;
+      verification_code: string;
+    }) => ordersApi.verifyMerchantCode(orderId, verification_code),
+    onSuccess: (_res, { orderId }) => {
+      queryClient.invalidateQueries({ queryKey: ["mokafaat", "orders"] });
+      queryClient.invalidateQueries({
+        queryKey: ["mokafaat", "orders", orderId],
+      });
+    },
+  });
+}
+
 // ========== Coupons ==========
 export function useCouponsHome() {
   const lang = useQueryLang();
@@ -530,6 +551,19 @@ export function useSubscribe() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: mokafaatKeys.subscriptionStatus });
       queryClient.invalidateQueries({ queryKey: mokafaatKeys.subscriptionHistory });
+    },
+  });
+}
+
+export function useSubscribeForOther() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (body: SubscribeForOtherBody) =>
+      subscriptionApi.subscribeForOther(body).then((r) => r.data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: mokafaatKeys.subscriptionStatus });
+      queryClient.invalidateQueries({ queryKey: mokafaatKeys.subscriptionHistory });
+      queryClient.invalidateQueries({ queryKey: mokafaatKeys.profile });
     },
   });
 }

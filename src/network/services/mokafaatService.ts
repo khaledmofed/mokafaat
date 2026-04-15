@@ -148,8 +148,21 @@ export const profileApi = {
 };
 
 // ========== Subscription (يتطلب توكن) - مطابق لـ Postman: Subscriptions ==========
+export type SubscribeForOtherBody = {
+  name: string;
+  phone: string;
+  country_code: string;
+  plan_id: number;
+  use_wallet?: boolean;
+  country_id?: number;
+  city_id?: number;
+  gender?: "male" | "female";
+};
+
 export const subscriptionApi = {
   plans: () => api.get(API_ENDPOINTS.subscription.plans),
+  subscribeForOther: (body: SubscribeForOtherBody) =>
+    api.post(API_ENDPOINTS.subscription.subscribeForOther, body),
   subscribe: (
     planId: string | number,
     paymentMethod?: "online" | "cash" | "bank" | "card",
@@ -197,6 +210,8 @@ export const ordersApi = {
     order_id?: string | number;
   }) => api.post(API_ENDPOINTS.orders, null, { params }),
   cancel: (id: string | number) => api.post(API_ENDPOINTS.orderCancel(id)),
+  verifyMerchantCode: (id: string | number, verification_code: string) =>
+    api.post(API_ENDPOINTS.orderVerifyMerchantCode(id), { verification_code }),
 };
 
 // ========== Coupons (app - يتطلب توكن للبعض) ==========

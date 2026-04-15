@@ -494,10 +494,7 @@ const ProfilePage: React.FC = () => {
   }
 
   return (
-    <div
-      className="min-h-screen bg-gray-50 py-8"
-      style={{ marginTop: "77px", minHeight: "calc(-76px + 70vh)" }}
-    >
+    <div className="min-h-[50vh] bg-transparent py-0 lg:py-0">
       <div className="container mx-auto px-4 sm:px-4 lg:px-4">
         {/* هيدر: يمين = المستخدم | يسار = إحصائيات (بدون عنوان) + تعديل */}
         <div

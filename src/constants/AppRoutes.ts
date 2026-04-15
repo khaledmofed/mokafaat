@@ -34,7 +34,7 @@ import {
 import { MembershipVerifyPage } from "@pages/membership";
 // لوحة المستخدم (App / الموبايل)
 import {
-  ProfilePage,
+  ProfileSection,
   SavedPage,
   CartPage,
   OrdersPage,
@@ -320,8 +320,8 @@ export const routes: AppRouter[] = [
   },
   // ========== App — لوحة المستخدم (موبايل) ==========
   {
-    path: "/profile",
-    element: ProfilePage,
+    path: "/profile/*",
+    element: ProfileSection,
     inLayout: true,
   },
   {

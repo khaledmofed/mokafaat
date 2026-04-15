@@ -43,7 +43,7 @@ import OffersSuccessPage from "./offers/[category]/[restaurantId]/success";
 import BookingsPage from "./bookings";
 import LoginPage from "./auth/LoginPage";
 import RegisterPage from "./auth/RegisterPage";
-import ProfilePage from "./profile/ProfilePage";
+import ProfileSection from "./profile/ProfileSection";
 import SavedPage from "./saved/SavedPage";
 import CartPage from "./cart/CartPage";
 import OrdersPage from "./orders/OrdersPage";
@@ -94,7 +94,7 @@ export {
   BookingsPage,
   LoginPage,
   RegisterPage,
-  ProfilePage,
+  ProfileSection,
   SavedPage,
   CartPage,
   OrdersPage,

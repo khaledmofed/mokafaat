@@ -3,7 +3,7 @@
  * الصفحات التي تتطلب أو تعرض بيانات المستخدم: البروفايل، المفضلة، السلة، الطلبات، المحفظة
  */
 
-import ProfilePage from "../profile/ProfilePage";
+import ProfileSection from "../profile/ProfileSection";
 import SavedPage from "../saved/SavedPage";
 import CartPage from "../cart/CartPage";
 import OrdersPage from "../orders/OrdersPage";
@@ -14,7 +14,7 @@ import OrderPaymentCallbackPage from "../orders/OrderPaymentCallbackPage";
 import WalletPage from "../wallet/WalletPage";
 
 export {
-  ProfilePage,
+  ProfileSection,
   SavedPage,
   CartPage,
   OrdersPage,
